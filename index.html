@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>福麟商行 - 現貨展示系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f1f5f9; }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); }
+        .filter-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+        .card-modern:hover { transform: translateY(-8px); shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .scanner-line { position: absolute; width: 100%; height: 2px; background: #3b82f6; box-shadow: 0 0 15px #3b82f6; animation: scan 2s linear infinite; display: none; }
+        @keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+    </style>
+</head>
+<body>
+
+    <!-- 導航欄 -->
+    <nav class="sticky top-0 z-40 glass px-6 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-xl shadow-lg">
+                <span class="text-white text-xl">🧵</span>
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-slate-800 tracking-tight">福麟商行</h1>
+                <p class="text-[10px] text-blue-600 font-bold tracking-[0.2em] uppercase">現貨展示系統</p>
+            </div>
+        </div>
+        <button id="adminBtn" onclick="toggleAdmin()" class="px-5 py-2 rounded-full border border-slate-200 text-sm font-bold text-slate-500 hover:bg-slate-800 hover:text-white transition-all">
+            🔒 管理錄入
+        </button>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        
+        <!-- 【管理員錄入區】登入後顯示 -->
+        <section id="adminPanel" class="hidden animate__animated animate__fadeInDown mb-12">
+            <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl border-2 border-dashed border-blue-100 relative overflow-hidden text-center">
+                <div class="scanner-line" id="scanner"></div>
+                <div class="text-4xl mb-4">📸</div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2">管理員拍照掃描</h2>
+                <p class="text-slate-400 mb-8">AI 會自動辨識缸號、顏色、幅寬、針平織與換算單位</p>
+                
+                <input type="file" id="fileIn" class="hidden" accept="image/*" onchange="handleUpload()">
+                <button onclick="document.getElementById('fileIn').click()" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-blue-200 hover:bg-blue-700 active:scale-95 transition">
+                    拍照或上傳色卡筆記
+                </button>
+                <div id="status" class="mt-4 text-blue-600 font-bold animate-pulse"></div>
+            </div>
+        </section>
+
+        <!-- 【搜尋與篩選列】 -->
+        <div class="flex flex-col md:flex-row gap-4 mb-10">
+            <div class="relative flex-1">
+                <input type="text" id="searchInput" oninput="filterData()" placeholder="搜尋編號、顏色、幅寬 (如: 72吋)..." 
+                       class="w-full pl-6 pr-4 py-4 bg-white shadow-sm border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none font-medium">
+            </div>
+            <div class="flex bg-white p-1 rounded-2xl shadow-sm border border-slate-100">
+                <button onclick="setTypeFilter('all')" class="filter-btn active px-6 py-2 rounded-xl text-sm font-bold transition">全部展示</button>
+                <button onclick="setTypeFilter('針織')" class="filter-btn px-6 py-2 rounded-xl text-sm font-bold transition">針織</button>
+                <button onclick="setTypeFilter('平織')" class="filter-btn px-6 py-2 rounded-xl text-sm font-bold transition">平織</button>
+            </div>
+        </div>
+
+        <!-- 【展示網格】 -->
+        <div id="gallery" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <!-- 資料由 JS 填入 -->
+        </div>
+    </main>
+
+    <!-- 【大圖縮放檢視器】 -->
+    <div id="viewer" class="fixed inset-0 z-50 bg-black/95 hidden flex-col items-center justify-center p-4 cursor-zoom-out" onclick="closeViewer()">
+        <img id="viewerImg" class="max-h-[85vh] rounded-xl shadow-2xl transition-transform duration-200 cursor-grab" src="" onclick="event.stopPropagation()">
+        <div class="text-white mt-8 text-center pointer-events-none">
+            <p id="viewerTitle" class="text-2xl font-black"></p>
+            <p class="text-white/40 text-sm mt-2 font-bold">滾輪可縮放 • 按住可拖移</p>
+        </div>
+    </div>
+
+    <script>
+        let adminPass = "";
+        let db = [];
+        let currentType = 'all';
+
+        async function loadData() {
+            const res = await fetch('/api/data');
+            db = await res.json();
+            filterData();
+        }
+
+        function toggleAdmin() {
+            if(!adminPass) {
+                const pw = prompt("請輸入福麟管理密碼:");
+                if(pw) {
+                    adminPass = pw;
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    document.getElementById('adminBtn').innerText = "🔓 管理錄入模式";
+                    document.getElementById('adminBtn').className = "px-5 py-2 rounded-full bg-blue-600 text-white text-sm font-bold shadow-lg shadow-blue-200";
+                    alert("已切換至管理模式，拍照按鈕已出現。");
+                }
+            } else {
+                adminPass = "";
+                document.getElementById('adminPanel').classList.add('hidden');
+                document.getElementById('adminBtn').innerText = "🔒 管理錄入";
+                document.getElementById('adminBtn').className = "px-5 py-2 rounded-full border border-slate-200 text-sm font-bold text-slate-500";
+            }
+        }
+
+        async function handleUpload() {
+            const file = document.getElementById('fileIn').files[0];
+            const status = document.getElementById('status');
+            const scanner = document.getElementById('scanner');
+            if(!file) return;
+
+            status.innerText = "AI 正在分析顏色與規格...";
+            scanner.style.display = "block";
+
+            const fd = new FormData();
+            fd.append('image', file);
+            fd.append('password', adminPass);
+
+            try {
+                const res = await fetch('/analyze', { method: 'POST', body: fd });
+                const result = await res.json();
+                if(result.error) throw new Error(result.error);
+                alert("辨識成功！新布料已自動同步至現貨展示牆。");
+                loadData();
+            } catch (e) {
+                alert("辨識錯誤: " + e.message);
+            } finally {
+                status.innerText = "";
+                scanner.style.display = "none";
+            }
+        }
+
+        function setTypeFilter(type) {
+            currentType = type;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText === (type === 'all' ? '全部展示' : type)) btn.classList.add('active');
+            });
+            filterData();
+        }
+
+        function filterData() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const gallery = document.getElementById('gallery');
+            const filtered = db.filter(i => {
+                const mSearch = i.category.toLowerCase().includes(search) || i.color.toLowerCase().includes(search) || String(i.width).includes(search);
+                const mType = currentType === 'all' || i.fabric_type === currentType;
+                return mSearch && mType;
+            });
+
+            gallery.innerHTML = filtered.map(i => `
+                <div class="card-modern group bg-white rounded-[2rem] overflow-hidden p-3 cursor-pointer shadow-sm animate__animated animate__fadeIn" onclick="openViewer('${i.img_url}', '${i.category} - ${i.color}')">
+                    <div class="h-44 rounded-[1.5rem] overflow-hidden bg-slate-100 relative">
+                        <img src="${i.img_url}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                        <span class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black text-slate-800 shadow-sm border border-white/50">${i.fabric_type}</span>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-black text-blue-600 uppercase tracking-tighter">${i.category}</span>
+                            <span class="text-[10px] font-bold text-slate-400">${i.color}</span>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-800">${i.width}"幅寬 / ${i.gsm}g</h3>
+                        <div class="grid grid-cols-2 gap-2 mt-4">
+                            <div class="bg-orange-50 rounded-xl p-2 text-center border border-orange-100">
+                                <p class="text-[8px] text-orange-400 font-bold uppercase tracking-widest">KG</p>
+                                <p class="font-black text-orange-700 text-sm">${i.kg}</p>
+                            </div>
+                            <div class="bg-emerald-50 rounded-xl p-2 text-center border border-emerald-100">
+                                <p class="text-[8px] text-emerald-400 font-bold uppercase tracking-widest">YDS</p>
+                                <p class="font-black text-emerald-700 text-sm">${i.yards}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            if(filtered.length === 0) gallery.innerHTML = `<div class="col-span-full py-20 text-center text-slate-300 font-bold">目前暫無相符的現貨資料</div>`;
+        }
+
+        function openViewer(url, title) {
+            const v = document.getElementById('viewer');
+            const img = document.getElementById('viewerImg');
+            img.src = url;
+            document.getElementById('viewerTitle').innerText = title;
+            v.classList.replace('hidden', 'flex');
+            document.body.style.overflow = 'hidden';
+            scale = 1;
+            img.style.transform = `scale(${scale})`;
+        }
+
+        function closeViewer() {
+            document.getElementById('viewer').classList.replace('flex', 'hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 滾輪縮放邏輯
+        let scale = 1;
+        document.getElementById('viewer').addEventListener('wheel', (e) => {
+            e.preventDefault();
+            scale += e.deltaY > 0 ? -0.1 : 0.1;
+            scale = Math.min(Math.max(0.5, scale), 4);
+            document.getElementById('viewerImg').style.transform = `scale(${scale})`;
+        });
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
