@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fulin | Inventory</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand-mark" href="./index.html">
+        <span class="brand-cn">福麟商行</span>
+        <span class="brand-en">Fulin</span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">首頁</a>
+        <a href="./index.html#about">關於我們</a>
+        <a href="./index.html#services">服務項目</a>
+        <a href="./login.html">後台登入</a>
+        <a class="nav-cta" href="./inventory.html">現貨查詢</a>
+      </nav>
+    </header>
+
+    <main class="inventory-page">
+      <section class="inventory-hero">
+        <div>
+          <p class="eyebrow">Inventory</p>
+          <h1>現貨布料查詢</h1>
+          <p class="hero-lead">
+            查詢現貨編號、布樣、公斤數、碼數與狀態。正式修改請從後台登入後操作。
+          </p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-label">Records</span>
+            <strong id="recordCount">0</strong>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Needs Review</span>
+            <strong id="reviewCount">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="toolbar">
+        <label class="field">
+          <span>Search</span>
+          <input id="searchInput" type="search" placeholder="Code, width, weight, location">
+        </label>
+        <label class="field">
+          <span>Status</span>
+          <select id="statusFilter">
+            <option value="all">All</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="review">Review</option>
+            <option value="sold">Sold</option>
+            <option value="reserved">Reserved</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Sort</span>
+          <select id="sortSelect">
+            <option value="code">Code</option>
+            <option value="yards">Yards</option>
+            <option value="kg">KG</option>
+            <option value="width">Width</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="summary-strip" id="summaryStrip"></section>
+
+      <section class="content-grid">
+        <div class="table-panel">
+          <div class="panel-head">
+            <h2>Inventory Table</h2>
+            <p>Click any swatch to enlarge it. Records marked as review should be checked against the original page photo.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Swatch</th>
+                  <th>Code</th>
+                  <th>Width</th>
+                  <th>Weight</th>
+                  <th>KG</th>
+                  <th>Yards</th>
+                  <th>Slot</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside class="card-panel">
+          <div class="panel-head">
+            <h2>Swatch Cards</h2>
+            <p>Quick visual browsing for texture, color, and yardage.</p>
+          </div>
+          <div class="card-grid" id="cardGrid"></div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="previewModal" class="preview-modal">
+    <button id="closeModal" class="close-button" aria-label="Close">x</button>
+    <div class="modal-layout">
+      <div class="modal-swatch" id="modalSwatch"></div>
+      <div class="modal-info" id="modalInfo"></div>
+    </div>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>

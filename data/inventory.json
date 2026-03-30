@@ -1,0 +1,23 @@
+[
+  { "code": "A023811", "width": 72, "weightPerYard": 230, "kg": 20.7, "yards": 90, "location": "", "side": "L1", "status": "confirmed", "note": "Left column starting record.", "image": "./assets/swatches/A023811.jpg" },
+  { "code": "A023812", "width": 60, "weightPerYard": 326, "kg": 18.2, "yards": 55.8, "location": "", "side": "L2", "status": "confirmed", "note": "Validated with your 55.8-yard example.", "image": "./assets/swatches/A023812.jpg" },
+  { "code": "A023813", "width": 60, "weightPerYard": 324, "kg": 10.2, "yards": 31.5, "location": "", "side": "L3", "status": "confirmed", "note": "Black swatch.", "image": "./assets/swatches/A023813.jpg" },
+  { "code": "A023814", "width": 58, "weightPerYard": 336, "kg": 19.3, "yards": 57.4, "location": "", "side": "L4", "status": "confirmed", "note": "Dark navy swatch.", "image": "./assets/swatches/A023814.jpg" },
+  { "code": "A023815", "width": 60, "weightPerYard": 346, "kg": 13, "yards": 37.6, "location": "", "side": "L5", "status": "confirmed", "note": "Bottom-left black swatch.", "image": "./assets/swatches/A023815.jpg" },
+  { "code": "A023820", "width": 64, "weightPerYard": 380, "kg": 18.96, "yards": 49.9, "location": "", "side": "R1", "status": "review", "note": "This one still needs a manual check.", "image": "./assets/swatches/A023820.jpg" },
+  { "code": "A023819", "width": 60, "weightPerYard": 246, "kg": 9.9, "yards": 40.2, "location": "", "side": "R2", "status": "confirmed", "note": "Grey texture swatch.", "image": "./assets/swatches/A023819.jpg" },
+  { "code": "A023818", "width": 60, "weightPerYard": 90, "kg": 22.7, "yards": 252.2, "location": "", "side": "R3", "status": "review", "note": "Weight and yard count should be rechecked.", "image": "./assets/swatches/A023818.jpg" },
+  { "code": "A023817", "width": 60, "weightPerYard": 82, "kg": 32, "yards": 390.2, "location": "", "side": "R4", "status": "review", "note": "Star-pattern swatch, low OCR confidence.", "image": "./assets/swatches/A023817.jpg" },
+  { "code": "A023816", "width": 58, "weightPerYard": 338, "kg": 9.2, "yards": 27.2, "location": "", "side": "R5", "status": "confirmed", "note": "Bottom-right black swatch.", "image": "./assets/swatches/A023816.jpg" },
+  { "code": "A023501", "width": 66, "weightPerYard": 318, "kg": 17.3, "yards": 54.4, "location": "", "side": "P3-L1", "status": "confirmed", "note": "Added from page 3 manual check.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023502", "width": 64, "weightPerYard": 196, "kg": 15.2, "yards": 77.6, "location": "41", "side": "P3-L2", "status": "confirmed", "note": "Warehouse slot 41.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023503", "width": 64, "weightPerYard": 243, "kg": 13.2, "yards": 54.3, "location": "25", "side": "P3-L3", "status": "confirmed", "note": "Warehouse slot 25, kg corrected by user.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023504", "width": 60, "weightPerYard": 370, "kg": 32.2, "yards": 87, "location": "", "side": "P3-L4", "status": "confirmed", "note": "Yards provided by user and converted back to kg.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023505", "width": 76, "weightPerYard": 208, "kg": 0, "yards": 0, "location": "", "side": "P3-L5", "status": "sold", "note": "Sold out.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023546", "width": 60, "weightPerYard": 328, "kg": 11.3, "yards": 34.5, "location": "", "side": "P2-R5", "status": "confirmed", "note": "Added from page 2 manual reading.", "image": "./assets/S__104988728_0.jpg" },
+  { "code": "A023510", "width": 70, "weightPerYard": 260, "kg": 14.2, "yards": 54.6, "location": "", "side": "P3-R1", "status": "confirmed", "note": "Added from page 3 manual check.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023509", "width": 64, "weightPerYard": 202, "kg": 16.2, "yards": 80.2, "location": "", "side": "P3-R2", "status": "confirmed", "note": "Added from page 3 manual check.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023508", "width": 73, "weightPerYard": 490, "kg": 22.5, "yards": 45.9, "location": "", "side": "P3-R3", "status": "confirmed", "note": "Weight corrected to 490g and kg corrected by user.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023507", "width": 72, "weightPerYard": 370, "kg": 12.8, "yards": 34.6, "location": "", "side": "P3-R4", "status": "confirmed", "note": "Added from page 3 manual check.", "image": "./assets/S__104988729_0.jpg" },
+  { "code": "A023506", "width": 72, "weightPerYard": 370, "kg": 17.9, "yards": 48.4, "location": "", "side": "P3-R5", "status": "confirmed", "note": "Added from page 3 manual check.", "image": "./assets/S__104988729_0.jpg" }
+]

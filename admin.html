@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>福麟商行｜後台管理</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand-mark" href="./index.html">
+        <span class="brand-cn">福麟商行</span>
+        <span class="brand-en">Fulin</span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">首頁</a>
+        <a href="./inventory.html">現貨查詢</a>
+        <button id="logoutButton" class="secondary-button" type="button">登出</button>
+      </nav>
+    </header>
+
+    <main class="admin-page">
+      <section class="inventory-hero">
+        <div>
+          <p class="eyebrow">Admin Panel</p>
+          <h1>庫存後台管理</h1>
+          <p class="hero-lead">你可以在這裡新增布料、修改現貨資訊、調整狀態，並把資料正式存回庫存系統。</p>
+        </div>
+      </section>
+
+      <section class="admin-panel">
+        <div class="panel-head">
+          <h2>新增一筆布料</h2>
+          <p>先填基本欄位，若只知道公斤數或碼數其中一個，系統會依碼重幫你自動換算。</p>
+        </div>
+
+        <div class="admin-add-grid">
+          <label class="field">
+            編號
+            <input id="newCode" type="text" placeholder="例如 A023601">
+          </label>
+          <label class="field">
+            幅寬
+            <input id="newWidth" type="number" placeholder="例如 60">
+          </label>
+          <label class="field">
+            碼重
+            <input id="newWeightPerYard" type="number" placeholder="例如 326">
+          </label>
+          <label class="field">
+            公斤數
+            <input id="newKg" type="number" step="0.1" placeholder="例如 18.2">
+          </label>
+          <label class="field">
+            碼數
+            <input id="newYards" type="number" step="0.1" placeholder="例如 55.8">
+          </label>
+          <label class="field">
+            倉庫位置
+            <input id="newLocation" type="text" placeholder="例如 41">
+          </label>
+          <label class="field">
+            狀態
+            <select id="newStatus">
+              <option value="confirmed">現貨中</option>
+              <option value="sold">已售出</option>
+              <option value="review">待確認</option>
+              <option value="reserved">保留中</option>
+            </select>
+          </label>
+          <label class="field admin-note-field">
+            備註
+            <input id="newNote" type="text" placeholder="例如 印刷布、倉庫右側">
+          </label>
+        </div>
+
+        <div class="admin-actions">
+          <button id="addInventoryButton" class="primary-button" type="button">新增這筆布料</button>
+          <button id="clearInventoryFormButton" class="secondary-button" type="button">清空表單</button>
+        </div>
+      </section>
+
+      <section class="admin-panel">
+        <div class="panel-head">
+          <h2>已建資料</h2>
+          <p>修改欄位後按儲存即可生效。若不需要某筆資料，可直接刪除。</p>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Width</th>
+                <th>Weight</th>
+                <th>KG</th>
+                <th>Yards</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Note</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminRows"></tbody>
+          </table>
+        </div>
+        <div class="admin-actions">
+          <button id="saveInventoryButton" class="primary-button" type="button">儲存全部變更</button>
+          <button id="resetInventoryButton" class="secondary-button" type="button">重新載入資料</button>
+        </div>
+        <p id="adminMessage" class="upload-note">登入後可直接維護庫存資料。</p>
+      </section>
+    </main>
+  </div>
+  <script src="./auth.js"></script>
+  <script src="./admin.js"></script>
+</body>
+</html>
