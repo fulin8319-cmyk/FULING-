@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fulin | Admin Login</title>
+  <title>福麟商行｜後台登入</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -23,11 +23,11 @@
       <section class="auth-card">
         <p class="eyebrow">Admin Access</p>
         <h1>後台登入</h1>
-        <p class="hero-lead">第一版先用最簡單的帳號密碼保護後台。上線前請把預設帳密改成環境變數。</p>
+        <p class="hero-lead">請輸入你在 Railway Variables 設定的管理員帳號與密碼。</p>
         <form id="loginForm" class="auth-form">
           <label class="field">
             <span>帳號</span>
-            <input id="username" type="text" autocomplete="username" placeholder="admin">
+            <input id="username" type="text" autocomplete="username" placeholder="請輸入帳號">
           </label>
           <label class="field">
             <span>密碼</span>
@@ -35,7 +35,7 @@
           </label>
           <button class="primary-button" type="submit">登入後台</button>
         </form>
-        <p id="loginMessage" class="upload-note">預設帳號 `admin`，密碼 `fulin2026`。</p>
+        <p id="loginMessage" class="upload-note">若登入失敗，請先確認 Railway 的 `ADMIN_USER` 與 `ADMIN_PASS` 是否已正確設定並重新部署。</p>
       </section>
     </main>
   </div>
