@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fulin | Admin Login</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand-mark" href="./index.html">
+        <span class="brand-cn">福麟商行</span>
+        <span class="brand-en">Fulin</span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">首頁</a>
+        <a href="./inventory.html">現貨查詢</a>
+      </nav>
+    </header>
+
+    <main class="auth-page">
+      <section class="auth-card">
+        <p class="eyebrow">Admin Access</p>
+        <h1>後台登入</h1>
+        <p class="hero-lead">第一版先用最簡單的帳號密碼保護後台。上線前請把預設帳密改成環境變數。</p>
+        <form id="loginForm" class="auth-form">
+          <label class="field">
+            <span>帳號</span>
+            <input id="username" type="text" autocomplete="username" placeholder="admin">
+          </label>
+          <label class="field">
+            <span>密碼</span>
+            <input id="password" type="password" autocomplete="current-password" placeholder="請輸入密碼">
+          </label>
+          <button class="primary-button" type="submit">登入後台</button>
+        </form>
+        <p id="loginMessage" class="upload-note">預設帳號 `admin`，密碼 `fulin2026`。</p>
+      </section>
+    </main>
+  </div>
+  <script src="./auth.js"></script>
+</body>
+</html>
