@@ -25,14 +25,14 @@
         <div>
           <p class="eyebrow">Admin Panel</p>
           <h1>庫存後台管理</h1>
-          <p class="hero-lead">你可以在這裡新增布料、修改現貨資訊、調整狀態，並把資料正式存回庫存系統。</p>
+          <p class="hero-lead">你可以在這裡新增布料、修改現貨資料、調整狀態，並把內容正式存回網站。</p>
         </div>
       </section>
 
       <section class="admin-panel">
         <div class="panel-head">
           <h2>新增一筆布料</h2>
-          <p>先填基本欄位，若只知道公斤數或碼數其中一個，系統會依碼重幫你自動換算。</p>
+          <p>只要填入基本資料，若只知道公斤數或碼數其中一個，系統會依碼重自動換算。</p>
         </div>
 
         <div class="admin-add-grid">
@@ -71,7 +71,7 @@
           </label>
           <label class="field admin-note-field">
             備註
-            <input id="newNote" type="text" placeholder="例如 印刷布、倉庫右側">
+            <input id="newNote" type="text" placeholder="例如 印刷布 / 倉庫右側">
           </label>
         </div>
 
@@ -83,8 +83,8 @@
 
       <section class="admin-panel">
         <div class="panel-head">
-          <h2>已建資料</h2>
-          <p>修改欄位後按儲存即可生效。若不需要某筆資料，可直接刪除。</p>
+          <h2>現有庫存資料</h2>
+          <p>修改欄位後按儲存即可更新。若不需要某筆資料，也可以直接刪除。</p>
         </div>
         <div class="table-wrap">
           <table class="admin-table">
@@ -108,7 +108,7 @@
           <button id="saveInventoryButton" class="primary-button" type="button">儲存全部變更</button>
           <button id="resetInventoryButton" class="secondary-button" type="button">重新載入資料</button>
         </div>
-        <p id="adminMessage" class="upload-note">登入後可直接維護庫存資料。</p>
+        <p id="adminMessage" class="upload-note">登入後即可管理現貨資料。</p>
       </section>
     </main>
   </div>
