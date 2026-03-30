@@ -12,7 +12,7 @@ const logoutButton = document.getElementById("logoutButton");
 if (loginForm) {
   getAuthState().then((data) => {
     if (data.authenticated) {
-      window.location.href = "./admin.html";
+      window.location.href = "/admin.html";
     }
   });
 
@@ -33,7 +33,7 @@ if (loginForm) {
 
     const data = await response.json();
     if (response.ok && data.ok) {
-      window.location.href = "./admin.html";
+      window.location.href = "/admin.html";
       return;
     }
 
@@ -44,7 +44,7 @@ if (loginForm) {
 if (logoutButton) {
   getAuthState().then((data) => {
     if (!data.authenticated) {
-      window.location.href = "./login.html";
+      window.location.href = "/login.html";
     }
   });
 
@@ -53,6 +53,6 @@ if (logoutButton) {
       method: "POST",
       credentials: "include"
     });
-    window.location.href = "./login.html";
+    window.location.href = "/login.html";
   });
 }
