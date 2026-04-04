@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>福麟商行 | 印花用布</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand-mark" href="./index.html">
+        <span class="brand-cn">福麟商行</span>
+        <span class="brand-en">Fulin Textile</span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">首頁</a>
+        <a href="./inventory.html">現貨庫存</a>
+        <a href="./printing.html">印花用布</a>
+        <a href="./login.html">後台登入</a>
+        <a class="nav-cta" href="https://line.me/R/ti/p/@424tvsxa" target="_blank" rel="noopener noreferrer">LINE 詢問</a>
+      </nav>
+    </header>
+
+    <main class="inventory-page">
+      <section class="inventory-hero">
+        <div>
+          <p class="eyebrow">Printing Fabrics</p>
+          <h1>印花用布頁面</h1>
+          <p class="hero-lead">
+            這一頁整理比較適合熱昇華、客製印花、團體服與運動服用途的布料。
+            你可以先看圖片與簡要用途，再直接透過 LINE 詢問實際規格與庫存。
+          </p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-label">Featured</span>
+            <strong id="printingCount">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="printing-panel">
+        <p>每筆布料會顯示圖片、布號、用途與簡要規格，若要確認實際成份、幅寬或碼重，可以直接點卡片後再詢問。</p>
+      </section>
+
+      <section class="featured-grid" id="printingGrid"></section>
+    </main>
+  </div>
+
+  <dialog id="printingModal" class="preview-modal">
+    <button id="closePrintingModal" class="close-button" aria-label="Close">x</button>
+    <div class="modal-layout">
+      <div class="modal-swatch modal-photo" id="printingModalSwatch"></div>
+      <div class="modal-info" id="printingModalInfo"></div>
+    </div>
+  </dialog>
+
+  <div class="floating-contact">
+    <a href="https://line.me/R/ti/p/@424tvsxa" target="_blank" rel="noopener noreferrer" class="float-button float-line">LINE 詢問</a>
+    <a href="./inventory.html" class="float-button float-phone">看現貨頁</a>
+  </div>
+
+  <script src="./printing.js"></script>
+</body>
+</html>

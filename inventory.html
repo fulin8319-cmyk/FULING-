@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fulin | Inventory</title>
+  <title>福麟商行 | 現貨庫存</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -11,14 +11,14 @@
     <header class="site-header">
       <a class="brand-mark" href="./index.html">
         <span class="brand-cn">福麟商行</span>
-        <span class="brand-en">Fulin</span>
+        <span class="brand-en">Fulin Textile</span>
       </a>
       <nav class="site-nav">
         <a href="./index.html">首頁</a>
         <a href="./index.html#about">關於我們</a>
-        <a href="./index.html#services">服務項目</a>
+        <a href="./printing.html">印花用布</a>
         <a href="./login.html">後台登入</a>
-        <a class="nav-cta" href="./inventory.html">現貨查詢</a>
+        <a class="nav-cta" href="./inventory.html">現貨庫存</a>
       </nav>
     </header>
 
@@ -26,9 +26,10 @@
       <section class="inventory-hero">
         <div>
           <p class="eyebrow">Inventory</p>
-          <h1>現貨布料查詢</h1>
+          <h1>現貨布料庫存</h1>
           <p class="hero-lead">
-            查詢現貨編號、布樣、公斤數、碼數與狀態。正式修改請從後台登入後操作。
+            這裡可以直接查詢目前現貨布料的編號、幅寬、碼重、公斤數、碼數與庫存位置。
+            點布樣圖可放大看，方便快速比對。
           </p>
         </div>
         <div class="hero-stats">
@@ -46,7 +47,7 @@
       <section class="toolbar">
         <label class="field">
           <span>Search</span>
-          <input id="searchInput" type="search" placeholder="Code, width, weight, location">
+          <input id="searchInput" type="search" placeholder="搜尋編號、幅寬、碼重、庫位">
         </label>
         <label class="field">
           <span>Status</span>
@@ -74,21 +75,21 @@
       <section class="content-grid">
         <div class="table-panel">
           <div class="panel-head">
-            <h2>Inventory Table</h2>
-            <p>Click any swatch to enlarge it. Records marked as review should be checked against the original page photo.</p>
+            <h2>庫存列表</h2>
+            <p>點任何布樣縮圖都可以放大查看。</p>
           </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Swatch</th>
-                  <th>Code</th>
-                  <th>Width</th>
-                  <th>Weight</th>
-                  <th>KG</th>
-                  <th>Yards</th>
-                  <th>Slot</th>
-                  <th>Status</th>
+                  <th>布樣</th>
+                  <th>編號</th>
+                  <th>幅寬</th>
+                  <th>碼重</th>
+                  <th>公斤數</th>
+                  <th>碼數</th>
+                  <th>庫位</th>
+                  <th>狀態</th>
                 </tr>
               </thead>
               <tbody id="inventoryRows"></tbody>
@@ -98,8 +99,8 @@
 
         <aside class="card-panel">
           <div class="panel-head">
-            <h2>Swatch Cards</h2>
-            <p>Quick visual browsing for texture, color, and yardage.</p>
+            <h2>布樣卡片</h2>
+            <p>用圖片快速瀏覽色系、材質與現貨狀態。</p>
           </div>
           <div class="card-grid" id="cardGrid"></div>
         </aside>
