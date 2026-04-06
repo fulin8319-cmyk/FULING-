@@ -3,22 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>福麟商行 | 現貨庫存</title>
+  <title>福麟商行 | 現貨查詢</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <div class="site-shell">
     <header class="site-header">
       <a class="brand-mark" href="./index.html">
-        <span class="brand-cn">福麟商行</span>
-        <span class="brand-en">Fulin Textile</span>
+        <span class="brand-text">
+          <span class="brand-cn">福麟商行</span>
+          <span class="brand-en">Fulin Textile</span>
+        </span>
       </a>
       <nav class="site-nav">
         <a href="./index.html">首頁</a>
         <a href="./index.html#about">關於我們</a>
         <a href="./printing.html">印花用布</a>
         <a href="./login.html">後台登入</a>
-        <a class="nav-cta" href="./inventory.html">現貨庫存</a>
+        <a class="nav-cta" href="./inventory.html">現貨查詢</a>
       </nav>
     </header>
 
@@ -26,10 +28,10 @@
       <section class="inventory-hero">
         <div>
           <p class="eyebrow">Inventory</p>
-          <h1>現貨布料庫存</h1>
+          <h1>現貨布料查詢</h1>
           <p class="hero-lead">
-            這裡可以直接查詢目前現貨布料的編號、幅寬、碼重、公斤數、碼數與庫存位置。
-            點布樣圖可放大看，方便快速比對。
+            這裡整理目前的現貨布料資料，你可以依布號、狀態與基本資訊快速查找，
+            也可以點開卡片預覽布樣圖片。
           </p>
         </div>
         <div class="hero-stats">
@@ -46,26 +48,26 @@
 
       <section class="toolbar">
         <label class="field">
-          <span>Search</span>
-          <input id="searchInput" type="search" placeholder="搜尋編號、幅寬、碼重、庫位">
+          <span>搜尋</span>
+          <input id="searchInput" type="search" placeholder="輸入布號、品名或關鍵字">
         </label>
         <label class="field">
-          <span>Status</span>
+          <span>狀態</span>
           <select id="statusFilter">
-            <option value="all">All</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="review">Review</option>
-            <option value="sold">Sold</option>
-            <option value="reserved">Reserved</option>
+            <option value="all">全部</option>
+            <option value="confirmed">已確認</option>
+            <option value="review">待確認</option>
+            <option value="sold">已售出</option>
+            <option value="reserved">保留中</option>
           </select>
         </label>
         <label class="field">
-          <span>Sort</span>
+          <span>排序</span>
           <select id="sortSelect">
-            <option value="code">Code</option>
-            <option value="yards">Yards</option>
-            <option value="kg">KG</option>
-            <option value="width">Width</option>
+            <option value="code">布號</option>
+            <option value="yards">碼數</option>
+            <option value="kg">公斤數</option>
+            <option value="width">幅寬</option>
           </select>
         </label>
       </section>
@@ -75,21 +77,21 @@
       <section class="content-grid">
         <div class="table-panel">
           <div class="panel-head">
-            <h2>庫存列表</h2>
-            <p>點任何布樣縮圖都可以放大查看。</p>
+            <h2>現貨資料表</h2>
+            <p>可快速瀏覽主要欄位，再搭配右側卡片查看布樣。</p>
           </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>布樣</th>
-                  <th>編號</th>
-                  <th>幅寬</th>
+                  <th>布號</th>
+                  <th>品名</th>
                   <th>碼重</th>
                   <th>公斤數</th>
-                  <th>碼數</th>
-                  <th>庫位</th>
+                  <th>自動換算碼數</th>
+                  <th>庫存位置</th>
                   <th>狀態</th>
+                  <th>分類</th>
                 </tr>
               </thead>
               <tbody id="inventoryRows"></tbody>
@@ -100,7 +102,7 @@
         <aside class="card-panel">
           <div class="panel-head">
             <h2>布樣卡片</h2>
-            <p>用圖片快速瀏覽色系、材質與現貨狀態。</p>
+            <p>點擊卡片可看較大預覽，方便快速辨識布樣。</p>
           </div>
           <div class="card-grid" id="cardGrid"></div>
         </aside>
