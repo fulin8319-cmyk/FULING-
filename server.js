@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_USER = process.env.ADMIN_USER || "admin";
 const ADMIN_PASS = process.env.ADMIN_PASS || "fulin2026";
+const N8N_API_KEY = process.env.N8N_API_KEY || "";
 const SESSION_COOKIE = "fulin_session";
 const DATA_FILE = path.join(__dirname, "data", "inventory.json");
 
@@ -44,6 +45,144 @@ function sendJson(res, statusCode, payload, extraHeaders = {}) {
   res.end(JSON.stringify(payload));
 }
 
+function roundOne(value) {
+  return Math.round(Number(value || 0) * 10) / 10;
+}
+
+function yardsFromKg(kg, weightPerYard) {
+  if (!kg || !weightPerYard) {
+    return 0;
+  }
+  return roundOne((Number(kg) * 1000) / Number(weightPerYard));
+}
+
+function kgFromYards(yards, weightPerYard) {
+  if (!yards || !weightPerYard) {
+    return 0;
+  }
+  return roundOne((Number(yards) * Number(weightPerYard)) / 1000);
+}
+
+function toNumber(value) {
+  const parsed = Number(value || 0);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function pickFirstString(...values) {
+  for (const value of values) {
+    const text = String(value || "").trim();
+    if (text) {
+      return text;
+    }
+  }
+  return "";
+}
+
+function mapInventoryStatus(status) {
+  const text = String(status || "").trim().toLowerCase();
+  if (!text) return "confirmed";
+  if (text.includes("sold") || text.includes("售")) return "sold";
+  if (text.includes("reserved") || text.includes("保留")) return "reserved";
+  if (text.includes("review") || text.includes("確認") || text.includes("檢查")) return "review";
+  return "confirmed";
+}
+
+function normalizeInventoryItem(item = {}, existingItem = {}) {
+  const code = pickFirstString(item.code, item["編號"], existingItem.code);
+  const width = Math.round(toNumber(pickFirstString(item.width, item["幅寬"], existingItem.width)));
+  const weightPerYard = Math.round(
+    toNumber(pickFirstString(item.weightPerYard, item["每碼克重"], existingItem.weightPerYard))
+  );
+  let kg = roundOne(toNumber(pickFirstString(item.kg, item["公斤數"], existingItem.kg)));
+  let yards = roundOne(toNumber(pickFirstString(item.yards, item["自動換算碼數"], existingItem.yards)));
+
+  if (!yards && kg && weightPerYard) {
+    yards = yardsFromKg(kg, weightPerYard);
+  } else if (!kg && yards && weightPerYard) {
+    kg = kgFromYards(yards, weightPerYard);
+  }
+
+  const featuredOnHome =
+    item.featuredOnHome === true ||
+    String(item["熱門"] || "").trim().toLowerCase() === "true" ||
+    Boolean(existingItem.featuredOnHome);
+
+  const image = pickFirstString(
+    item.image,
+    item.imageUrl,
+    item.featuredImage,
+    item["照片連結"],
+    item["照片 1"],
+    item["照片 2"],
+    existingItem.image
+  );
+
+  return {
+    code,
+    featuredOnHome,
+    displayTitle: pickFirstString(item.displayTitle, item.name, item["品名"], existingItem.displayTitle, code),
+    useText: pickFirstString(item.useText, item.fabricType ? `布種：${item.fabricType}` : "", existingItem.useText),
+    descriptionText: pickFirstString(
+      item.descriptionText,
+      item.composition ? `成份：${item.composition}` : "",
+      item["成份"] ? `成份：${item["成份"]}` : "",
+      existingItem.descriptionText
+    ),
+    featuredImage: pickFirstString(item.featuredImage, existingItem.featuredImage, featuredOnHome ? image : ""),
+    width,
+    weightPerYard,
+    kg,
+    yards,
+    location: pickFirstString(item.location, item["庫存位置"], existingItem.location),
+    side: pickFirstString(item.side, existingItem.side, "n8n"),
+    status: mapInventoryStatus(item.status || item["狀態"] || existingItem.status),
+    note: pickFirstString(item.note, existingItem.note),
+    image,
+    fabricType: pickFirstString(item.fabricType, item["布種"], existingItem.fabricType),
+    name: pickFirstString(item.name, item["品名"], existingItem.name),
+    pattern: pickFirstString(item.pattern, item["顏色／花紋"], existingItem.pattern),
+    composition: pickFirstString(item.composition, item["成份"], existingItem.composition),
+    category: pickFirstString(item.category, item["分類"], existingItem.category),
+    rowId: pickFirstString(item.rowId, item["🔒 Row ID"], existingItem.rowId)
+  };
+}
+
+function hasValidN8nKey(req) {
+  if (!N8N_API_KEY) {
+    return false;
+  }
+
+  const authHeader = req.headers.authorization || "";
+  const bearer = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  const apiKey = req.headers["x-api-key"] || "";
+
+  return bearer === N8N_API_KEY || apiKey === N8N_API_KEY;
+}
+
+function upsertInventoryItems(nextItems) {
+  const inventory = readInventory();
+  const byCode = new Map(
+    inventory
+      .filter((item) => item && item.code)
+      .map((item) => [String(item.code).trim(), item])
+  );
+
+  for (const incoming of nextItems) {
+    const code = String(incoming.code || "").trim();
+    if (!code) {
+      continue;
+    }
+    const existingItem = byCode.get(code) || {};
+    byCode.set(code, normalizeInventoryItem(incoming, existingItem));
+  }
+
+  const merged = Array.from(byCode.values()).sort((a, b) =>
+    String(a.code).localeCompare(String(b.code), "zh-Hant")
+  );
+  writeInventory(merged);
+  return merged;
+}
+
 function readInventory() {
   return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
 }
@@ -75,6 +214,14 @@ function isAuthenticated(req) {
 async function handleApi(req, res, url) {
   if (req.method === "GET" && url.pathname === "/api/inventory") {
     return sendJson(res, 200, { items: readInventory() });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/n8n/health") {
+    return sendJson(res, 200, {
+      ok: true,
+      n8nEnabled: Boolean(N8N_API_KEY),
+      inventoryCount: readInventory().length
+    });
   }
 
   if (req.method === "GET" && url.pathname === "/api/me") {
@@ -125,6 +272,29 @@ async function handleApi(req, res, url) {
 
     writeInventory(body.items);
     return sendJson(res, 200, { ok: true });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/n8n/inventory") {
+    if (!hasValidN8nKey(req)) {
+      return sendJson(res, 401, { ok: false, message: "Invalid n8n API key." });
+    }
+
+    const body = JSON.parse((await readBody(req)) || "{}");
+    const incomingItems = Array.isArray(body.items) ? body.items : [body];
+    const normalizedIncoming = incomingItems
+      .map((item) => normalizeInventoryItem(item))
+      .filter((item) => item.code);
+
+    if (!normalizedIncoming.length) {
+      return sendJson(res, 400, { ok: false, message: "No valid inventory items found." });
+    }
+
+    const merged = upsertInventoryItems(normalizedIncoming);
+    return sendJson(res, 200, {
+      ok: true,
+      imported: normalizedIncoming.length,
+      total: merged.length
+    });
   }
 
   return sendJson(res, 404, { ok: false, message: "Not found." });
