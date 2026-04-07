@@ -43,17 +43,24 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
+function normalizeBaseCode(value) {
+  const raw = String(value || "").trim().toUpperCase().replace(/\s+/g, "");
+  if (!raw) return "";
+  return raw.startsWith("A") ? raw : `A${raw}`;
+}
+
 function updatePhotoPreview(src) {
   uploadedImageDataUrl = src || "";
   if (uploadedImageDataUrl) {
     photoPreviewEl.src = uploadedImageDataUrl;
     photoPreviewEl.hidden = false;
-    photoHintEl.textContent = "照片已準備完成，送出時會一併上傳。";
-  } else {
-    photoPreviewEl.removeAttribute("src");
-    photoPreviewEl.hidden = true;
-    photoHintEl.textContent = "尚未選擇照片。若用手機開啟，按上方即可直接拍照。";
+    photoHintEl.textContent = "照片已準備好，送出後會一起寫進庫存。";
+    return;
   }
+
+  photoPreviewEl.removeAttribute("src");
+  photoPreviewEl.hidden = true;
+  photoHintEl.textContent = "拍完照後會先顯示在這裡，確認無誤再送出。";
 }
 
 function dataUrlSizeBytes(dataUrl) {
@@ -67,10 +74,10 @@ function loadImageFromFile(file) {
     reader.onload = () => {
       const image = new Image();
       image.onload = () => resolve(image);
-      image.onerror = () => reject(new Error("無法讀取圖片，請改用 JPG 或 PNG。"));
+      image.onerror = () => reject(new Error("圖片格式無法讀取，請改用 JPG 或 PNG。"));
       image.src = reader.result;
     };
-    reader.onerror = () => reject(new Error("圖片讀取失敗，請再試一次。"));
+    reader.onerror = () => reject(new Error("讀取圖片失敗，請重新選擇。"));
     reader.readAsDataURL(file);
   });
 }
@@ -89,7 +96,6 @@ async function compressImageFile(file) {
 
   canvas.width = width;
   canvas.height = height;
-
   const context = canvas.getContext("2d");
   context.drawImage(image, 0, 0, width, height);
 
@@ -110,7 +116,7 @@ function createRollRow(values = {}) {
   row.innerHTML = `
     <div class="roll-grid">
       <label class="field">
-        支號
+        第幾支 / 支號
         <input type="text" data-roll-field="rollNo" placeholder="例如 1" value="${escapeHtml(values.rollNo || "")}">
       </label>
       <label class="field">
@@ -136,7 +142,7 @@ function createRollRow(values = {}) {
       </label>
       <label class="field roll-note-field">
         單支備註
-        <input type="text" data-roll-field="note" placeholder="例如 對樣 / 有瑕疵" value="${escapeHtml(values.note || "")}">
+        <input type="text" data-roll-field="note" placeholder="例如 有瑕疵 / 特別留樣" value="${escapeHtml(values.note || "")}">
       </label>
     </div>
     <div class="roll-row-actions">
@@ -156,10 +162,11 @@ function createRollRow(values = {}) {
 
 function resetForm() {
   rollEntryFormEl.reset();
+  widthEl.value = "60";
   rollRowsEl.innerHTML = "";
   rollRowsEl.appendChild(createRollRow({ rollNo: "1" }));
   updatePhotoPreview("");
-  rollEntryMessageEl.textContent = "表單已清空，可以重新輸入主資料與多支庫存。";
+  rollEntryMessageEl.textContent = "登入後即可在這裡新增同布號多支庫存。";
 }
 
 function collectRolls(weightPerYard) {
@@ -205,15 +212,15 @@ imageFileEl.addEventListener("change", async () => {
     return;
   }
 
-  rollEntryMessageEl.textContent = "正在壓縮照片，請稍候...";
+  rollEntryMessageEl.textContent = "正在壓縮照片...";
 
   try {
     const compressed = await compressImageFile(file);
     updatePhotoPreview(compressed);
-    rollEntryMessageEl.textContent = "照片已完成壓縮，可以送出入庫。";
+    rollEntryMessageEl.textContent = "照片已準備完成，可以送出入庫。";
   } catch (error) {
     updatePhotoPreview("");
-    rollEntryMessageEl.textContent = error.message || "照片處理失敗，請再試一次。";
+    rollEntryMessageEl.textContent = error.message || "照片處理失敗，請重新選擇。";
   }
 });
 
@@ -222,12 +229,12 @@ rollEntryFormEl.addEventListener("submit", async (event) => {
 
   const weightPerYard = Number(weightPerYardEl.value || 0);
   const payload = {
-    code: baseCodeEl.value.trim(),
+    code: normalizeBaseCode(baseCodeEl.value),
     name: fabricNameEl.value.trim(),
     fabricType: fabricTypeEl.value.trim(),
     pattern: patternEl.value.trim(),
     composition: compositionEl.value.trim(),
-    width: Number(widthEl.value || 0),
+    width: Number(widthEl.value || 60),
     weightPerYard,
     image: uploadedImageDataUrl || imageEl.value.trim(),
     note: noteEl.value.trim(),
@@ -250,7 +257,7 @@ rollEntryFormEl.addEventListener("submit", async (event) => {
     return;
   }
 
-  rollEntryMessageEl.textContent = "正在送出入庫資料...";
+  rollEntryMessageEl.textContent = "正在送出入庫...";
 
   const response = await fetch("/api/admin/inventory-rolls", {
     method: "POST",

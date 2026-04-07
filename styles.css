@@ -749,6 +749,38 @@ h1 {
   background: #fffef9;
 }
 
+.prefixed-input {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fffef9;
+  overflow: hidden;
+}
+
+.prefixed-label {
+  min-width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #efe4d2;
+  color: var(--accent-deep);
+  font-weight: 900;
+  border-right: 1px solid var(--line);
+}
+
+.prefixed-input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.prefixed-input input:focus {
+  outline: none;
+}
+
 .summary-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
