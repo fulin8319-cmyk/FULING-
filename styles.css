@@ -714,6 +714,10 @@ h1 {
   margin-bottom: 18px;
 }
 
+.inventory-toolbar-wide {
+  grid-template-columns: 1.4fr repeat(5, minmax(0, 1fr));
+}
+
 .uploader-panel {
   padding: 18px;
   margin-bottom: 18px;
