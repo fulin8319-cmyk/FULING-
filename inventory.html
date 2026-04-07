@@ -28,28 +28,31 @@
       <section class="inventory-hero">
         <div>
           <p class="eyebrow">Inventory</p>
-          <h1>現貨布料庫存查詢</h1>
+          <h1>現貨布料查詢</h1>
           <p class="hero-lead">
-            這一頁會同步顯示目前在庫的布料。現在也支援同布號多支庫存，
-            所以你可以看到主布號、支號、公斤數、碼數與庫位分開管理。
+            可以直接搜尋布號、主編號、庫位與公斤數。搜尋布號時不用輸入 A，
+            例如輸入 <code>023811</code> 也能找到 <code>A023811</code>。
+          </p>
+          <p class="hero-lead">
+            也可以用布種、顏色、布料種類來快速縮小範圍，先看總覽，再點進去放大看布樣。
           </p>
         </div>
         <div class="hero-stats">
           <div class="stat-card">
-            <span class="stat-label">Records</span>
+            <span class="stat-label">目前筆數</span>
             <strong id="recordCount">0</strong>
           </div>
           <div class="stat-card">
-            <span class="stat-label">Needs Review</span>
+            <span class="stat-label">待確認</span>
             <strong id="reviewCount">0</strong>
           </div>
         </div>
       </section>
 
-      <section class="toolbar">
+      <section class="toolbar inventory-toolbar-wide">
         <label class="field">
           <span>搜尋</span>
-          <input id="searchInput" type="search" placeholder="搜尋布號、主布號、支號、庫位">
+          <input id="searchInput" type="search" placeholder="搜尋布號、主編號、庫位、公斤數，不用輸入 A">
         </label>
         <label class="field">
           <span>狀態</span>
@@ -62,12 +65,30 @@
           </select>
         </label>
         <label class="field">
+          <span>布種</span>
+          <select id="fabricTypeFilter">
+            <option value="all">全部布種</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>顏色</span>
+          <select id="colorFilter">
+            <option value="all">全部顏色</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>布料種類</span>
+          <select id="categoryFilter">
+            <option value="all">全部種類</option>
+          </select>
+        </label>
+        <label class="field">
           <span>排序</span>
           <select id="sortSelect">
-            <option value="code">布號</option>
-            <option value="yards">碼數</option>
-            <option value="kg">公斤數</option>
-            <option value="width">幅寬</option>
+            <option value="code">依布號</option>
+            <option value="yards">依碼數</option>
+            <option value="kg">依公斤數</option>
+            <option value="width">依幅寬</option>
           </select>
         </label>
       </section>
@@ -78,16 +99,19 @@
         <div class="table-panel">
           <div class="panel-head">
             <h2>庫存列表</h2>
-            <p>點縮圖可以放大看布樣。若同一個布號有多支，會在主布號與支號欄位清楚分開。</p>
+            <p>列表會顯示布號、主編號、支號、幅寬、碼重、公斤數、碼數、布種、顏色、庫位與狀態。</p>
           </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>縮圖</th>
+                  <th>布樣</th>
                   <th>布號</th>
-                  <th>主布號</th>
+                  <th>主編號</th>
                   <th>支號</th>
+                  <th>布種</th>
+                  <th>顏色</th>
+                  <th>布料種類</th>
                   <th>幅寬</th>
                   <th>碼重</th>
                   <th>公斤數</th>
@@ -104,7 +128,7 @@
         <aside class="card-panel">
           <div class="panel-head">
             <h2>布樣卡片</h2>
-            <p>快速瀏覽目前現貨與同布號多支明細。</p>
+            <p>點布樣可以放大看。卡片會同時顯示布種、顏色、布料種類與庫位。</p>
           </div>
           <div class="card-grid" id="cardGrid"></div>
         </aside>
@@ -115,7 +139,7 @@
   <dialog id="previewModal" class="preview-modal">
     <button id="closeModal" class="close-button" aria-label="Close">x</button>
     <div class="modal-layout">
-      <div class="modal-swatch" id="modalSwatch"></div>
+      <div class="modal-swatch modal-photo" id="modalSwatch"></div>
       <div class="modal-info" id="modalInfo"></div>
     </div>
   </dialog>
