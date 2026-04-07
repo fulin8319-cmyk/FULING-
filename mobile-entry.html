@@ -27,10 +27,12 @@
       <section class="inventory-hero">
         <div>
           <p class="eyebrow">Mobile Entry</p>
-          <h1>同布號多支快速入庫</h1>
+          <h1>手機快速入庫</h1>
           <p class="hero-lead">
-            這一頁是給手機與倉庫現場快速使用的。主資料只填一次，下面可以連續新增多支布料，
-            每支布都能有不同公斤數、碼數、庫位與狀態。
+            在手機上先填一次主資料，再往下連續新增多支布料。每一支可以有不同公斤數、碼數、庫位與狀態。
+          </p>
+          <p class="hero-lead">
+            這一版也支援直接拍照上傳。圖片會先在手機端壓縮，再一起送進庫存系統。
           </p>
         </div>
       </section>
@@ -38,7 +40,7 @@
       <section class="admin-panel">
         <div class="panel-head">
           <h2>主資料</h2>
-          <p>這些欄位同一個布號只需要填一次，系統會自動套到下面每一支庫存明細。</p>
+          <p>同一個布號只填一次。下面的庫存明細可以連續加很多支。</p>
         </div>
 
         <form id="rollEntryForm" class="mobile-entry-form">
@@ -72,12 +74,12 @@
               <input id="weightPerYard" type="number" placeholder="例如 320" required>
             </label>
             <label class="field admin-note-field">
-              主照片網址
-              <input id="image" type="text" placeholder="可先貼圖片網址，之後再接手機圖片上傳">
+              圖片網址備援
+              <input id="image" type="text" placeholder="若已有圖片網址可貼這裡">
             </label>
             <label class="field admin-note-field">
               備註
-              <input id="note" type="text" placeholder="例如 同批到貨 / 先留樣">
+              <input id="note" type="text" placeholder="例如 印花用布 / 對樣中">
             </label>
             <label class="field">
               上傳人
@@ -85,9 +87,27 @@
             </label>
           </div>
 
+          <div class="mobile-upload-card">
+            <div class="panel-head mobile-upload-head">
+              <h2>主照片</h2>
+              <p>可直接用手機拍照。系統會先壓縮後再上傳。</p>
+            </div>
+            <div class="mobile-upload-grid">
+              <label class="field">
+                拍照 / 選照片
+                <input id="imageFile" type="file" accept="image/*" capture="environment">
+              </label>
+              <button id="clearPhotoButton" class="secondary-button" type="button">清除照片</button>
+            </div>
+            <div class="mobile-photo-preview-wrap">
+              <img id="photoPreview" class="mobile-photo-preview" alt="布料照片預覽" hidden>
+              <p id="photoHint" class="upload-note">尚未選擇照片。若用手機開啟，按上方即可直接拍照。</p>
+            </div>
+          </div>
+
           <div class="panel-head mobile-roll-head">
             <h2>庫存明細</h2>
-            <p>每一支布各填一列。公斤數與碼數填一個就可以，系統會依碼重自動換算另一個。</p>
+            <p>一支布一列。只要輸入公斤數或碼數其中一個，另一個會依碼重自動換算。</p>
           </div>
 
           <div id="rollRows" class="roll-rows"></div>
@@ -99,7 +119,7 @@
           </div>
         </form>
 
-        <p id="rollEntryMessage" class="upload-note">登入後即可在這裡快速新增同布號多支庫存。</p>
+        <p id="rollEntryMessage" class="upload-note">登入後可直接用手機拍照並送出入庫。</p>
       </section>
     </main>
   </div>
