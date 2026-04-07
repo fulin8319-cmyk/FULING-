@@ -609,6 +609,38 @@ h1 {
   gap: 18px;
 }
 
+.mobile-upload-card {
+  padding: 20px;
+  border: 1px solid rgba(122, 97, 62, 0.12);
+  border-radius: 22px;
+  background: var(--panel-strong);
+}
+
+.mobile-upload-head {
+  margin-bottom: 14px;
+}
+
+.mobile-upload-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+}
+
+.mobile-photo-preview-wrap {
+  margin-top: 14px;
+}
+
+.mobile-photo-preview {
+  width: min(100%, 360px);
+  max-height: 360px;
+  display: block;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: #fffef9;
+}
+
 .mobile-roll-head {
   margin-top: 10px;
 }
@@ -1013,6 +1045,11 @@ tr:has(.status-sold) {
 
   .roll-note-field {
     grid-column: span 1;
+  }
+
+  .mobile-upload-grid {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .floating-contact {
