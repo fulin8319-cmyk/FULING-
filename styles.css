@@ -604,6 +604,43 @@ h1 {
   white-space: nowrap;
 }
 
+.mobile-entry-form {
+  display: grid;
+  gap: 18px;
+}
+
+.mobile-roll-head {
+  margin-top: 10px;
+}
+
+.roll-rows {
+  display: grid;
+  gap: 14px;
+}
+
+.roll-row {
+  background: var(--panel-strong);
+  border: 1px solid rgba(122, 97, 62, 0.12);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.roll-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.roll-note-field {
+  grid-column: span 5;
+}
+
+.roll-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
 .admin-table input,
 .admin-table select {
   width: 100%;
@@ -967,6 +1004,14 @@ tr:has(.status-sold) {
   }
 
   .admin-note-field {
+    grid-column: span 1;
+  }
+
+  .roll-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .roll-note-field {
     grid-column: span 1;
   }
 

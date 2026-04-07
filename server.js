@@ -89,6 +89,8 @@ function mapInventoryStatus(status) {
 
 function normalizeInventoryItem(item = {}, existingItem = {}) {
   const code = pickFirstString(item.code, item["編號"], existingItem.code);
+  const baseCode = pickFirstString(item.baseCode, existingItem.baseCode, code);
+  const rollNo = pickFirstString(item.rollNo, existingItem.rollNo);
   const width = Math.round(toNumber(pickFirstString(item.width, item["幅寬"], existingItem.width)));
   const weightPerYard = Math.round(
     toNumber(pickFirstString(item.weightPerYard, item["每碼克重"], existingItem.weightPerYard))
@@ -119,6 +121,8 @@ function normalizeInventoryItem(item = {}, existingItem = {}) {
 
   return {
     code,
+    baseCode,
+    rollNo,
     featuredOnHome,
     displayTitle: pickFirstString(item.displayTitle, item.name, item["品名"], existingItem.displayTitle, code),
     useText: pickFirstString(item.useText, item.fabricType ? `布種：${item.fabricType}` : "", existingItem.useText),
@@ -145,6 +149,41 @@ function normalizeInventoryItem(item = {}, existingItem = {}) {
     category: pickFirstString(item.category, item["分類"], existingItem.category),
     rowId: pickFirstString(item.rowId, item["🔒 Row ID"], existingItem.rowId)
   };
+}
+
+function buildRollInventoryItems(payload = {}) {
+  const baseCode = pickFirstString(payload.code, payload.baseCode);
+  const rolls = Array.isArray(payload.rolls) ? payload.rolls : [];
+
+  if (!baseCode || !rolls.length) {
+    return [];
+  }
+
+  return rolls
+    .map((roll, index) => {
+      const rollNo = pickFirstString(roll.rollNo, String(index + 1));
+
+      return normalizeInventoryItem({
+        code: `${baseCode}-${rollNo}`,
+        baseCode,
+        rollNo,
+        name: payload.name,
+        fabricType: payload.fabricType,
+        pattern: payload.pattern,
+        composition: payload.composition,
+        width: payload.width,
+        weightPerYard: payload.weightPerYard,
+        note: pickFirstString(roll.note, payload.note),
+        image: pickFirstString(roll.image, payload.image),
+        uploadedBy: payload.uploadedBy,
+        location: roll.location,
+        status: roll.status,
+        kg: roll.kg,
+        yards: roll.yards,
+        side: "mobile"
+      });
+    })
+    .filter((item) => item.code);
 }
 
 function hasValidN8nKey(req) {
@@ -272,6 +311,29 @@ async function handleApi(req, res, url) {
 
     writeInventory(body.items);
     return sendJson(res, 200, { ok: true });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/inventory-rolls") {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+
+    const body = JSON.parse((await readBody(req)) || "{}");
+    const normalizedIncoming = buildRollInventoryItems(body);
+
+    if (!normalizedIncoming.length) {
+      return sendJson(res, 400, {
+        ok: false,
+        message: "Please provide a base code and at least one roll."
+      });
+    }
+
+    const merged = upsertInventoryItems(normalizedIncoming);
+    return sendJson(res, 200, {
+      ok: true,
+      imported: normalizedIncoming.length,
+      total: merged.length
+    });
   }
 
   if (req.method === "POST" && url.pathname === "/api/n8n/inventory") {

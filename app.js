@@ -32,6 +32,8 @@ function getFilteredRecords() {
   const filtered = inventory.filter((item) => {
     const haystack = [
       item.code,
+      item.baseCode,
+      item.rollNo,
       String(item.width),
       String(item.weightPerYard),
       String(item.kg),
@@ -77,6 +79,7 @@ function openPreview(item) {
     <div>
       <p class="eyebrow">Fabric Detail</p>
       <h3>${item.code}</h3>
+      <p>${item.baseCode && item.baseCode !== item.code ? `Base code ${item.baseCode}${item.rollNo ? ` / Roll ${item.rollNo}` : ""}` : (item.rollNo ? `Roll ${item.rollNo}` : "")}</p>
     </div>
     <div class="modal-grid">
       <div class="detail-card"><span>Width</span><strong>${item.width}"</strong></div>
@@ -110,6 +113,8 @@ function render() {
     <tr>
       <td><div class="mini-swatch" data-code="${item.code}" style="background:center / cover no-repeat url('${item.image}')"></div></td>
       <td>${item.code}</td>
+      <td>${item.baseCode && item.baseCode !== item.code ? item.baseCode : "-"}</td>
+      <td>${item.rollNo || "-"}</td>
       <td>${item.width}"</td>
       <td>${item.weightPerYard}</td>
       <td>${item.kg ? formatNumber(item.kg) : "-"}</td>
@@ -124,6 +129,7 @@ function render() {
       <div class="swatch" data-code="${item.code}" style="background:center / cover no-repeat url('${item.image}')"></div>
       <div class="fabric-meta">
         <strong>${item.code}</strong>
+        <span>${item.baseCode && item.baseCode !== item.code ? `Base ${item.baseCode}` : "Single roll"}${item.rollNo ? ` / Roll ${item.rollNo}` : ""}</span>
         <span>Width ${item.width}" / Weight ${item.weightPerYard}</span>
         <span>${item.kg ? formatNumber(item.kg) : "-"} kg / ${item.yards ? formatNumber(item.yards) : "-"} yd</span>
         <span>${item.side} / ${statusLabel(item.status)}</span>

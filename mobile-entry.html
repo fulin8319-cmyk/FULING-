@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>福麟商行 | 手機快速入庫</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand-mark" href="./index.html">
+        <span>
+          <span class="brand-cn">福麟商行</span>
+          <span class="brand-en">Fulin Textile</span>
+        </span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">首頁</a>
+        <a href="./inventory.html">現貨查詢</a>
+        <a href="./admin.html">後台</a>
+        <button id="logoutButton" class="secondary-button" type="button">登出</button>
+      </nav>
+    </header>
+
+    <main class="admin-page">
+      <section class="inventory-hero">
+        <div>
+          <p class="eyebrow">Mobile Entry</p>
+          <h1>同布號多支快速入庫</h1>
+          <p class="hero-lead">
+            這一頁是給手機與倉庫現場快速使用的。主資料只填一次，下面可以連續新增多支布料，
+            每支布都能有不同公斤數、碼數、庫位與狀態。
+          </p>
+        </div>
+      </section>
+
+      <section class="admin-panel">
+        <div class="panel-head">
+          <h2>主資料</h2>
+          <p>這些欄位同一個布號只需要填一次，系統會自動套到下面每一支庫存明細。</p>
+        </div>
+
+        <form id="rollEntryForm" class="mobile-entry-form">
+          <div class="admin-add-grid">
+            <label class="field">
+              布號
+              <input id="baseCode" type="text" placeholder="例如 A023811" required>
+            </label>
+            <label class="field">
+              品名
+              <input id="fabricName" type="text" placeholder="例如 原紗布">
+            </label>
+            <label class="field">
+              布種
+              <input id="fabricType" type="text" placeholder="例如 針織">
+            </label>
+            <label class="field">
+              花紋 / 顏色
+              <input id="pattern" type="text" placeholder="例如 黑色">
+            </label>
+            <label class="field">
+              成份
+              <input id="composition" type="text" placeholder="例如 N+OP">
+            </label>
+            <label class="field">
+              幅寬
+              <input id="width" type="number" placeholder="例如 60">
+            </label>
+            <label class="field">
+              碼重
+              <input id="weightPerYard" type="number" placeholder="例如 320" required>
+            </label>
+            <label class="field admin-note-field">
+              主照片網址
+              <input id="image" type="text" placeholder="可先貼圖片網址，之後再接手機圖片上傳">
+            </label>
+            <label class="field admin-note-field">
+              備註
+              <input id="note" type="text" placeholder="例如 同批到貨 / 先留樣">
+            </label>
+            <label class="field">
+              上傳人
+              <input id="uploadedBy" type="text" placeholder="例如 Ricky">
+            </label>
+          </div>
+
+          <div class="panel-head mobile-roll-head">
+            <h2>庫存明細</h2>
+            <p>每一支布各填一列。公斤數與碼數填一個就可以，系統會依碼重自動換算另一個。</p>
+          </div>
+
+          <div id="rollRows" class="roll-rows"></div>
+
+          <div class="admin-actions">
+            <button id="addRollRowButton" class="secondary-button" type="button">新增一支</button>
+            <button id="submitRollsButton" class="primary-button" type="submit">送出入庫</button>
+            <button id="clearRollFormButton" class="secondary-button" type="button">清空表單</button>
+          </div>
+        </form>
+
+        <p id="rollEntryMessage" class="upload-note">登入後即可在這裡快速新增同布號多支庫存。</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="./auth.js"></script>
+  <script src="./mobile-entry.js"></script>
+</body>
+</html>
