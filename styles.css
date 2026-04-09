@@ -598,6 +598,44 @@ h1 {
   margin-top: 18px;
 }
 
+.admin-filter-summary {
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.admin-filter-toggle {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-filter-toggle::after {
+  content: " ▾";
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.admin-filter-menu {
+  margin-top: 8px;
+}
+
+.admin-filter-label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.admin-filter-label select {
+  min-width: 120px;
+}
+
 .admin-delete-button {
   min-height: 40px;
   padding: 0 14px;

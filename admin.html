@@ -17,6 +17,7 @@
         <a href="./index.html">首頁</a>
         <a href="./inventory.html">現貨查詢</a>
         <a href="./printing.html">印花用布</a>
+        <a href="./mobile-entry.html">手機入庫</a>
         <button id="logoutButton" class="secondary-button" type="button">登出</button>
       </nav>
     </header>
@@ -25,10 +26,10 @@
       <section class="inventory-hero">
         <div>
           <p class="eyebrow">Admin Panel</p>
-          <h1>後台庫存管理</h1>
+          <h1>庫存後台管理</h1>
           <p class="hero-lead">
-            這裡可以直接管理布料資料、圖片連結、布料種類，以及是否要顯示在「印花用布」頁面。
-            你改完後儲存，前台就會跟著更新。
+            你可以直接改每一筆的布料種類、是否為印花用布、首頁精選、圖片與庫存資訊。
+            點上方表頭像是顏色、成份、布種、布料種類時，會展開下拉式選單，方便你快速篩出要改的資料。
           </p>
         </div>
       </section>
@@ -36,7 +37,7 @@
       <section class="admin-panel">
         <div class="panel-head">
           <h2>新增布料</h2>
-          <p>先建立一筆新的布料資料，之後也能在下方繼續編輯、改成印花用布或調整分類。</p>
+          <p>新增時先填主資料，之後也可以在下方表格繼續編輯。印花用布與首頁精選都可以直接指定。</p>
         </div>
 
         <div class="admin-add-grid">
@@ -51,8 +52,8 @@
           <label class="field">
             印花用布
             <select id="newIsPrintingFabric">
-              <option value="true">是</option>
               <option value="false" selected>否</option>
+              <option value="true">是</option>
             </select>
           </label>
           <label class="field">
@@ -63,34 +64,26 @@
             </select>
           </label>
 
-          <label class="field admin-note-field">
+          <label class="field">
             顯示名稱
-            <input id="newDisplayTitle" type="text" placeholder="例如 白底印花布">
+            <input id="newDisplayTitle" type="text" placeholder="例如 Nop萊卡">
           </label>
-          <label class="field admin-note-field">
-            使用說明
-            <input id="newUseText" type="text" placeholder="例如 印花用布 / 熱昇華 / 對樣">
-          </label>
-          <label class="field admin-note-field">
-            描述文字
-            <input id="newDescriptionText" type="text" placeholder="例如 適合數位印刷、團體服與客製樣布">
-          </label>
-          <label class="field admin-note-field">
-            圖片網址
-            <input id="newFeaturedImage" type="text" placeholder="例如 /assets/IMG_1519.jpg">
-          </label>
-
           <label class="field">
             布種
-            <input id="newFabricType" type="text" placeholder="例如 針織布">
+            <input id="newFabricType" type="text" list="fabricTypeOptions" placeholder="例如 針織">
           </label>
           <label class="field">
-            顏色 / 花紋
-            <input id="newPattern" type="text" placeholder="例如 白色 / 花布">
+            顏色
+            <input id="newPattern" type="text" list="patternOptions" placeholder="例如 深灰">
           </label>
           <label class="field">
             成份
-            <input id="newComposition" type="text" placeholder="例如 N+OP">
+            <input id="newComposition" type="text" list="compositionOptions" placeholder="例如 N+op">
+          </label>
+
+          <label class="field">
+            圖片
+            <input id="newFeaturedImage" type="text" placeholder="貼圖片網址或 /assets/...">
           </label>
           <label class="field">
             幅寬
@@ -104,6 +97,7 @@
             公斤數
             <input id="newKg" type="number" step="0.1" placeholder="例如 18.2">
           </label>
+
           <label class="field">
             碼數
             <input id="newYards" type="number" step="0.1" placeholder="例如 55.8">
@@ -135,28 +129,52 @@
 
       <section class="admin-panel">
         <div class="panel-head">
-          <h2>現有布料管理</h2>
-          <p>你可以直接改每一筆的分類、是否為印花用布、圖片與庫存資訊，改完後按儲存全部變更。</p>
+          <h2>已上傳布料管理</h2>
+          <p>點表頭會展開下拉式選項，方便你依顏色、成份、布種或狀態快速排序與篩選。</p>
         </div>
+
+        <div class="admin-filter-summary" id="adminFilterSummary">目前顯示全部資料。</div>
+
         <div class="table-wrap">
           <table class="admin-table">
             <thead>
               <tr>
                 <th>編號</th>
-                <th>布料種類</th>
-                <th>印花用布</th>
-                <th>首頁精選</th>
+                <th>
+                  <button class="admin-filter-toggle" type="button" data-filter-toggle="category">布料種類</button>
+                  <div class="admin-filter-menu" data-filter-menu="category" hidden></div>
+                </th>
+                <th>
+                  <button class="admin-filter-toggle" type="button" data-filter-toggle="isPrintingFabric">印花用布</button>
+                  <div class="admin-filter-menu" data-filter-menu="isPrintingFabric" hidden></div>
+                </th>
+                <th>
+                  <button class="admin-filter-toggle" type="button" data-filter-toggle="featuredOnHome">首頁精選</button>
+                  <div class="admin-filter-menu" data-filter-menu="featuredOnHome" hidden></div>
+                </th>
                 <th>顯示名稱</th>
-                <th>布種</th>
-                <th>顏色</th>
-                <th>成份</th>
+                <th>
+                  <button class="admin-filter-toggle" type="button" data-filter-toggle="fabricType">布種</button>
+                  <div class="admin-filter-menu" data-filter-menu="fabricType" hidden></div>
+                </th>
+                <th>
+                  <button class="admin-filter-toggle" type="button" data-filter-toggle="pattern">顏色</button>
+                  <div class="admin-filter-menu" data-filter-menu="pattern" hidden></div>
+                </th>
+                <th>
+                  <button class="admin-filter-toggle" type="button" data-filter-toggle="composition">成份</button>
+                  <div class="admin-filter-menu" data-filter-menu="composition" hidden></div>
+                </th>
                 <th>圖片</th>
                 <th>幅寬</th>
                 <th>碼重</th>
                 <th>公斤數</th>
                 <th>碼數</th>
-                <th>倉位</th>
-                <th>狀態</th>
+                <th>倉庫位置</th>
+                <th>
+                  <button class="admin-filter-toggle" type="button" data-filter-toggle="status">狀態</button>
+                  <div class="admin-filter-menu" data-filter-menu="status" hidden></div>
+                </th>
                 <th>備註</th>
                 <th>操作</th>
               </tr>
@@ -164,14 +182,20 @@
             <tbody id="adminRows"></tbody>
           </table>
         </div>
+
         <div class="admin-actions">
           <button id="saveInventoryButton" class="primary-button" type="button">儲存全部變更</button>
           <button id="resetInventoryButton" class="secondary-button" type="button">重新載入資料</button>
         </div>
-        <p id="adminMessage" class="upload-note">後台已載入，你可以開始編輯資料。</p>
+        <p id="adminMessage" class="upload-note">修改後按儲存全部變更，篩選只會影響畫面顯示，不會刪掉資料。</p>
       </section>
     </main>
   </div>
+
+  <datalist id="fabricTypeOptions"></datalist>
+  <datalist id="patternOptions"></datalist>
+  <datalist id="compositionOptions"></datalist>
+
   <script src="./auth.js"></script>
   <script src="./admin.js"></script>
 </body>
