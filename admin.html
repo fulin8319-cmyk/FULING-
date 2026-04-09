@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>福麟商行｜後台管理</title>
+  <title>福麟商行後台管理</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -16,6 +16,7 @@
       <nav class="site-nav">
         <a href="./index.html">首頁</a>
         <a href="./inventory.html">現貨查詢</a>
+        <a href="./printing.html">印花用布</a>
         <button id="logoutButton" class="secondary-button" type="button">登出</button>
       </nav>
     </header>
@@ -24,21 +25,72 @@
       <section class="inventory-hero">
         <div>
           <p class="eyebrow">Admin Panel</p>
-          <h1>庫存後台管理</h1>
-          <p class="hero-lead">你可以在這裡新增布料、修改現貨資料、調整狀態，並把內容正式存回網站。</p>
+          <h1>後台庫存管理</h1>
+          <p class="hero-lead">
+            這裡可以直接管理布料資料、圖片連結、布料種類，以及是否要顯示在「印花用布」頁面。
+            你改完後儲存，前台就會跟著更新。
+          </p>
         </div>
       </section>
 
       <section class="admin-panel">
         <div class="panel-head">
-          <h2>新增一筆布料</h2>
-          <p>只要填入基本資料，若只知道公斤數或碼數其中一個，系統會依碼重自動換算。</p>
+          <h2>新增布料</h2>
+          <p>先建立一筆新的布料資料，之後也能在下方繼續編輯、改成印花用布或調整分類。</p>
         </div>
 
         <div class="admin-add-grid">
           <label class="field">
             編號
-            <input id="newCode" type="text" placeholder="例如 A023601">
+            <input id="newCode" type="text" placeholder="例如 A023811">
+          </label>
+          <label class="field">
+            布料種類
+            <select id="newCategory"></select>
+          </label>
+          <label class="field">
+            印花用布
+            <select id="newIsPrintingFabric">
+              <option value="true">是</option>
+              <option value="false" selected>否</option>
+            </select>
+          </label>
+          <label class="field">
+            首頁精選
+            <select id="newFeaturedOnHome">
+              <option value="false" selected>否</option>
+              <option value="true">是</option>
+            </select>
+          </label>
+
+          <label class="field admin-note-field">
+            顯示名稱
+            <input id="newDisplayTitle" type="text" placeholder="例如 白底印花布">
+          </label>
+          <label class="field admin-note-field">
+            使用說明
+            <input id="newUseText" type="text" placeholder="例如 印花用布 / 熱昇華 / 對樣">
+          </label>
+          <label class="field admin-note-field">
+            描述文字
+            <input id="newDescriptionText" type="text" placeholder="例如 適合數位印刷、團體服與客製樣布">
+          </label>
+          <label class="field admin-note-field">
+            圖片網址
+            <input id="newFeaturedImage" type="text" placeholder="例如 /assets/IMG_1519.jpg">
+          </label>
+
+          <label class="field">
+            布種
+            <input id="newFabricType" type="text" placeholder="例如 針織布">
+          </label>
+          <label class="field">
+            顏色 / 花紋
+            <input id="newPattern" type="text" placeholder="例如 白色 / 花布">
+          </label>
+          <label class="field">
+            成份
+            <input id="newComposition" type="text" placeholder="例如 N+OP">
           </label>
           <label class="field">
             幅寬
@@ -65,13 +117,13 @@
             <select id="newStatus">
               <option value="confirmed">現貨中</option>
               <option value="sold">已售出</option>
-              <option value="review">待確認</option>
               <option value="reserved">保留中</option>
+              <option value="review">待確認</option>
             </select>
           </label>
           <label class="field admin-note-field">
             備註
-            <input id="newNote" type="text" placeholder="例如 印刷布 / 倉庫右側">
+            <input id="newNote" type="text" placeholder="例如 印花布 / 倉庫右側">
           </label>
         </div>
 
@@ -83,22 +135,30 @@
 
       <section class="admin-panel">
         <div class="panel-head">
-          <h2>現有庫存資料</h2>
-          <p>修改欄位後按儲存即可更新。若不需要某筆資料，也可以直接刪除。</p>
+          <h2>現有布料管理</h2>
+          <p>你可以直接改每一筆的分類、是否為印花用布、圖片與庫存資訊，改完後按儲存全部變更。</p>
         </div>
         <div class="table-wrap">
           <table class="admin-table">
             <thead>
               <tr>
-                <th>Code</th>
-                <th>Width</th>
-                <th>Weight</th>
-                <th>KG</th>
-                <th>Yards</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Note</th>
-                <th>Action</th>
+                <th>編號</th>
+                <th>布料種類</th>
+                <th>印花用布</th>
+                <th>首頁精選</th>
+                <th>顯示名稱</th>
+                <th>布種</th>
+                <th>顏色</th>
+                <th>成份</th>
+                <th>圖片</th>
+                <th>幅寬</th>
+                <th>碼重</th>
+                <th>公斤數</th>
+                <th>碼數</th>
+                <th>倉位</th>
+                <th>狀態</th>
+                <th>備註</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody id="adminRows"></tbody>
@@ -108,7 +168,7 @@
           <button id="saveInventoryButton" class="primary-button" type="button">儲存全部變更</button>
           <button id="resetInventoryButton" class="secondary-button" type="button">重新載入資料</button>
         </div>
-        <p id="adminMessage" class="upload-note">登入後即可管理現貨資料。</p>
+        <p id="adminMessage" class="upload-note">後台已載入，你可以開始編輯資料。</p>
       </section>
     </main>
   </div>
