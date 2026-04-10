@@ -28,37 +28,58 @@
         <div>
           <p class="eyebrow">Mobile Entry</p>
           <h1>手機快速入庫</h1>
-          <p class="hero-lead">布號固定以 A 開頭，你只需要輸入後面的數字。幅寬預設為 60，可視需要再修改。</p>
-          <p class="hero-lead">同一個布號可以一次新增很多支布料，每支可填不同公斤數、碼數、庫位與狀態，適合在倉庫直接用手機拍照上傳。</p>
+          <p class="hero-lead">
+            布號固定以 A 開頭，你只要輸入後面的數字。幅寬預設為 60，
+            其餘資料可以依實際布料直接填寫。
+          </p>
+          <p class="hero-lead">
+            同一個布號可以一次新增多支庫存，每支都能分別填公斤數、碼數、
+            庫位與狀態，送出後會一起寫入庫存系統。
+          </p>
         </div>
       </section>
 
       <section class="admin-panel">
         <div class="panel-head">
           <h2>主資料</h2>
-          <p>先填一次布號、布種、成份與碼重，再往下新增每一支庫存明細。</p>
+          <p>主資料只需要填一次，下面的庫存明細可以一直新增多支，適合在倉庫用手機快速入庫。</p>
         </div>
 
         <form id="rollEntryForm" class="mobile-entry-form">
           <div class="admin-add-grid">
             <label class="field">
-              布號
+              編號
               <div class="prefixed-input">
                 <span class="prefixed-label">A</span>
                 <input id="baseCode" type="text" inputmode="numeric" placeholder="例如 023811" required>
               </div>
             </label>
             <label class="field">
-              品名
-              <input id="fabricName" type="text" placeholder="例如 原紗布">
+              顯示名稱
+              <input id="fabricName" type="text" placeholder="例如 Nop萊卡">
             </label>
             <label class="field">
               布種
-              <input id="fabricType" type="text" placeholder="例如 針織">
+              <select id="fabricTypeSelect">
+                <option value="">請選擇布種</option>
+                <option value="針織">針織</option>
+                <option value="平織">平織</option>
+                <option value="印花用布">印花用布</option>
+                <option value="機能布">機能布</option>
+                <option value="網布">網布</option>
+                <option value="刷毛布">刷毛布</option>
+                <option value="尼龍布">尼龍布</option>
+                <option value="聚酯布">聚酯布</option>
+                <option value="其他">其他 / 自訂</option>
+              </select>
+            </label>
+            <label id="fabricTypeCustomWrap" class="field" hidden>
+              自訂布種
+              <input id="fabricTypeCustom" type="text" placeholder="輸入新的布種名稱">
             </label>
             <label class="field">
-              花紋 / 顏色
-              <input id="pattern" type="text" placeholder="例如 黑色">
+              顏色 / 花紋
+              <input id="pattern" type="text" placeholder="例如 深灰、條紋">
             </label>
             <label class="field">
               成份
@@ -78,18 +99,18 @@
             </label>
             <label class="field admin-note-field">
               備註
-              <input id="note" type="text" placeholder="例如 特別留樣 / 倉庫新到貨">
+              <input id="note" type="text" placeholder="例如 印花布 / 倉庫右側">
             </label>
             <label class="field admin-note-field">
               圖片網址備援
-              <input id="image" type="text" placeholder="如果不拍照，也可以貼圖片網址">
+              <input id="image" type="text" placeholder="如果沒有拍照，可貼上圖片網址">
             </label>
           </div>
 
           <div class="mobile-upload-card">
             <div class="panel-head mobile-upload-head">
               <h2>拍照上傳</h2>
-              <p>可直接用手機相機拍照，系統會先壓縮圖片並顯示預覽，再一起送出入庫。</p>
+              <p>可直接用手機拍照或選擇相簿圖片，送出前會先看到預覽圖。</p>
             </div>
             <div class="mobile-upload-grid">
               <label class="field">
@@ -100,13 +121,13 @@
             </div>
             <div class="mobile-photo-preview-wrap">
               <img id="photoPreview" class="mobile-photo-preview" alt="照片預覽" hidden>
-              <p id="photoHint" class="upload-note">拍完照後會先顯示在這裡，確認無誤再送出。</p>
+              <p id="photoHint" class="upload-note">拍照成功後，這裡會先顯示預覽圖。</p>
             </div>
           </div>
 
           <div class="panel-head mobile-roll-head">
             <h2>庫存明細</h2>
-            <p>同一個布號可以連續新增很多支，每支都能填不同公斤數、碼數、庫位與狀態。</p>
+            <p>同一個布號可新增多支庫存，每支分開填寫公斤數、碼數、庫位與狀態。</p>
           </div>
 
           <div id="rollRows" class="roll-rows"></div>
@@ -118,7 +139,7 @@
           </div>
         </form>
 
-        <p id="rollEntryMessage" class="upload-note">登入後即可在這裡新增同布號多支庫存。</p>
+        <p id="rollEntryMessage" class="upload-note">送出後會自動新增多筆庫存，並依照每支資料分開保存。</p>
       </section>
     </main>
   </div>
