@@ -721,6 +721,40 @@ h1 {
   background: #fffef9;
 }
 
+.admin-filter-toggle::after {
+  content: " ▾";
+  color: var(--accent);
+  font-size: 12px;
+}
+
+.admin-code-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 156px;
+}
+
+.admin-code-thumb {
+  width: 46px;
+  height: 58px;
+  flex: 0 0 46px;
+  border-radius: 12px;
+  border: 1px solid rgba(122, 97, 62, 0.16);
+  background-color: #f3ecde;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 4px 14px rgba(62, 40, 20, 0.08);
+}
+
+.admin-code-thumb.is-empty {
+  background-image: linear-gradient(135deg, rgba(138, 75, 8, 0.06), rgba(255, 255, 255, 0.92));
+}
+
+.admin-code-text {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .hero-stats {
   display: flex;
   gap: 14px;

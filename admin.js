@@ -203,6 +203,57 @@ function renderHeaderFilters() {
   });
 }
 
+function applyAdminHeaderLabels() {
+  const textMap = {
+    category: "布料種類",
+    isPrintingFabric: "印花用布",
+    featuredOnHome: "首頁精選",
+    fabricType: "布種",
+    pattern: "顏色",
+    composition: "成份",
+    status: "狀態"
+  };
+
+  const plainLabels = [
+    "編號 / 縮圖",
+    null,
+    null,
+    null,
+    "顯示名稱",
+    null,
+    null,
+    null,
+    "圖片",
+    "幅寬",
+    "碼重",
+    "公斤數",
+    "碼數",
+    "庫位",
+    null,
+    "備註",
+    "操作"
+  ];
+
+  document.querySelectorAll(".admin-table thead th").forEach((cell, index) => {
+    const filterButton = cell.querySelector("[data-filter-toggle]");
+    if (filterButton) {
+      filterButton.textContent = textMap[filterButton.dataset.filterToggle] || filterButton.textContent;
+    } else if (plainLabels[index]) {
+      cell.textContent = plainLabels[index];
+    }
+  });
+
+  document.querySelectorAll(".admin-filter-label").forEach((label) => {
+    const select = label.querySelector("select");
+    if (!select) return;
+    const firstOption = select.querySelector("option[value='']");
+    label.childNodes[0].nodeValue = "篩選";
+    if (firstOption) {
+      firstOption.textContent = "全部";
+    }
+  });
+}
+
 function getBooleanLabel(value) {
   return value ? "是" : "否";
 }
@@ -250,14 +301,22 @@ function updateFilterSummary() {
 function renderAdminRows() {
   applyFilters();
   refreshDataLists();
+  applyAdminHeaderLabels();
   renderHeaderFilters();
   updateFilterSummary();
 
   adminRowsEl.innerHTML = filteredIndexes.map((realIndex) => {
     const item = adminInventory[realIndex];
+    const thumbnailUrl = item.featuredImage || item.image || "";
+    const codeCell = `
+      <div class="admin-code-cell">
+        <div class="admin-code-thumb${thumbnailUrl ? "" : " is-empty"}"${thumbnailUrl ? ` style="background-image:url('${escapeAttribute(thumbnailUrl)}')"` : ""}></div>
+        <div class="admin-code-text">${escapeHtml(item.code)}</div>
+      </div>
+    `;
     return `
       <tr>
-        <td>${escapeHtml(item.code)}</td>
+        <td>${codeCell}</td>
         <td><select data-index="${realIndex}" data-field="category">${buildCategoryOptions(item.category)}</select></td>
         <td><select data-index="${realIndex}" data-field="isPrintingFabric">${buildBooleanOptions(item.isPrintingFabric)}</select></td>
         <td><select data-index="${realIndex}" data-field="featuredOnHome">${buildBooleanOptions(item.featuredOnHome)}</select></td>
@@ -484,4 +543,5 @@ document.addEventListener("change", (event) => {
 });
 
 populateCategorySelect(newCategoryEl);
+applyAdminHeaderLabels();
 loadAdminInventory();
