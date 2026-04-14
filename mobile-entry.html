@@ -18,7 +18,7 @@
       <nav class="site-nav">
         <a href="./index.html">首頁</a>
         <a href="./inventory.html">現貨查詢</a>
-        <a href="./admin.html">後台</a>
+        <a href="./admin.html">後台管理</a>
         <button id="logoutButton" class="secondary-button" type="button">登出</button>
       </nav>
     </header>
@@ -29,20 +29,19 @@
           <p class="eyebrow">Mobile Entry</p>
           <h1>手機快速入庫</h1>
           <p class="hero-lead">
-            布號固定以 A 開頭，你只要輸入後面的數字。幅寬預設為 60，
-            其餘資料可以依實際布料直接填寫。
+            這一頁是給手機現場快速上傳用的。布號固定以 <strong>A</strong> 開頭，幅寬預設是
+            <strong>60</strong>，你只要補齊布種、顏色花紋、成份、碼重和每一支布的重量或碼數，就能快速送進庫存。
           </p>
           <p class="hero-lead">
-            同一個布號可以一次新增多支庫存，每支都能分別填公斤數、碼數、
-            庫位與狀態，送出後會一起寫入庫存系統。
+            主資料只填一次，下面可以連續新增多支庫存。拍完照後會先出現預覽，再跟庫存資料一起送出。
           </p>
         </div>
       </section>
 
       <section class="admin-panel">
         <div class="panel-head">
-          <h2>主資料</h2>
-          <p>主資料只需要填一次，下面的庫存明細可以一直新增多支，適合在倉庫用手機快速入庫。</p>
+          <h2>新增布料</h2>
+          <p>先填主資料，再往下新增每一支布的公斤數、碼數與庫位。送出後會自動拆成多筆庫存明細。</p>
         </div>
 
         <form id="rollEntryForm" class="mobile-entry-form">
@@ -54,63 +53,124 @@
                 <input id="baseCode" type="text" inputmode="numeric" placeholder="例如 023811" required>
               </div>
             </label>
-            <label class="field">
-              顯示名稱
-              <input id="fabricName" type="text" placeholder="例如 Nop萊卡">
-            </label>
+
             <label class="field">
               布種
+              <input id="fabricName" type="text" placeholder="例如 Nop萊卡、健康布">
+            </label>
+
+            <label class="field">
+              布料種類
               <select id="fabricTypeSelect">
-                <option value="">請選擇布種</option>
-                <option value="針織">針織</option>
-                <option value="平織">平織</option>
-                <option value="印花用布">印花用布</option>
-                <option value="機能布">機能布</option>
+                <option value="">請選擇布料種類</option>
+                <option value="針織布">針織布</option>
+                <option value="平織布">平織布</option>
+                <option value="彈性布">彈性布</option>
                 <option value="網布">網布</option>
                 <option value="刷毛布">刷毛布</option>
                 <option value="尼龍布">尼龍布</option>
-                <option value="聚酯布">聚酯布</option>
+                <option value="單面布">單面布</option>
+                <option value="雙面布">雙面布</option>
+                <option value="吸排布">吸排布</option>
+                <option value="魚鱗布">魚鱗布</option>
+                <option value="印花用布">印花用布</option>
                 <option value="其他">其他 / 自訂</option>
               </select>
             </label>
+
             <label id="fabricTypeCustomWrap" class="field" hidden>
-              自訂布種
-              <input id="fabricTypeCustom" type="text" placeholder="輸入新的布種名稱">
+              自訂布料種類
+              <input id="fabricTypeCustom" type="text" placeholder="請輸入新的布料種類">
             </label>
+
             <label class="field">
               顏色 / 花紋
-              <input id="pattern" type="text" placeholder="例如 深灰、條紋">
+              <select id="patternSelect">
+                <option value="">請選擇顏色或花紋</option>
+                <option value="白色">白色</option>
+                <option value="米白">米白</option>
+                <option value="黑色">黑色</option>
+                <option value="深灰">深灰</option>
+                <option value="淺灰">淺灰</option>
+                <option value="丈青">丈青</option>
+                <option value="藍色">藍色</option>
+                <option value="紅色">紅色</option>
+                <option value="粉紅">粉紅</option>
+                <option value="紫色">紫色</option>
+                <option value="綠色">綠色</option>
+                <option value="黃色">黃色</option>
+                <option value="咖啡">咖啡</option>
+                <option value="素面">素面</option>
+                <option value="條紋">條紋</option>
+                <option value="點點">點點</option>
+                <option value="迷彩">迷彩</option>
+                <option value="花布">花布</option>
+                <option value="印花">印花</option>
+                <option value="其他">其他 / 自訂</option>
+              </select>
             </label>
+
+            <label id="patternCustomWrap" class="field" hidden>
+              自訂顏色 / 花紋
+              <input id="patternCustom" type="text" placeholder="請輸入新的顏色或花紋">
+            </label>
+
             <label class="field">
               成份
-              <input id="composition" type="text" placeholder="例如 N+OP">
+              <select id="compositionSelect">
+                <option value="">請選擇成份</option>
+                <option value="N+OP">N+OP</option>
+                <option value="T">T</option>
+                <option value="N">N</option>
+                <option value="T+OP">T+OP</option>
+                <option value="N/T">N/T</option>
+                <option value="TC">TC</option>
+                <option value="CVC">CVC</option>
+                <option value="聚酯">聚酯</option>
+                <option value="尼龍">尼龍</option>
+                <option value="棉">棉</option>
+                <option value="棉+彈性纖維">棉+彈性纖維</option>
+                <option value="聚酯+彈性纖維">聚酯+彈性纖維</option>
+                <option value="尼龍+彈性纖維">尼龍+彈性纖維</option>
+                <option value="其他">其他 / 自訂</option>
+              </select>
             </label>
+
+            <label id="compositionCustomWrap" class="field" hidden>
+              自訂成份
+              <input id="compositionCustom" type="text" placeholder="請輸入新的成份">
+            </label>
+
             <label class="field">
               幅寬
               <input id="width" type="number" value="60" placeholder="例如 60">
             </label>
+
             <label class="field">
               碼重
               <input id="weightPerYard" type="number" placeholder="例如 320" required>
             </label>
+
             <label class="field">
               上傳人
               <input id="uploadedBy" type="text" placeholder="例如 Ricky">
             </label>
+
             <label class="field admin-note-field">
               備註
-              <input id="note" type="text" placeholder="例如 印花布 / 倉庫右側">
+              <input id="note" type="text" placeholder="例如 印花布、倉庫右側">
             </label>
+
             <label class="field admin-note-field">
-              圖片網址備援
-              <input id="image" type="text" placeholder="如果沒有拍照，可貼上圖片網址">
+              圖片網址（選填）
+              <input id="image" type="text" placeholder="如果已有圖片網址，也可以直接貼上">
             </label>
           </div>
 
           <div class="mobile-upload-card">
             <div class="panel-head mobile-upload-head">
               <h2>拍照上傳</h2>
-              <p>可直接用手機拍照或選擇相簿圖片，送出前會先看到預覽圖。</p>
+              <p>你可以直接用手機拍照或選擇相簿照片。送出前會先看到預覽，確認沒問題再一起入庫。</p>
             </div>
             <div class="mobile-upload-grid">
               <label class="field">
@@ -121,13 +181,13 @@
             </div>
             <div class="mobile-photo-preview-wrap">
               <img id="photoPreview" class="mobile-photo-preview" alt="照片預覽" hidden>
-              <p id="photoHint" class="upload-note">拍照成功後，這裡會先顯示預覽圖。</p>
+              <p id="photoHint" class="upload-note">拍完照後，這裡會先出現預覽圖。</p>
             </div>
           </div>
 
           <div class="panel-head mobile-roll-head">
             <h2>庫存明細</h2>
-            <p>同一個布號可新增多支庫存，每支分開填寫公斤數、碼數、庫位與狀態。</p>
+            <p>同一個布號可以一次新增很多支。每一支都能分開填公斤數、碼數、庫位與狀態。</p>
           </div>
 
           <div id="rollRows" class="roll-rows"></div>
@@ -139,7 +199,7 @@
           </div>
         </form>
 
-        <p id="rollEntryMessage" class="upload-note">送出後會自動新增多筆庫存，並依照每支資料分開保存。</p>
+        <p id="rollEntryMessage" class="upload-note">填好主資料與庫存明細後，就可以直接送進庫存系統。</p>
       </section>
     </main>
   </div>

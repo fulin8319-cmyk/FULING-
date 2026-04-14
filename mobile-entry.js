@@ -10,8 +10,12 @@ const fabricNameEl = document.getElementById("fabricName");
 const fabricTypeSelectEl = document.getElementById("fabricTypeSelect");
 const fabricTypeCustomWrapEl = document.getElementById("fabricTypeCustomWrap");
 const fabricTypeCustomEl = document.getElementById("fabricTypeCustom");
-const patternEl = document.getElementById("pattern");
-const compositionEl = document.getElementById("composition");
+const patternSelectEl = document.getElementById("patternSelect");
+const patternCustomWrapEl = document.getElementById("patternCustomWrap");
+const patternCustomEl = document.getElementById("patternCustom");
+const compositionSelectEl = document.getElementById("compositionSelect");
+const compositionCustomWrapEl = document.getElementById("compositionCustomWrap");
+const compositionCustomEl = document.getElementById("compositionCustom");
 const widthEl = document.getElementById("width");
 const weightPerYardEl = document.getElementById("weightPerYard");
 const imageEl = document.getElementById("image");
@@ -51,20 +55,27 @@ function normalizeBaseCode(value) {
   return raw.startsWith("A") ? raw : `A${raw}`;
 }
 
-function syncFabricTypeCustomVisibility() {
-  const isCustom = fabricTypeSelectEl.value === "其他";
-  fabricTypeCustomWrapEl.hidden = !isCustom;
-  fabricTypeCustomEl.required = isCustom;
-
-  if (!isCustom) {
-    fabricTypeCustomEl.value = "";
-  }
+function syncCustomVisibility(selectEl, wrapEl, inputEl) {
+  const isCustom = selectEl.value === "其他";
+  wrapEl.hidden = !isCustom;
+  inputEl.required = isCustom;
+  if (!isCustom) inputEl.value = "";
 }
 
-function getFabricTypeValue() {
-  return fabricTypeSelectEl.value === "其他"
-    ? fabricTypeCustomEl.value.trim()
-    : fabricTypeSelectEl.value.trim();
+function syncFabricTypeCustomVisibility() {
+  syncCustomVisibility(fabricTypeSelectEl, fabricTypeCustomWrapEl, fabricTypeCustomEl);
+}
+
+function syncPatternCustomVisibility() {
+  syncCustomVisibility(patternSelectEl, patternCustomWrapEl, patternCustomEl);
+}
+
+function syncCompositionCustomVisibility() {
+  syncCustomVisibility(compositionSelectEl, compositionCustomWrapEl, compositionCustomEl);
+}
+
+function getSelectValue(selectEl, customInputEl) {
+  return selectEl.value === "其他" ? customInputEl.value.trim() : selectEl.value.trim();
 }
 
 function updatePhotoPreview(src) {
@@ -73,13 +84,13 @@ function updatePhotoPreview(src) {
   if (uploadedImageDataUrl) {
     photoPreviewEl.src = uploadedImageDataUrl;
     photoPreviewEl.hidden = false;
-    photoHintEl.textContent = "照片已載入，送出後會一起寫入庫存。";
+    photoHintEl.textContent = "已選擇照片，送出時會一起上傳。";
     return;
   }
 
   photoPreviewEl.removeAttribute("src");
   photoPreviewEl.hidden = true;
-  photoHintEl.textContent = "可以直接拍照或選擇照片，系統會先壓縮再上傳。";
+  photoHintEl.textContent = "可直接拍照或從手機相簿選照片。";
 }
 
 function dataUrlSizeBytes(dataUrl) {
@@ -93,10 +104,10 @@ function loadImageFromFile(file) {
     reader.onload = () => {
       const image = new Image();
       image.onload = () => resolve(image);
-      image.onerror = () => reject(new Error("無法讀取圖片，請改用 JPG 或 PNG。"));
+      image.onerror = () => reject(new Error("圖片格式無法讀取，請改用 JPG 或 PNG。"));
       image.src = reader.result;
     };
-    reader.onerror = () => reject(new Error("讀取照片失敗，請重新選擇。"));
+    reader.onerror = () => reject(new Error("讀取圖片失敗，請重新選擇照片。"));
     reader.readAsDataURL(file);
   });
 }
@@ -160,8 +171,8 @@ function createRollRow(values = {}) {
         </select>
       </label>
       <label class="field roll-note-field">
-        單支備註
-        <input type="text" data-roll-field="note" placeholder="例如 印花用 / 已對樣" value="${escapeHtml(values.note || "")}">
+        這支備註
+        <input type="text" data-roll-field="note" placeholder="例如 印花用布 / 倉庫右側" value="${escapeHtml(values.note || "")}">
       </label>
     </div>
     <div class="roll-row-actions">
@@ -186,7 +197,9 @@ function resetForm() {
   rollRowsEl.appendChild(createRollRow({ rollNo: "1" }));
   updatePhotoPreview("");
   syncFabricTypeCustomVisibility();
-  rollEntryMessageEl.textContent = "登入後即可在這裡新增同布號多支庫存。";
+  syncPatternCustomVisibility();
+  syncCompositionCustomVisibility();
+  rollEntryMessageEl.textContent = "請先填主資料，再新增每一支庫存。";
 }
 
 function collectRolls(weightPerYard) {
@@ -226,6 +239,8 @@ clearPhotoButtonEl.addEventListener("click", () => {
 });
 
 fabricTypeSelectEl.addEventListener("change", syncFabricTypeCustomVisibility);
+patternSelectEl.addEventListener("change", syncPatternCustomVisibility);
+compositionSelectEl.addEventListener("change", syncCompositionCustomVisibility);
 
 imageFileEl.addEventListener("change", async () => {
   const [file] = imageFileEl.files || [];
@@ -234,15 +249,15 @@ imageFileEl.addEventListener("change", async () => {
     return;
   }
 
-  rollEntryMessageEl.textContent = "正在壓縮照片...";
+  rollEntryMessageEl.textContent = "正在處理照片...";
 
   try {
     const compressed = await compressImageFile(file);
     updatePhotoPreview(compressed);
-    rollEntryMessageEl.textContent = "照片已準備完成，可以送出入庫。";
+    rollEntryMessageEl.textContent = "照片已準備好，送出時會一起上傳。";
   } catch (error) {
     updatePhotoPreview("");
-    rollEntryMessageEl.textContent = error.message || "照片處理失敗，請重新嘗試。";
+    rollEntryMessageEl.textContent = error.message || "照片處理失敗，請重新選擇。";
   }
 });
 
@@ -253,9 +268,9 @@ rollEntryFormEl.addEventListener("submit", async (event) => {
   const payload = {
     code: normalizeBaseCode(baseCodeEl.value),
     name: fabricNameEl.value.trim(),
-    fabricType: getFabricTypeValue(),
-    pattern: patternEl.value.trim(),
-    composition: compositionEl.value.trim(),
+    fabricType: getSelectValue(fabricTypeSelectEl, fabricTypeCustomEl),
+    pattern: getSelectValue(patternSelectEl, patternCustomEl),
+    composition: getSelectValue(compositionSelectEl, compositionCustomEl),
     width: Number(widthEl.value || 60),
     weightPerYard,
     image: uploadedImageDataUrl || imageEl.value.trim(),
@@ -265,44 +280,53 @@ rollEntryFormEl.addEventListener("submit", async (event) => {
   };
 
   if (!payload.code) {
-    rollEntryMessageEl.textContent = "請先輸入布號。";
+    rollEntryMessageEl.textContent = "請輸入編號數字。";
+    return;
+  }
+
+  if (!payload.name) {
+    rollEntryMessageEl.textContent = "請輸入布種。";
     return;
   }
 
   if (!payload.fabricType) {
-    rollEntryMessageEl.textContent = "請先選擇布種，若沒有可用選項可改用自訂。";
+    rollEntryMessageEl.textContent = "請選擇布料種類，或自訂新的分類名稱。";
     return;
   }
 
   if (!payload.weightPerYard) {
-    rollEntryMessageEl.textContent = "請先輸入碼重。";
+    rollEntryMessageEl.textContent = "請輸入碼重。";
     return;
   }
 
   if (!payload.rolls.length) {
-    rollEntryMessageEl.textContent = "請至少填入一支庫存明細。";
+    rollEntryMessageEl.textContent = "請至少新增一支庫存資料。";
     return;
   }
 
-  rollEntryMessageEl.textContent = "正在送出入庫資料...";
+  rollEntryMessageEl.textContent = "正在送出資料...";
 
-  const response = await fetch("/api/admin/inventory-rolls", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    credentials: "include",
-    body: JSON.stringify(payload)
-  });
+  try {
+    const response = await fetch("/api/admin/inventory-rolls", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify(payload)
+    });
 
-  const data = await response.json();
-  if (!response.ok) {
-    rollEntryMessageEl.textContent = data.message || "入庫失敗，請稍後再試。";
-    return;
+    const data = await response.json();
+    if (!response.ok) {
+      rollEntryMessageEl.textContent = data.message || "送出失敗，請稍後再試。";
+      return;
+    }
+
+    resetForm();
+    rollEntryMessageEl.textContent = `已成功新增 ${data.imported} 支庫存，現在共有 ${data.total} 筆資料。`;
+  } catch (error) {
+    rollEntryMessageEl.textContent = error.message || "送出失敗，請檢查網路後再試。";
   }
-
-  resetForm();
-  rollEntryMessageEl.textContent = `已成功新增 ${data.imported} 支庫存，目前總筆數 ${data.total}。`;
 });
 
 resetForm();
