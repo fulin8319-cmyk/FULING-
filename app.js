@@ -49,13 +49,16 @@ function deriveCategory(item) {
   ].join(" ").toLowerCase();
 
   if (/印|print|昇華|轉印/.test(text)) return "印花用布";
+  if (/吸排|吸濕排汗/.test(text)) return "吸排布";
+  if (/魚鱗/.test(text)) return "魚鱗布";
+  if (/雙面/.test(text)) return "雙面布";
+  if (/單面/.test(text)) return "單面布";
   if (/針織/.test(text)) return "針織布";
   if (/平織/.test(text)) return "平織布";
   if (/op|spandex|lycra|彈/.test(text)) return "彈性布";
   if (/mesh|網/.test(text)) return "網布";
   if (/刷毛|毛圈/.test(text)) return "刷毛布";
   if (/尼龍|\bn\b/.test(text)) return "尼龍布";
-  if (/poly|聚酯|\bt\b/.test(text)) return "聚酯布";
   return "其他布料";
 }
 
@@ -96,8 +99,34 @@ function buildViewItem(item) {
     displayCategory: deriveCategory(item),
     displayName: cleanText(item.name) || cleanText(item.displayTitle) || cleanText(item.code),
     displayLocation: cleanText(item.location) || "未填",
-    displayImage: cleanText(item.image) || "./assets/Logo.JPG"
+    displayImage: cleanText(item.image) || cleanText(item.featuredImage) || ""
   };
+}
+
+function scoreInventoryItem(item) {
+  let score = 0;
+  if (item.displayImage) score += 5;
+  if (item.pattern) score += 2;
+  if (item.weightPerYard) score += 2;
+  if (item.kg || item.yards) score += 2;
+  if (item.displayLocation && item.displayLocation !== "?芸‵") score += 1;
+  if (item.displayCategory && item.displayCategory !== "?嗡?撣?") score += 1;
+  if (item.displayImage && /logo/i.test(item.displayImage)) score -= 10;
+  return score;
+}
+
+function dedupeInventory(items) {
+  const bestByCode = new Map();
+
+  items.forEach((item) => {
+    const key = item.displayCode || `${item.displayName}-${item.displayLocation}-${item.kg}-${item.yards}`;
+    const current = bestByCode.get(key);
+    if (!current || scoreInventoryItem(item) > scoreInventoryItem(current)) {
+      bestByCode.set(key, item);
+    }
+  });
+
+  return Array.from(bestByCode.values());
 }
 
 function populateFilter(selectEl, values, allLabel) {
@@ -264,7 +293,7 @@ function render() {
 async function loadInventory() {
   const response = await fetch("/api/inventory");
   const data = await response.json();
-  inventory = (data.items || []).map(buildViewItem);
+  inventory = dedupeInventory((data.items || []).map(buildViewItem));
   refreshFilterOptions();
   render();
 }

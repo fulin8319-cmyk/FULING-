@@ -1,0 +1,151 @@
+{
+  "name": "Fulin Inventory Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fulin-inventory",
+        "responseMode": "responseNode"
+      },
+      "id": "Webhook_1",
+      "name": "Receive Inventory",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        280,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://fuling-production-5e97.up.railway.app/api/n8n/inventory",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 0986551551"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "keypair",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "code",
+              "value": "={{$json.body.code}}"
+            },
+            {
+              "name": "name",
+              "value": "={{$json.body.name}}"
+            },
+            {
+              "name": "fabricType",
+              "value": "={{$json.body.fabricType}}"
+            },
+            {
+              "name": "pattern",
+              "value": "={{$json.body.pattern}}"
+            },
+            {
+              "name": "composition",
+              "value": "={{$json.body.composition}}"
+            },
+            {
+              "name": "width",
+              "value": "={{$json.body.width}}"
+            },
+            {
+              "name": "weightPerYard",
+              "value": "={{$json.body.weightPerYard}}"
+            },
+            {
+              "name": "kg",
+              "value": "={{$json.body.kg}}"
+            },
+            {
+              "name": "yards",
+              "value": "={{$json.body.yards}}"
+            },
+            {
+              "name": "location",
+              "value": "={{$json.body.location}}"
+            },
+            {
+              "name": "status",
+              "value": "={{$json.body.status}}"
+            },
+            {
+              "name": "note",
+              "value": "={{$json.body.note}}"
+            },
+            {
+              "name": "image",
+              "value": "={{$json.body.image}}"
+            },
+            {
+              "name": "uploadedBy",
+              "value": "={{$json.body.uploadedBy}}"
+            }
+          ]
+        }
+      },
+      "id": "HttpRequest_1",
+      "name": "Send To Fulin Site",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        620,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\": true, \"message\": \"Inventory sent\", \"code\": $json.code}",
+        "options": {}
+      },
+      "id": "Respond_1",
+      "name": "Return Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        920,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Receive Inventory": {
+      "main": [
+        [
+          {
+            "node": "Send To Fulin Site",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send To Fulin Site": {
+      "main": [
+        [
+          {
+            "node": "Return Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "fulin-inventory-v1"
+}
