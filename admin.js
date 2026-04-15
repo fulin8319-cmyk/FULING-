@@ -1,5 +1,4 @@
 const CATEGORY_OPTIONS = [
-  "現貨布",
   "印花用布",
   "針織布",
   "平織布",
@@ -7,7 +6,10 @@ const CATEGORY_OPTIONS = [
   "網布",
   "刷毛布",
   "尼龍布",
-  "聚酯布",
+  "單面布",
+  "雙面布",
+  "吸排布",
+  "魚鱗布",
   "其他布料"
 ];
 
@@ -92,7 +94,7 @@ function escapeAttribute(value) {
 }
 
 function normalizeItem(item = {}) {
-  const category = item.category || (item.isPrintingFabric ? "印花用布" : "現貨布");
+  const category = item.category || (item.isPrintingFabric ? "印花用布" : "其他布料");
   const isPrintingFabric = item.isPrintingFabric === true || category === "印花用布";
   const weightPerYard = Number(item.weightPerYard || 0);
   let kg = Number(item.kg || 0);
@@ -165,7 +167,7 @@ function buildBooleanOptions(selectedValue) {
 }
 
 function populateCategorySelect(selectEl) {
-  selectEl.innerHTML = buildCategoryOptions("現貨布");
+  selectEl.innerHTML = buildCategoryOptions("其他布料");
 }
 
 function buildHeaderFilterOptions(key) {
@@ -361,7 +363,7 @@ function readFormData() {
     if (item.isPrintingFabric) {
       item.category = "印花用布";
     } else if (item.category === "印花用布") {
-      item.category = "現貨布";
+      item.category = "其他布料";
     }
 
     if (item.kg && item.weightPerYard && !item.yards) {
@@ -378,7 +380,7 @@ function readFormData() {
 
 function clearAddForm() {
   newCodeEl.value = "";
-  newCategoryEl.value = "現貨布";
+  newCategoryEl.value = "其他布料";
   newIsPrintingFabricEl.value = "false";
   newFeaturedOnHomeEl.value = "false";
   newDisplayTitleEl.value = "";
