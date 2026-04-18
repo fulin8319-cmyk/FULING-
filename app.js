@@ -1,318 +1,308 @@
-let inventory = [];
+﻿const state = {
+  rawItems: [],
+  items: [],
+};
 
-const rowsEl = document.getElementById("inventoryRows");
-const cardGridEl = document.getElementById("cardGrid");
-const searchInputEl = document.getElementById("searchInput");
-const statusFilterEl = document.getElementById("statusFilter");
-const fabricTypeFilterEl = document.getElementById("fabricTypeFilter");
-const colorFilterEl = document.getElementById("colorFilter");
-const categoryFilterEl = document.getElementById("categoryFilter");
-const sortSelectEl = document.getElementById("sortSelect");
-const summaryStripEl = document.getElementById("summaryStrip");
-const recordCountEl = document.getElementById("recordCount");
-const reviewCountEl = document.getElementById("reviewCount");
-const modalEl = document.getElementById("previewModal");
-const modalSwatchEl = document.getElementById("modalSwatch");
-const modalInfoEl = document.getElementById("modalInfo");
-const closeModalEl = document.getElementById("closeModal");
+const searchInput = document.getElementById("searchInput");
+const statusFilter = document.getElementById("statusFilter");
+const fabricTypeFilter = document.getElementById("fabricTypeFilter");
+const colorFilter = document.getElementById("colorFilter");
+const categoryFilter = document.getElementById("categoryFilter");
+const sortSelect = document.getElementById("sortSelect");
+const inventoryRows = document.getElementById("inventoryRows");
+const cardGrid = document.getElementById("cardGrid");
 
-function formatNumber(value, digits = 1) {
-  return Number(value || 0).toFixed(digits);
-}
+const resultCount = document.getElementById("resultCount");
+const soldCount = document.getElementById("soldCount");
+const totalKg = document.getElementById("totalKg");
+const totalYards = document.getElementById("totalYards");
+const maxWidth = document.getElementById("maxWidth");
+const categoryCount = document.getElementById("categoryCount");
 
-function statusLabel(status) {
-  if (status === "review") return "待確認";
-  if (status === "sold") return "已售出";
-  if (status === "reserved") return "保留中";
-  return "現貨中";
-}
+const previewModal = document.getElementById("previewModal");
+const previewImage = document.getElementById("previewImage");
+const previewTitle = document.getElementById("previewTitle");
+const previewMeta = document.getElementById("previewMeta");
+const closePreview = document.getElementById("closePreview");
 
 function normalizeCode(value) {
   return String(value || "")
     .trim()
     .toUpperCase()
-    .replace(/\s+/g, "")
-    .replace(/^A/, "");
+    .replace(/^A/i, "");
 }
 
-function cleanText(value) {
-  return String(value || "").trim();
+function cleanText(value, fallback = "?芸‵") {
+  const text = String(value ?? "").trim();
+  return text || fallback;
+}
+
+function parseNumber(value) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : 0;
+}
+
+function isLogoImage(url) {
+  const lower = String(url || "").toLowerCase();
+  return (
+    lower.includes("/logo.jpg") ||
+    lower.includes("fulin-logo") ||
+    lower.includes("logo.JPG".toLowerCase()) ||
+    lower.includes("d80_0722")
+  );
+}
+
+function isPrintingItem(item) {
+  return (
+    item.isPrintingFabric === true ||
+    cleanText(item.category, "").includes("?啗")
+  );
 }
 
 function deriveCategory(item) {
-  const text = [
-    item.category,
-    item.fabricType,
-    item.name,
-    item.note,
-    item.composition
-  ].join(" ").toLowerCase();
-
-  if (/印|print|昇華|轉印/.test(text)) return "印花用布";
-  if (/吸排|吸濕排汗/.test(text)) return "吸排布";
-  if (/魚鱗/.test(text)) return "魚鱗布";
-  if (/雙面/.test(text)) return "雙面布";
-  if (/單面/.test(text)) return "單面布";
-  if (/針織/.test(text)) return "針織布";
-  if (/平織/.test(text)) return "平織布";
-  if (/op|spandex|lycra|彈/.test(text)) return "彈性布";
-  if (/mesh|網/.test(text)) return "網布";
-  if (/刷毛|毛圈/.test(text)) return "刷毛布";
-  if (/尼龍|\bn\b/.test(text)) return "尼龍布";
-  return "其他布料";
+  const explicit = cleanText(item.category, "");
+  if (explicit) return explicit;
+  return isPrintingItem(item) ? "?啗?典?" : "?嗡?撣?";
 }
 
-function deriveColor(item) {
-  const text = [item.pattern, item.name, item.note].join(" ");
-  const colorMap = [
-    ["黑", "黑色"],
-    ["白", "白色"],
-    ["灰", "灰色"],
-    ["藍", "藍色"],
-    ["深藍", "深藍"],
-    ["紅", "紅色"],
-    ["綠", "綠色"],
-    ["黃", "黃色"],
-    ["紫", "紫色"],
-    ["粉", "粉色"],
-    ["咖", "咖色"],
-    ["米", "米色"],
-    ["卡其", "卡其"],
-    ["條紋", "條紋"],
-    ["格", "格紋"],
-    ["印花", "印花"],
-    ["素", "素色"]
-  ];
-
-  const match = colorMap.find(([keyword]) => text.includes(keyword));
-  return match ? match[1] : cleanText(item.pattern) || "未分類";
+function buildImage(item) {
+  const primary = cleanText(item.imagePrimary || item.image, "");
+  const secondary = cleanText(item.imageSecondary, "");
+  if (primary && !isLogoImage(primary)) return primary;
+  if (secondary && !isLogoImage(secondary)) return secondary;
+  return "";
 }
 
 function buildViewItem(item) {
+  const kg = parseNumber(item.kg);
+  const yards = parseNumber(item.yards);
+  const width = parseNumber(item.width);
+  const weightPerYard = parseNumber(item.weightPerYard);
+
   return {
     ...item,
-    displayCode: cleanText(item.code),
     normalizedCode: normalizeCode(item.code),
-    normalizedBaseCode: normalizeCode(item.baseCode),
-    displayFabricType: cleanText(item.fabricType) || "未分類",
-    displayColor: deriveColor(item),
+    displayCode: cleanText(item.code, "?芰楊??),
+    displayName: cleanText(item.name || item.fabricType, "?芸??),
+    displayFabricType: cleanText(item.fabricType, "?芸?憿?),
+    displayColor: cleanText(item.pattern, "?芸?憿?),
+    displayComposition: cleanText(item.composition, "?芸‵"),
     displayCategory: deriveCategory(item),
-    displayName: cleanText(item.name) || cleanText(item.displayTitle) || cleanText(item.code),
-    displayLocation: cleanText(item.location) || "未填",
-    displayImage: cleanText(item.image) || cleanText(item.featuredImage) || ""
+    displayLocation: cleanText(item.location, "?芸‵"),
+    displayStatus: cleanText(item.status, "?曇疏銝?),
+    displayImage: buildImage(item),
+    kg,
+    yards,
+    width,
+    weightPerYard,
   };
 }
 
 function scoreInventoryItem(item) {
   let score = 0;
-  if (item.displayImage) score += 5;
-  if (item.pattern) score += 2;
-  if (item.weightPerYard) score += 2;
-  if (item.kg || item.yards) score += 2;
-  if (item.displayLocation && item.displayLocation !== "?芸‵") score += 1;
-  if (item.displayCategory && item.displayCategory !== "?嗡?撣?") score += 1;
-  if (item.displayImage && /logo/i.test(item.displayImage)) score -= 10;
+  if (isPrintingItem(item)) score += 100;
+  if (item.displayImage) score += 40;
+  if (item.kg > 0) score += 10;
+  if (item.yards > 0) score += 10;
+  if (item.width > 0) score += 5;
+  if (item.weightPerYard > 0) score += 5;
+  if (!isLogoImage(item.image || item.imagePrimary)) score += 5;
   return score;
 }
 
 function dedupeInventory(items) {
-  const bestByCode = new Map();
+  const bestMap = new Map();
 
   items.forEach((item) => {
+<<<<<<< HEAD
     const key = item.displayCode || `${item.displayName}-${item.displayLocation}-${item.kg}-${item.yards}`;
     const current = bestByCode.get(key);
+=======
+    if (!item.normalizedCode) return;
+    const current = bestMap.get(item.normalizedCode);
+>>>>>>> 9ed663e (Fix printing inventory dedupe and search behavior)
     if (!current || scoreInventoryItem(item) > scoreInventoryItem(current)) {
-      bestByCode.set(key, item);
+      bestMap.set(item.normalizedCode, item);
     }
   });
 
-  return Array.from(bestByCode.values());
+  return Array.from(bestMap.values());
 }
 
-function populateFilter(selectEl, values, allLabel) {
-  const currentValue = selectEl.value || "all";
-  const options = [`<option value="all">${allLabel}</option>`].concat(
-    values.map((value) => `<option value="${value}">${value}</option>`)
-  );
-  selectEl.innerHTML = options.join("");
-  selectEl.value = values.includes(currentValue) ? currentValue : "all";
+function matchesSearch(item, query) {
+  if (!query) return true;
+  const normalizedQuery = query.trim().toUpperCase().replace(/^A/i, "");
+  const haystack = [
+    item.displayCode,
+    item.normalizedCode,
+    item.displayName,
+    item.displayFabricType,
+    item.displayColor,
+    item.displayComposition,
+    item.displayCategory,
+  ]
+    .join(" ")
+    .toUpperCase();
+  return haystack.includes(normalizedQuery);
 }
 
-function refreshFilterOptions() {
-  const fabricTypes = [...new Set(inventory.map((item) => item.displayFabricType).filter(Boolean))].sort();
-  const colors = [...new Set(inventory.map((item) => item.displayColor).filter(Boolean))].sort();
-  const categories = [...new Set(inventory.map((item) => item.displayCategory).filter(Boolean))].sort();
-
-  populateFilter(fabricTypeFilterEl, fabricTypes, "全部布種");
-  populateFilter(colorFilterEl, colors, "全部顏色");
-  populateFilter(categoryFilterEl, categories, "全部種類");
+function compareItems(a, b, sortKey) {
+  switch (sortKey) {
+    case "code-desc":
+      return b.normalizedCode.localeCompare(a.normalizedCode, "zh-Hant");
+    case "kg-desc":
+      return b.kg - a.kg || a.normalizedCode.localeCompare(b.normalizedCode, "zh-Hant");
+    case "yards-desc":
+      return b.yards - a.yards || a.normalizedCode.localeCompare(b.normalizedCode, "zh-Hant");
+    case "code-asc":
+    default:
+      return a.normalizedCode.localeCompare(b.normalizedCode, "zh-Hant");
+  }
 }
 
-function getFilteredRecords() {
-  const keyword = searchInputEl.value.trim().toLowerCase();
-  const normalizedKeyword = normalizeCode(keyword);
-  const status = statusFilterEl.value;
-  const fabricType = fabricTypeFilterEl.value;
-  const color = colorFilterEl.value;
-  const category = categoryFilterEl.value;
-  const sortKey = sortSelectEl.value;
-
-  const filtered = inventory.filter((item) => {
-    const haystack = [
-      item.displayCode,
-      item.normalizedCode,
-      item.baseCode,
-      item.normalizedBaseCode,
-      item.rollNo,
-      item.displayName,
-      item.displayFabricType,
-      item.displayColor,
-      item.displayCategory,
-      String(item.width),
-      String(item.weightPerYard),
-      String(item.kg),
-      String(item.yards),
-      item.displayLocation,
-      item.side
-    ].join(" ").toLowerCase();
-
-    const codeMatch = !normalizedKeyword ||
-      item.normalizedCode.includes(normalizedKeyword) ||
-      item.normalizedBaseCode.includes(normalizedKeyword);
-
-    const textMatch = !keyword || haystack.includes(keyword);
-    const matchesSearch = !keyword || codeMatch || textMatch;
-    const matchesStatus = status === "all" || item.status === status;
-    const matchesFabricType = fabricType === "all" || item.displayFabricType === fabricType;
-    const matchesColor = color === "all" || item.displayColor === color;
-    const matchesCategory = category === "all" || item.displayCategory === category;
-
-    return matchesSearch && matchesStatus && matchesFabricType && matchesColor && matchesCategory;
-  });
-
-  filtered.sort((a, b) => {
-    if (sortKey === "code") return a.displayCode.localeCompare(b.displayCode, undefined, { numeric: true, sensitivity: "base" });
-    return (Number(b[sortKey]) || 0) - (Number(a[sortKey]) || 0);
-  });
-
-  return filtered;
+function uniqueValues(items, key) {
+  return Array.from(
+    new Set(items.map((item) => cleanText(item[key], "")).filter(Boolean))
+  ).sort((a, b) => a.localeCompare(b, "zh-Hant"));
 }
 
-function buildSummary(records) {
-  const totalKg = records.reduce((sum, item) => sum + (item.kg || 0), 0);
-  const totalYards = records.reduce((sum, item) => sum + (item.yards || 0), 0);
-  const maxWidth = records.reduce((max, item) => Math.max(max, item.width || 0), 0);
-  const categories = new Set(records.map((item) => item.displayCategory)).size;
+function fillSelect(select, values, placeholder) {
+  select.innerHTML = "";
+  const allOption = document.createElement("option");
+  allOption.value = "";
+  allOption.textContent = placeholder;
+  select.appendChild(allOption);
 
-  summaryStripEl.innerHTML = [
-    { label: "總公斤數", value: `${formatNumber(totalKg)} kg` },
-    { label: "總碼數", value: `${formatNumber(totalYards)} yd` },
-    { label: "最大幅寬", value: `${maxWidth}"` },
-    { label: "布料種類", value: categories }
-  ].map((card) => `
-    <article class="summary-card">
-      <span>${card.label}</span>
-      <strong>${card.value}</strong>
-    </article>
-  `).join("");
-}
-
-function openPreview(item) {
-  modalSwatchEl.style.background = `center / cover no-repeat url("${item.displayImage}")`;
-  modalInfoEl.innerHTML = `
-    <div>
-      <p class="eyebrow">Fabric Detail</p>
-      <h3>${item.displayCode}</h3>
-      <p>${item.normalizedBaseCode && item.normalizedBaseCode !== item.normalizedCode ? `主編號 A${item.normalizedBaseCode}` : "單支庫存"}${item.rollNo ? ` / 支號 ${item.rollNo}` : ""}</p>
-    </div>
-    <div class="modal-grid">
-      <div class="detail-card"><span>布種</span><strong>${item.displayFabricType}</strong></div>
-      <div class="detail-card"><span>顏色</span><strong>${item.displayColor}</strong></div>
-      <div class="detail-card"><span>布料種類</span><strong>${item.displayCategory}</strong></div>
-      <div class="detail-card"><span>幅寬</span><strong>${item.width}"</strong></div>
-      <div class="detail-card"><span>碼重</span><strong>${item.weightPerYard}</strong></div>
-      <div class="detail-card"><span>公斤數</span><strong>${item.kg ? `${formatNumber(item.kg)} kg` : "-"}</strong></div>
-      <div class="detail-card"><span>碼數</span><strong>${item.yards ? `${formatNumber(item.yards)} yd` : "-"}</strong></div>
-      <div class="detail-card"><span>庫位</span><strong>${item.displayLocation}</strong></div>
-    </div>
-    <div class="note">${item.note || "目前沒有額外備註。"}</div>
-  `;
-  modalEl.showModal();
-}
-
-function bindPreviewClicks() {
-  document.querySelectorAll("[data-code]").forEach((element) => {
-    element.addEventListener("click", () => {
-      const item = inventory.find((entry) => entry.displayCode === element.dataset.code);
-      if (item) openPreview(item);
-    });
+  values.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
   });
 }
 
-function render() {
-  const records = getFilteredRecords();
-  recordCountEl.textContent = records.length;
-  reviewCountEl.textContent = records.filter((item) => item.status === "review").length;
-  buildSummary(records);
+function populateFilterOptions(items) {
+  fillSelect(statusFilter, uniqueValues(items, "displayStatus"), "?券???);
+  fillSelect(fabricTypeFilter, uniqueValues(items, "displayFabricType"), "?券撣車");
+  fillSelect(colorFilter, uniqueValues(items, "displayColor"), "?券憿");
+  fillSelect(categoryFilter, uniqueValues(items, "displayCategory"), "?券撣?蝔桅?");
+}
 
-  rowsEl.innerHTML = records.map((item) => `
-    <tr>
-      <td><div class="mini-swatch" data-code="${item.displayCode}" style="background:center / cover no-repeat url('${item.displayImage}')"></div></td>
+function renderSummary(items) {
+  resultCount.textContent = String(items.length);
+  soldCount.textContent = String(items.filter((item) => item.displayStatus === "sold" || item.displayStatus === "撌脣??).length);
+  totalKg.textContent = `${items.reduce((sum, item) => sum + item.kg, 0).toFixed(1)} kg`;
+  totalYards.textContent = `${items.reduce((sum, item) => sum + item.yards, 0).toFixed(1)} yd`;
+  maxWidth.textContent = `${Math.max(0, ...items.map((item) => item.width))}"`;
+  categoryCount.textContent = String(new Set(items.map((item) => item.displayCategory)).size);
+}
+
+function renderTable(items) {
+  inventoryRows.innerHTML = "";
+
+  items.forEach((item) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${item.displayImage ? `<img class="table-thumb" src="${item.displayImage}" alt="${item.displayCode}">` : '<span class="muted-text">?芸‵</span>'}</td>
       <td>${item.displayCode}</td>
-      <td>${item.normalizedBaseCode && item.normalizedBaseCode !== item.normalizedCode ? `A${item.normalizedBaseCode}` : "-"}</td>
-      <td>${item.rollNo || "-"}</td>
       <td>${item.displayFabricType}</td>
       <td>${item.displayColor}</td>
       <td>${item.displayCategory}</td>
-      <td>${item.width}"</td>
-      <td>${item.weightPerYard}</td>
-      <td>${item.kg ? formatNumber(item.kg) : "-"}</td>
-      <td>${item.yards ? formatNumber(item.yards) : "-"}</td>
+      <td>${item.displayComposition}</td>
+      <td>${item.width ? `${item.width}"` : "-"}</td>
+      <td>${item.weightPerYard || "-"}</td>
+      <td>${item.kg ? item.kg.toFixed(1) : "-"}</td>
+      <td>${item.yards ? item.yards.toFixed(1) : "-"}</td>
       <td>${item.displayLocation}</td>
-      <td><span class="status-pill status-${item.status}">${statusLabel(item.status)}</span></td>
-    </tr>
-  `).join("");
+      <td>${item.displayStatus}</td>
+    `;
+    inventoryRows.appendChild(tr);
+  });
+}
 
-  cardGridEl.innerHTML = records.map((item) => `
-    <article class="fabric-card fabric-card-${item.status}">
-      <div class="swatch" data-code="${item.displayCode}" style="background:center / cover no-repeat url('${item.displayImage}')"></div>
-      <div class="fabric-meta">
-        <strong>${item.displayCode}</strong>
-        <span>${item.displayFabricType} / ${item.displayColor}</span>
-        <span>${item.displayCategory}</span>
-        <span>幅寬 ${item.width}" / 碼重 ${item.weightPerYard}</span>
-        <span>${item.kg ? formatNumber(item.kg) : "-"} kg / ${item.yards ? formatNumber(item.yards) : "-"} yd</span>
-        <span>${item.displayLocation} / ${statusLabel(item.status)}</span>
+function openPreview(item) {
+  if (!item.displayImage) return;
+  previewImage.src = item.displayImage;
+  previewTitle.textContent = item.displayCode;
+  previewMeta.textContent = `${item.displayFabricType} / ${item.displayColor} / ${item.displayCategory}`;
+  previewModal.hidden = false;
+}
+
+function renderCards(items) {
+  cardGrid.innerHTML = "";
+
+  items.forEach((item) => {
+    const card = document.createElement("article");
+    card.className = "inventory-card";
+    card.innerHTML = `
+      <button class="inventory-card-image" type="button">
+        ${item.displayImage ? `<img src="${item.displayImage}" alt="${item.displayCode}">` : '<span class="muted-text">?∪???/span>'}
+      </button>
+      <div class="inventory-card-body">
+        <h3>${item.displayCode}</h3>
+        <p>${item.displayFabricType} / ${item.displayColor}</p>
+        <p>${item.displayCategory}</p>
+        <p>撟祝 ${item.width ? `${item.width}"` : "-"} / 蝣潮? ${item.weightPerYard || "-"}</p>
+        <p>${item.kg ? `${item.kg.toFixed(1)} kg` : "-"} / ${item.yards ? `${item.yards.toFixed(1)} yd` : "-"}</p>
+        <p>${item.displayLocation} / ${item.displayStatus}</p>
       </div>
-    </article>
-  `).join("");
+    `;
+    const imageButton = card.querySelector(".inventory-card-image");
+    imageButton?.addEventListener("click", () => openPreview(item));
+    cardGrid.appendChild(card);
+  });
+}
 
-  bindPreviewClicks();
+function applyFilters() {
+  const query = searchInput.value;
+  const filtered = state.items
+    .filter((item) => matchesSearch(item, query))
+    .filter((item) => !statusFilter.value || item.displayStatus === statusFilter.value)
+    .filter((item) => !fabricTypeFilter.value || item.displayFabricType === fabricTypeFilter.value)
+    .filter((item) => !colorFilter.value || item.displayColor === colorFilter.value)
+    .filter((item) => !categoryFilter.value || item.displayCategory === categoryFilter.value)
+    .sort((a, b) => compareItems(a, b, sortSelect.value));
+
+  renderSummary(filtered);
+  renderTable(filtered);
+  renderCards(filtered);
 }
 
 async function loadInventory() {
-  const response = await fetch("/api/inventory");
+  const response = await fetch("./api/inventory");
   const data = await response.json();
-  inventory = dedupeInventory((data.items || []).map(buildViewItem));
-  refreshFilterOptions();
-  render();
+
+  state.rawItems = Array.isArray(data) ? data : [];
+  state.items = dedupeInventory(
+    state.rawItems
+      .map(buildViewItem)
+      .filter((item) => isPrintingItem(item))
+      .filter((item) => !isLogoImage(item.image || item.imagePrimary || item.displayImage))
+      .filter((item) => item.normalizedCode)
+  );
+
+  populateFilterOptions(state.items);
+  applyFilters();
 }
 
-searchInputEl.addEventListener("input", render);
-statusFilterEl.addEventListener("change", render);
-fabricTypeFilterEl.addEventListener("change", render);
-colorFilterEl.addEventListener("change", render);
-categoryFilterEl.addEventListener("change", render);
-sortSelectEl.addEventListener("change", render);
-closeModalEl.addEventListener("click", () => modalEl.close());
-modalEl.addEventListener("click", (event) => {
-  const rect = modalEl.getBoundingClientRect();
-  const isInside =
-    rect.top <= event.clientY &&
-    event.clientY <= rect.top + rect.height &&
-    rect.left <= event.clientX &&
-    event.clientX <= rect.left + rect.width;
-  if (!isInside) modalEl.close();
+closePreview?.addEventListener("click", () => {
+  previewModal.hidden = true;
+  previewImage.src = "";
 });
 
-loadInventory();
+previewModal?.addEventListener("click", (event) => {
+  if (event.target === previewModal) {
+    previewModal.hidden = true;
+    previewImage.src = "";
+  }
+});
+
+[searchInput, statusFilter, fabricTypeFilter, colorFilter, categoryFilter, sortSelect].forEach((element) => {
+  element?.addEventListener("input", applyFilters);
+  element?.addEventListener("change", applyFilters);
+});
+
+loadInventory().catch((error) => {
+  console.error(error);
+});
+
