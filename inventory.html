@@ -3,146 +3,147 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>福麟商行 | 現貨查詢</title>
+  <title>福麟商行｜印花用布現貨查詢</title>
+  <meta name="description" content="查詢福麟商行印花用布現貨資料，快速搜尋布號、顏色、成份、布料種類與現貨資訊。">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="site-shell">
-    <header class="site-header">
+  <div class="site-shell inventory-page">
+    <header class="site-header compact-header">
       <a class="brand-mark" href="./index.html">
-        <span class="brand-text">
-          <span class="brand-cn">福麟商行</span>
-          <span class="brand-en">Fulin Textile</span>
-        </span>
+        <span class="brand-cn">福麟商行</span>
+        <span class="brand-en">Fulin Textile</span>
       </a>
       <nav class="site-nav">
         <a href="./index.html">首頁</a>
-        <a href="./index.html#about">關於我們</a>
         <a href="./printing.html">印花用布</a>
-        <a href="./login.html">後台登入</a>
-        <a class="nav-cta" href="./inventory.html">現貨查詢</a>
+        <a class="nav-cta" href="./login.html">後台登入</a>
       </nav>
     </header>
 
-    <main class="inventory-page">
-      <section class="inventory-hero">
-        <div>
-          <p class="eyebrow">Inventory</p>
-          <h1>現貨布料查詢</h1>
-          <p class="hero-lead">
-            可以直接搜尋布號、主編號、庫位與公斤數。搜尋布號時不用輸入 A，
-            例如輸入 <code>023811</code> 也能找到 <code>A023811</code>。
-          </p>
-          <p class="hero-lead">
-            也可以用布種、顏色、布料種類來快速縮小範圍，先看總覽，再點進去放大看布樣。
-          </p>
+    <section class="inventory-hero">
+      <div>
+        <p class="section-kicker">INVENTORY</p>
+        <h1>印花用布現貨查詢</h1>
+        <p>
+          目前前台先開放印花用布。可直接搜尋布號，不用輸入 A；例如輸入 <code>023811</code> 也能找到
+          <code>A023811</code>。
+        </p>
+      </div>
+      <div class="inventory-badges">
+        <div class="badge-card">
+          <span>顯示筆數</span>
+          <strong id="resultCount">0</strong>
         </div>
-        <div class="hero-stats">
-          <div class="stat-card">
-            <span class="stat-label">目前筆數</span>
-            <strong id="recordCount">0</strong>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">待確認</span>
-            <strong id="reviewCount">0</strong>
-          </div>
+        <div class="badge-card">
+          <span>已售出</span>
+          <strong id="soldCount">0</strong>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <section class="toolbar inventory-toolbar-wide">
-        <label class="field">
+    <section class="filter-panel">
+      <div class="filter-grid">
+        <label>
           <span>搜尋</span>
-          <input id="searchInput" type="search" placeholder="搜尋布號、主編號、庫位、公斤數，不用輸入 A">
+          <input id="searchInput" type="search" placeholder="搜尋布號、布種、顏色、成份、分類">
         </label>
-        <label class="field">
+        <label>
           <span>狀態</span>
-          <select id="statusFilter">
-            <option value="all">全部</option>
-            <option value="confirmed">現貨中</option>
-            <option value="review">待確認</option>
-            <option value="sold">已售出</option>
-            <option value="reserved">保留中</option>
-          </select>
+          <select id="statusFilter"></select>
         </label>
-        <label class="field">
+        <label>
           <span>布種</span>
-          <select id="fabricTypeFilter">
-            <option value="all">全部布種</option>
-          </select>
+          <select id="fabricTypeFilter"></select>
         </label>
-        <label class="field">
+        <label>
           <span>顏色</span>
-          <select id="colorFilter">
-            <option value="all">全部顏色</option>
-          </select>
+          <select id="colorFilter"></select>
         </label>
-        <label class="field">
+        <label>
           <span>布料種類</span>
-          <select id="categoryFilter">
-            <option value="all">全部種類</option>
-          </select>
+          <select id="categoryFilter"></select>
         </label>
-        <label class="field">
+        <label>
           <span>排序</span>
           <select id="sortSelect">
-            <option value="code">依布號</option>
-            <option value="yards">依碼數</option>
-            <option value="kg">依公斤數</option>
-            <option value="width">依幅寬</option>
+            <option value="code-asc">布號小到大</option>
+            <option value="code-desc">布號大到小</option>
+            <option value="kg-desc">公斤數高到低</option>
+            <option value="yards-desc">碼數高到低</option>
           </select>
         </label>
-      </section>
+      </div>
+    </section>
 
-      <section class="summary-strip" id="summaryStrip"></section>
+    <section class="summary-panel">
+      <div class="summary-card">
+        <span>總公斤數</span>
+        <strong id="totalKg">0 kg</strong>
+      </div>
+      <div class="summary-card">
+        <span>總碼數</span>
+        <strong id="totalYards">0 yd</strong>
+      </div>
+      <div class="summary-card">
+        <span>最大幅寬</span>
+        <strong id="maxWidth">0"</strong>
+      </div>
+      <div class="summary-card">
+        <span>顯示分類數</span>
+        <strong id="categoryCount">0</strong>
+      </div>
+    </section>
 
-      <section class="content-grid">
-        <div class="table-panel">
-          <div class="panel-head">
-            <h2>庫存列表</h2>
-            <p>列表會顯示布號、主編號、支號、幅寬、碼重、公斤數、碼數、布種、顏色、庫位與狀態。</p>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>布樣</th>
-                  <th>布號</th>
-                  <th>主編號</th>
-                  <th>支號</th>
-                  <th>布種</th>
-                  <th>顏色</th>
-                  <th>布料種類</th>
-                  <th>幅寬</th>
-                  <th>碼重</th>
-                  <th>公斤數</th>
-                  <th>碼數</th>
-                  <th>庫位</th>
-                  <th>狀態</th>
-                </tr>
-              </thead>
-              <tbody id="inventoryRows"></tbody>
-            </table>
-          </div>
+    <section class="inventory-content">
+      <div class="inventory-table-panel">
+        <div class="panel-header">
+          <h2>庫存列表</h2>
+          <p>前台只顯示印花用布，重複布號會自動合併成一張代表卡片。</p>
         </div>
+        <div class="table-wrapper">
+          <table class="inventory-table">
+            <thead>
+              <tr>
+                <th>縮圖</th>
+                <th>布號</th>
+                <th>布種</th>
+                <th>顏色</th>
+                <th>分類</th>
+                <th>成份</th>
+                <th>幅寬</th>
+                <th>碼重</th>
+                <th>公斤數</th>
+                <th>碼數</th>
+                <th>庫位</th>
+                <th>狀態</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryRows"></tbody>
+          </table>
+        </div>
+      </div>
 
-        <aside class="card-panel">
-          <div class="panel-head">
-            <h2>布樣卡片</h2>
-            <p>點布樣可以放大看。卡片會同時顯示布種、顏色、布料種類與庫位。</p>
-          </div>
-          <div class="card-grid" id="cardGrid"></div>
-        </aside>
-      </section>
-    </main>
+      <div class="inventory-card-panel">
+        <div class="panel-header">
+          <h2>布樣卡片</h2>
+          <p>點圖片可放大查看，只顯示你在後台指定為印花用布的資料。</p>
+        </div>
+        <div id="cardGrid" class="card-grid"></div>
+      </div>
+    </section>
   </div>
 
-  <dialog id="previewModal" class="preview-modal">
-    <button id="closeModal" class="close-button" aria-label="Close">x</button>
-    <div class="modal-layout">
-      <div class="modal-swatch modal-photo" id="modalSwatch"></div>
-      <div class="modal-info" id="modalInfo"></div>
+  <div id="previewModal" class="preview-modal" hidden>
+    <div class="preview-dialog">
+      <button id="closePreview" class="preview-close" type="button" aria-label="關閉">×</button>
+      <img id="previewImage" src="" alt="布樣放大預覽">
+      <div class="preview-caption">
+        <strong id="previewTitle"></strong>
+        <p id="previewMeta"></p>
+      </div>
     </div>
-  </dialog>
+  </div>
 
   <script src="./app.js"></script>
 </body>
