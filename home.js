@@ -1,8 +1,19 @@
 const featuredCards = Array.from(document.querySelectorAll(".printing-gallery .featured-card"));
 
+function isLogoImage(url) {
+  const lower = String(url || "").toLowerCase();
+  return (
+    lower.includes("logo.jpg") ||
+    lower.includes("logo.jpeg") ||
+    lower.includes("logo.png") ||
+    lower.includes("fulin-logo")
+  );
+}
+
 function renderFeaturedCards(items) {
   const featuredItems = items
     .filter((item) => item.featuredOnHome)
+    .filter((item) => !isLogoImage(item.featuredImage || item.image))
     .slice(0, featuredCards.length);
 
   featuredItems.forEach((item, index) => {
@@ -15,9 +26,9 @@ function renderFeaturedCards(items) {
     const descriptionEl = card.querySelector(".featured-copy small");
 
     const imagePath = item.featuredImage || item.image || imageEl?.getAttribute("src") || "";
-    const titleText = item.displayTitle || item.code || "印花用布";
-    const useText = item.useText || "適合：熱昇華印花 / 團體服 / 運動服";
-    const descriptionText = item.descriptionText || item.note || "規格與成份可依實際布號確認。";
+    const titleText = item.displayTitle || item.name || item.code || "布料";
+    const useText = item.useText || `${item.fabricType || "布料"} / ${item.pattern || "未分類"}`;
+    const descriptionText = item.descriptionText || item.note || "可聯繫福麟商行詢問庫存與對樣。";
 
     if (imageEl && imagePath) {
       imageEl.src = imagePath;
@@ -34,11 +45,9 @@ async function loadFeaturedCards() {
 
   try {
     const response = await fetch("/api/inventory");
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Load failed");
-    }
-    renderFeaturedCards(data.items || []);
+    const payload = await response.json();
+    const items = Array.isArray(payload) ? payload : payload.items || [];
+    renderFeaturedCards(items);
   } catch (error) {
     console.error("Failed to load featured fabrics:", error);
   }

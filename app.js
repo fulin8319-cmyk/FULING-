@@ -1,4 +1,4 @@
-﻿const state = {
+const state = {
   rawItems: [],
   items: [],
 };
@@ -8,6 +8,7 @@ const statusFilter = document.getElementById("statusFilter");
 const fabricTypeFilter = document.getElementById("fabricTypeFilter");
 const colorFilter = document.getElementById("colorFilter");
 const categoryFilter = document.getElementById("categoryFilter");
+const compositionFilter = document.getElementById("compositionFilter");
 const sortSelect = document.getElementById("sortSelect");
 const inventoryRows = document.getElementById("inventoryRows");
 const cardGrid = document.getElementById("cardGrid");
@@ -25,14 +26,7 @@ const previewTitle = document.getElementById("previewTitle");
 const previewMeta = document.getElementById("previewMeta");
 const closePreview = document.getElementById("closePreview");
 
-function normalizeCode(value) {
-  return String(value || "")
-    .trim()
-    .toUpperCase()
-    .replace(/^A/i, "");
-}
-
-function cleanText(value, fallback = "?芸‵") {
+function cleanText(value, fallback = "未填") {
   const text = String(value ?? "").trim();
   return text || fallback;
 }
@@ -42,38 +36,80 @@ function parseNumber(value) {
   return Number.isFinite(num) ? num : 0;
 }
 
+function normalizeCodeKey(code) {
+  return String(code || "").trim().toUpperCase();
+}
+
+function normalizeSearchCode(code) {
+  return normalizeCodeKey(code).replace(/^A/, "");
+}
+
 function isLogoImage(url) {
   const lower = String(url || "").toLowerCase();
   return (
-    lower.includes("/logo.jpg") ||
+    lower.includes("logo.jpg") ||
+    lower.includes("logo.jpeg") ||
+    lower.includes("logo.png") ||
     lower.includes("fulin-logo") ||
-    lower.includes("logo.JPG".toLowerCase()) ||
-    lower.includes("d80_0722")
+    lower.includes("lineqr")
   );
 }
 
 function isPrintingItem(item) {
+  const markerText = [
+    item.category,
+    item.fabricType,
+    item.name,
+    item.note,
+    item.displayTitle,
+    item.useText,
+  ]
+    .map((v) => String(v || ""))
+    .join(" ")
+    .toLowerCase();
+
   return (
     item.isPrintingFabric === true ||
-    cleanText(item.category, "").includes("?啗")
+    markerText.includes("印花") ||
+    markerText.includes("print") ||
+    markerText.includes("轉印") ||
+    markerText.includes("昇華")
   );
+}
+
+function mapStatus(status) {
+  const text = String(status || "").trim().toLowerCase();
+  if (text.includes("sold") || text.includes("已售")) return "已售出";
+  if (text.includes("reserved") || text.includes("保留")) return "保留中";
+  if (text.includes("review") || text.includes("待確認")) return "待確認";
+  return "現貨中";
 }
 
 function deriveCategory(item) {
   const explicit = cleanText(item.category, "");
   if (explicit) return explicit;
-  return isPrintingItem(item) ? "?啗?典?" : "?嗡?撣?";
+  return isPrintingItem(item) ? "印花用布" : "其他布料";
 }
 
-function buildImage(item) {
-  const primary = cleanText(item.imagePrimary || item.image, "");
-  const secondary = cleanText(item.imageSecondary, "");
-  if (primary && !isLogoImage(primary)) return primary;
-  if (secondary && !isLogoImage(secondary)) return secondary;
+function deriveImage(item) {
+  const candidates = [
+    item.image,
+    item.imagePrimary,
+    item.featuredImage,
+    item.imageSecondary,
+  ]
+    .map((v) => String(v || "").trim())
+    .filter(Boolean);
+
+  for (const src of candidates) {
+    if (!isLogoImage(src)) return src;
+  }
   return "";
 }
 
 function buildViewItem(item) {
+  const code = cleanText(item.code, "");
+  const codeKey = normalizeCodeKey(code);
   const kg = parseNumber(item.kg);
   const yards = parseNumber(item.yards);
   const width = parseNumber(item.width);
@@ -81,16 +117,18 @@ function buildViewItem(item) {
 
   return {
     ...item,
-    normalizedCode: normalizeCode(item.code),
-    displayCode: cleanText(item.code, "?芰楊??),
-    displayName: cleanText(item.name || item.fabricType, "?芸??),
-    displayFabricType: cleanText(item.fabricType, "?芸?憿?),
-    displayColor: cleanText(item.pattern, "?芸?憿?),
-    displayComposition: cleanText(item.composition, "?芸‵"),
+    code,
+    codeKey,
+    codeSearch: normalizeSearchCode(code),
+    displayCode: code || "未填",
+    displayName: cleanText(item.displayTitle || item.name || item.fabricType, "未命名"),
+    displayFabricType: cleanText(item.fabricType),
+    displayColor: cleanText(item.pattern),
+    displayComposition: cleanText(item.composition),
     displayCategory: deriveCategory(item),
-    displayLocation: cleanText(item.location, "?芸‵"),
-    displayStatus: cleanText(item.status, "?曇疏銝?),
-    displayImage: buildImage(item),
+    displayLocation: cleanText(item.location),
+    displayStatus: mapStatus(item.status),
+    displayImage: deriveImage(item),
     kg,
     yards,
     width,
@@ -100,63 +138,56 @@ function buildViewItem(item) {
 
 function scoreInventoryItem(item) {
   let score = 0;
-  if (isPrintingItem(item)) score += 100;
-  if (item.displayImage) score += 40;
-  if (item.kg > 0) score += 10;
-  if (item.yards > 0) score += 10;
+  if (item.displayImage) score += 50;
+  if (item.kg > 0) score += 20;
+  if (item.yards > 0) score += 20;
   if (item.width > 0) score += 5;
   if (item.weightPerYard > 0) score += 5;
-  if (!isLogoImage(item.image || item.imagePrimary)) score += 5;
+  if (isLogoImage(item.image) || isLogoImage(item.featuredImage)) score -= 100;
   return score;
 }
 
 function dedupeInventory(items) {
-  const bestMap = new Map();
+  const bestByCode = new Map();
 
   items.forEach((item) => {
-<<<<<<< HEAD
-    const key = item.displayCode || `${item.displayName}-${item.displayLocation}-${item.kg}-${item.yards}`;
-    const current = bestByCode.get(key);
-=======
-    if (!item.normalizedCode) return;
-    const current = bestMap.get(item.normalizedCode);
->>>>>>> 9ed663e (Fix printing inventory dedupe and search behavior)
+    if (!item.codeKey) return;
+    const current = bestByCode.get(item.codeKey);
     if (!current || scoreInventoryItem(item) > scoreInventoryItem(current)) {
-      bestMap.set(item.normalizedCode, item);
+      bestByCode.set(item.codeKey, item);
     }
   });
 
-  return Array.from(bestMap.values());
+  return Array.from(bestByCode.values());
 }
 
 function matchesSearch(item, query) {
   if (!query) return true;
-  const normalizedQuery = query.trim().toUpperCase().replace(/^A/i, "");
+  const q = String(query).trim().toUpperCase();
+  const qNoA = q.replace(/^A/, "");
   const haystack = [
-    item.displayCode,
-    item.normalizedCode,
-    item.displayName,
-    item.displayFabricType,
-    item.displayColor,
-    item.displayComposition,
-    item.displayCategory,
-  ]
-    .join(" ")
-    .toUpperCase();
-  return haystack.includes(normalizedQuery);
+    item.displayCode.toUpperCase(),
+    item.codeSearch,
+    item.displayName.toUpperCase(),
+    item.displayFabricType.toUpperCase(),
+    item.displayColor.toUpperCase(),
+    item.displayComposition.toUpperCase(),
+    item.displayCategory.toUpperCase(),
+  ];
+  return haystack.some((text) => text.includes(q) || text.includes(qNoA));
 }
 
 function compareItems(a, b, sortKey) {
   switch (sortKey) {
     case "code-desc":
-      return b.normalizedCode.localeCompare(a.normalizedCode, "zh-Hant");
+      return b.codeKey.localeCompare(a.codeKey, "zh-Hant");
     case "kg-desc":
-      return b.kg - a.kg || a.normalizedCode.localeCompare(b.normalizedCode, "zh-Hant");
+      return b.kg - a.kg || a.codeKey.localeCompare(b.codeKey, "zh-Hant");
     case "yards-desc":
-      return b.yards - a.yards || a.normalizedCode.localeCompare(b.normalizedCode, "zh-Hant");
+      return b.yards - a.yards || a.codeKey.localeCompare(b.codeKey, "zh-Hant");
     case "code-asc":
     default:
-      return a.normalizedCode.localeCompare(b.normalizedCode, "zh-Hant");
+      return a.codeKey.localeCompare(b.codeKey, "zh-Hant");
   }
 }
 
@@ -167,6 +198,7 @@ function uniqueValues(items, key) {
 }
 
 function fillSelect(select, values, placeholder) {
+  if (!select) return;
   select.innerHTML = "";
   const allOption = document.createElement("option");
   allOption.value = "";
@@ -182,15 +214,16 @@ function fillSelect(select, values, placeholder) {
 }
 
 function populateFilterOptions(items) {
-  fillSelect(statusFilter, uniqueValues(items, "displayStatus"), "?券???);
-  fillSelect(fabricTypeFilter, uniqueValues(items, "displayFabricType"), "?券撣車");
-  fillSelect(colorFilter, uniqueValues(items, "displayColor"), "?券憿");
-  fillSelect(categoryFilter, uniqueValues(items, "displayCategory"), "?券撣?蝔桅?");
+  fillSelect(statusFilter, uniqueValues(items, "displayStatus"), "全部狀態");
+  fillSelect(fabricTypeFilter, uniqueValues(items, "displayFabricType"), "全部布種");
+  fillSelect(colorFilter, uniqueValues(items, "displayColor"), "全部顏色");
+  fillSelect(categoryFilter, uniqueValues(items, "displayCategory"), "全部分類");
+  fillSelect(compositionFilter, uniqueValues(items, "displayComposition"), "全部成份");
 }
 
 function renderSummary(items) {
   resultCount.textContent = String(items.length);
-  soldCount.textContent = String(items.filter((item) => item.displayStatus === "sold" || item.displayStatus === "撌脣??).length);
+  soldCount.textContent = String(items.filter((item) => item.displayStatus === "已售出").length);
   totalKg.textContent = `${items.reduce((sum, item) => sum + item.kg, 0).toFixed(1)} kg`;
   totalYards.textContent = `${items.reduce((sum, item) => sum + item.yards, 0).toFixed(1)} yd`;
   maxWidth.textContent = `${Math.max(0, ...items.map((item) => item.width))}"`;
@@ -203,7 +236,7 @@ function renderTable(items) {
   items.forEach((item) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${item.displayImage ? `<img class="table-thumb" src="${item.displayImage}" alt="${item.displayCode}">` : '<span class="muted-text">?芸‵</span>'}</td>
+      <td>${item.displayImage ? `<img class="table-thumb" src="${item.displayImage}" alt="${item.displayCode}">` : '<span class="muted-text">無圖</span>'}</td>
       <td>${item.displayCode}</td>
       <td>${item.displayFabricType}</td>
       <td>${item.displayColor}</td>
@@ -236,13 +269,13 @@ function renderCards(items) {
     card.className = "inventory-card";
     card.innerHTML = `
       <button class="inventory-card-image" type="button">
-        ${item.displayImage ? `<img src="${item.displayImage}" alt="${item.displayCode}">` : '<span class="muted-text">?∪???/span>'}
+        ${item.displayImage ? `<img src="${item.displayImage}" alt="${item.displayCode}">` : '<span class="muted-text">無圖片</span>'}
       </button>
       <div class="inventory-card-body">
         <h3>${item.displayCode}</h3>
         <p>${item.displayFabricType} / ${item.displayColor}</p>
         <p>${item.displayCategory}</p>
-        <p>撟祝 ${item.width ? `${item.width}"` : "-"} / 蝣潮? ${item.weightPerYard || "-"}</p>
+        <p>幅寬 ${item.width ? `${item.width}"` : "-"} / 碼重 ${item.weightPerYard || "-"}</p>
         <p>${item.kg ? `${item.kg.toFixed(1)} kg` : "-"} / ${item.yards ? `${item.yards.toFixed(1)} yd` : "-"}</p>
         <p>${item.displayLocation} / ${item.displayStatus}</p>
       </div>
@@ -261,6 +294,7 @@ function applyFilters() {
     .filter((item) => !fabricTypeFilter.value || item.displayFabricType === fabricTypeFilter.value)
     .filter((item) => !colorFilter.value || item.displayColor === colorFilter.value)
     .filter((item) => !categoryFilter.value || item.displayCategory === categoryFilter.value)
+    .filter((item) => !compositionFilter.value || item.displayComposition === compositionFilter.value)
     .sort((a, b) => compareItems(a, b, sortSelect.value));
 
   renderSummary(filtered);
@@ -270,15 +304,16 @@ function applyFilters() {
 
 async function loadInventory() {
   const response = await fetch("./api/inventory");
-  const data = await response.json();
+  const payload = await response.json();
+  const rows = Array.isArray(payload) ? payload : payload.items || [];
 
-  state.rawItems = Array.isArray(data) ? data : [];
+  state.rawItems = rows;
   state.items = dedupeInventory(
     state.rawItems
       .map(buildViewItem)
+      .filter((item) => item.codeKey)
       .filter((item) => isPrintingItem(item))
-      .filter((item) => !isLogoImage(item.image || item.imagePrimary || item.displayImage))
-      .filter((item) => item.normalizedCode)
+      .filter((item) => !isLogoImage(item.displayImage))
   );
 
   populateFilterOptions(state.items);
@@ -297,7 +332,7 @@ previewModal?.addEventListener("click", (event) => {
   }
 });
 
-[searchInput, statusFilter, fabricTypeFilter, colorFilter, categoryFilter, sortSelect].forEach((element) => {
+[searchInput, statusFilter, fabricTypeFilter, colorFilter, categoryFilter, compositionFilter, sortSelect].forEach((element) => {
   element?.addEventListener("input", applyFilters);
   element?.addEventListener("change", applyFilters);
 });
@@ -305,4 +340,3 @@ previewModal?.addEventListener("click", (event) => {
 loadInventory().catch((error) => {
   console.error(error);
 });
-

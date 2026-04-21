@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>福麟商行｜印花用布現貨查詢</title>
-  <meta name="description" content="查詢福麟商行印花用布現貨資料，快速搜尋布號、顏色、成份、布料種類與現貨資訊。">
+  <meta name="description" content="福麟商行印花用布現貨查詢，可依布號、布種、顏色、成份與狀態快速篩選。">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -26,8 +26,8 @@
         <p class="section-kicker">INVENTORY</p>
         <h1>印花用布現貨查詢</h1>
         <p>
-          目前前台先開放印花用布。可直接搜尋布號，不用輸入 A；例如輸入 <code>023811</code> 也能找到
-          <code>A023811</code>。
+          可直接搜尋布號、布種、顏色、成份與庫存資訊。搜尋時可不輸入開頭 A，
+          例如輸入 <code>023811</code> 也可找到 <code>A023811</code>。
         </p>
       </div>
       <div class="inventory-badges">
@@ -46,7 +46,7 @@
       <div class="filter-grid">
         <label>
           <span>搜尋</span>
-          <input id="searchInput" type="search" placeholder="搜尋布號、布種、顏色、成份、分類">
+          <input id="searchInput" type="search" placeholder="輸入布號、布種、顏色、成份">
         </label>
         <label>
           <span>狀態</span>
@@ -61,16 +61,20 @@
           <select id="colorFilter"></select>
         </label>
         <label>
-          <span>布料種類</span>
+          <span>分類</span>
           <select id="categoryFilter"></select>
+        </label>
+        <label>
+          <span>成份</span>
+          <select id="compositionFilter"></select>
         </label>
         <label>
           <span>排序</span>
           <select id="sortSelect">
-            <option value="code-asc">布號小到大</option>
-            <option value="code-desc">布號大到小</option>
-            <option value="kg-desc">公斤數高到低</option>
-            <option value="yards-desc">碼數高到低</option>
+            <option value="code-asc">布號（小到大）</option>
+            <option value="code-desc">布號（大到小）</option>
+            <option value="kg-desc">公斤（高到低）</option>
+            <option value="yards-desc">碼數（高到低）</option>
           </select>
         </label>
       </div>
@@ -90,7 +94,7 @@
         <strong id="maxWidth">0"</strong>
       </div>
       <div class="summary-card">
-        <span>顯示分類數</span>
+        <span>分類數量</span>
         <strong id="categoryCount">0</strong>
       </div>
     </section>
@@ -99,7 +103,7 @@
       <div class="inventory-table-panel">
         <div class="panel-header">
           <h2>庫存列表</h2>
-          <p>前台只顯示印花用布，重複布號會自動合併成一張代表卡片。</p>
+          <p>左側顯示主要欄位，右側卡片可放大查看布樣。</p>
         </div>
         <div class="table-wrapper">
           <table class="inventory-table">
@@ -127,7 +131,7 @@
       <div class="inventory-card-panel">
         <div class="panel-header">
           <h2>布樣卡片</h2>
-          <p>點圖片可放大查看，只顯示你在後台指定為印花用布的資料。</p>
+          <p>同布號只顯示一筆最佳資料，避免重複與錯圖。</p>
         </div>
         <div id="cardGrid" class="card-grid"></div>
       </div>
@@ -137,7 +141,7 @@
   <div id="previewModal" class="preview-modal" hidden>
     <div class="preview-dialog">
       <button id="closePreview" class="preview-close" type="button" aria-label="關閉">×</button>
-      <img id="previewImage" src="" alt="布樣放大預覽">
+      <img id="previewImage" src="" alt="布樣放大圖">
       <div class="preview-caption">
         <strong id="previewTitle"></strong>
         <p id="previewMeta"></p>
