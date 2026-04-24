@@ -1,0 +1,9 @@
+{
+  "inventory_api": "https://www.fulinfabric.com/api/inventory",
+  "snapshot_file": "inventory_snapshot.json",
+  "selection_file": "posting_selection.json",
+  "rule_file": "posting_rules.json",
+  "outbox_file": "outbox.json",
+  "publish_mode": "confirm_before_publish",
+  "post_template": "【{event}】{name}\n布號：{id}\n庫存：{stock}\n幅寬：{width}\n碼重：{weight}\n特性：{traits}\n用途：{applications}\n{hashtags}"
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "rule_name": "單面PK布",
+    "match": {
+      "name_contains": ["單面PK", "單面pk", "PK布", "pk布", "pk吸排", "PK吸排", "吸排"],
+      "any_contains": ["single pk", "singlepk", "pk"]
+    },
+    "traits": ["吸濕排汗", "數位熱昇華專用", "透氣舒適"],
+    "applications": ["運動服", "團體服", "活動布料"],
+    "hashtags": ["#福麟商行", "#單面PK布", "#吸濕排汗", "#熱昇華印刷"]
+  },
+  {
+    "rule_name": "細針鳥眼",
+    "match": {
+      "name_contains": ["細針鳥眼", "鳥眼布", "細針鳥眼布"],
+      "any_contains": ["birdseye", "bird eye", "鳥眼"]
+    },
+    "traits": ["透氣", "導濕排汗", "環保紗"],
+    "applications": ["機能上衣", "活動背心", "制服布料"],
+    "hashtags": ["#福麟商行", "#細針鳥眼", "#機能布料", "#環保紗"]
+  },
+  {
+    "rule_name": "75D雙面布",
+    "match": {
+      "name_contains": ["75D 雙面布", "75D雙面布", "75雙面布"],
+      "any_contains": ["75d"]
+    },
+    "traits": ["柔軟", "挺度平衡", "適合熱昇華"],
+    "applications": ["機能服飾", "潮流款", "品牌布樣"],
+    "hashtags": ["#福麟商行", "#75D雙面布", "#熱昇華", "#布料供應"]
+  }
+]

@@ -7,3 +7,10 @@ npm-debug.log*
 coverage/
 dist/
 .railway/
+config.json
+inventory_snapshot.json
+outbox.json
+outbox_manual_once.json
+posting_selection.json
+index.backup-*.html
+__pycache__/
