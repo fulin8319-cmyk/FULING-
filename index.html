@@ -38,7 +38,8 @@
     .btn-primary{background:linear-gradient(135deg, rgba(102,224,255,.2), rgba(138,125,255,.22));box-shadow:0 18px 40px rgba(24,86,123,.28), inset 0 0 30px rgba(255,255,255,.05)}
     .btn-ghost{color:#d8e8fa}
     .chips{display:flex;gap:10px;flex-wrap:wrap}
-    .chip{padding:10px 12px;border-radius:999px;font-size:13px;color:#d7e7fb;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
+    .chip{padding:10px 12px;border-radius:999px;font-size:13px;color:#d7e7fb;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);text-decoration:none}
+    .chip:hover{border-color:rgba(102,224,255,.45);color:#fff}
     .visual{position:relative;height:700px;display:grid;place-items:center;opacity:0;transform:translateY(28px);animation:rise .9s cubic-bezier(.2,.7,.2,1) .42s forwards}
     .ring,.ring2,.ring3{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.12);box-shadow:inset 0 0 26px rgba(255,255,255,.03)}
     .ring{width:560px;height:560px;animation:rotate 24s linear infinite}
@@ -99,6 +100,8 @@
     .contact-card{padding:18px 20px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09)}
     .contact-card span{display:block;color:#9bb5cb;font-size:13px;margin-bottom:8px}
     .contact-card strong{font-size:17px;line-height:1.5}
+    .contact-card-link{display:block;color:inherit;text-decoration:none}
+    .contact-card-link:hover{border-color:rgba(102,224,255,.45);transform:translateY(-2px)}
     .footer{padding:40px 6vw 70px;color:#94a8bc;font-size:14px;text-align:center}
     .reveal{transform:translateY(24px);opacity:0}
     .reveal.visible{transform:translateY(0);opacity:1;transition:transform .8s ease,opacity .8s ease}
@@ -166,7 +169,7 @@
     <div class="noise"></div><div class="grid"></div><div class="glow"></div><div class="aurora"></div><div class="particles" id="particles"></div><div class="scanline"></div>
     <header><div class="brand"><div class="brand-badge"></div><div><div>福麟商行</div><div style="font-size:12px;color:#9eb4c9;font-weight:500">FULIN FABRIC</div></div></div><nav><a href="#features">品牌特色</a><a href="#about">關於我們</a><a href="#services">服務項目</a><a href="#printing">印刷布專區</a><a href="#faq">FAQ</a><a href="#contact">聯絡方式</a></nav></header>
     <section class="hero">
-      <div class="copy"><div class="eyebrow"><i></i> DIGITAL TEXTILE / NEXT MATERIAL EXPERIENCE</div><h1><span class="gradient">再利用布料・愛地球</span><br>福麟商行與你一起永續</h1><p class="sub">福麟商行相信每一塊布都值得被好好使用。從庫存再利用到實際用途對接，我們用專業選材與供應效率，幫助客戶降低浪費、提升價值，一起把永續落實在每次採購裡。</p><div class="actions"><a class="btn btn-primary" href="#quote">快速詢價</a><a class="btn btn-ghost" href="#specs">查看主力布種</a><a class="btn btn-ghost" href="#printing">印刷布專區</a></div><div class="chips"><div class="chip">現貨 / 印刷 / 對樣</div><div class="chip">吸濕排汗</div><div class="chip">熱昇華印刷</div><div class="chip">客製化布料</div></div></div>
+      <div class="copy"><div class="eyebrow"><i></i> DIGITAL TEXTILE / NEXT MATERIAL EXPERIENCE</div><h1><span class="gradient">再利用布料・愛地球</span><br>福麟商行與你一起永續</h1><p class="sub">福麟商行相信每一塊布都值得被好好使用。從庫存再利用到實際用途對接，我們用專業選材與供應效率，幫助客戶降低浪費、提升價值，一起把永續落實在每次採購裡。</p><div class="actions"><a class="btn btn-primary" href="#quote">快速詢價</a><a class="btn btn-ghost" href="#features">查看主力布種</a><a class="btn btn-ghost" href="#printing">印刷布專區</a></div><div class="chips"><a class="chip" href="./inventory.html">現貨 / 印刷 / 對樣</a><div class="chip">吸濕排汗</div><div class="chip">熱昇華印刷</div><div class="chip">客製化布料</div></div></div>
       <div class="visual" id="tiltArea"><div class="ring"></div><div class="ring2"></div><div class="ring3"></div><div class="card tl"><small>永續理念</small><strong>庫存再利用 / 延續布料價值</strong></div><div class="card mid"><small>愛地球行動</small><strong>從每一塊布開始減少浪費</strong></div><div class="card br"><small>公司堅持</small><strong>專業供應 × 永續選材</strong></div><div class="fabric-shell" id="fabricShell"><div class="fabric-wave"></div><div class="fabric-wave2"></div><div class="fabric-wave3"></div><div class="hero-fabric-wrap"><div class="hero-glow"></div><div class="planet-orb" aria-label="宇宙布料球"><div class="planet-texture"></div><div class="planet-drape"></div><div class="planet-fold-core"></div><div class="planet-crease-shadow"></div><div class="planet-ridge-arcs"></div><div class="planet-fold-line"></div><div class="planet-shadow"></div></div><div class="hero-shimmer"></div></div></div></div>
       <div class="scroll-cue"><span>scroll</span><span></span></div>
     </section>
@@ -177,7 +180,7 @@
     <section class="section" id="printing"><div class="reveal"><h2>數位印刷布專區（完整款式）</h2><p class="lead">這區改為完整 7 筆布款，對應你來源網頁原本的品項，後續只要補上實際成份、克重與布號即可直接上線。</p></div><div class="spec-grid"><div class="spec reveal"><h3>數位印刷布料</h3><p>適合：客製印刷 / 服飾開發<br>成份 / 規格：可依實際布號補充</p></div><div class="spec reveal"><h3>熱昇華印刷布</h3><p>適合：團體服 / 運動服<br>成份 / 規格：可依實際布號補充</p></div><div class="spec reveal"><h3>彈性印刷布</h3><p>適合：印刷加工 / 運動用途<br>成份 / 規格：可依實際布號補充</p></div><div class="spec reveal"><h3>服飾印刷布</h3><p>適合：成衣應用 / 客製印刷<br>成份 / 規格：可依實際布號補充</p></div><div class="spec reveal"><h3>客製印刷布</h3><p>適合：團體服 / 客製加工<br>成份 / 規格：可依實際布號補充</p></div><div class="spec reveal"><h3>運動印刷布</h3><p>適合：印刷服裝 / 運動機能<br>成份 / 規格：可依實際布號補充</p></div><div class="spec reveal"><h3>對樣展示布</h3><p>適合：樣布比對 / 色感確認<br>成份 / 規格：可依實際布號補充</p></div></div></section>
     <section class="section" id="faq"><div class="reveal"><h2>常見問題</h2><p class="lead">把訪客最常問的四個問題提前放在首頁，降低詢問門檻，也讓客服溝通更有效率。</p></div><div class="faq-grid"><div class="spec reveal"><h3>熱昇華布跟一般布差在哪？</h3><p>主要差在印刷適性、色彩表現與成品用途，不同布種會影響手感、清晰度與耐用度。</p></div><div class="spec reveal"><h3>哪種布適合做團體服？</h3><p>先看用途、排汗需求、彈性與印刷方式，再協助對應合適布料。</p></div><div class="spec reveal"><h3>可以先傳圖找布嗎？</h3><p>可以，先傳照片、用途或樣布，我們可先協助判斷大方向與接近布種。</p></div><div class="spec reveal"><h3>現貨布料可以直接查詢嗎？</h3><p>可以，網站會持續整理現貨資料，也可直接來電或加 LINE 詢問最新狀況。</p></div></div></section>
     <section class="section" id="quote"><div class="quote-box reveal"><div><h2>快速詢價</h2><p class="lead" style="margin-bottom:0">提供布種用途、數量或參考照片，就能快速回覆可用布種、現貨狀態與建議方向。</p></div><div class="list"><div>電話：02-2987-1006</div><div>LINE：<a class="feature-link" href="https://qr-official.line.me/gs/M_424tvsxa_GW.png" target="_blank" rel="noopener noreferrer">@424tvsxa 官方 QR</a></div><div>服務時間：09:00 - 19:00</div></div></div></section>
-    <section class="section" id="contact"><div class="reveal"><h2>聯絡福麟商行</h2><p class="lead">來源網站聯絡資料已併入首頁，客戶可以直接選擇電話、Email 或 LINE 聯繫。</p></div><div class="contact-grid"><div class="contact-card reveal"><span>地址</span><strong>新北市三重區碧華街83號</strong></div><div class="contact-card reveal"><span>電話</span><strong>02-2987-1006</strong></div><div class="contact-card reveal"><span>傳真</span><strong>02-2986-1667</strong></div><div class="contact-card reveal"><span>Email</span><strong>rickyhuang53@gmail.com</strong></div><div class="contact-card reveal"><span>營業時間</span><strong>09:00 - 19:00</strong></div><div class="contact-card reveal"><span>LINE</span><strong>@424tvsxa</strong></div></div></section>
+    <section class="section" id="contact"><div class="reveal"><h2>聯絡福麟商行</h2><p class="lead">來源網站聯絡資料已併入首頁，客戶可以直接選擇電話、Email 或 LINE 聯繫。</p></div><div class="contact-grid"><div class="contact-card reveal"><span>地址</span><strong>新北市三重區碧華街83號</strong></div><div class="contact-card reveal"><span>電話</span><strong>02-2987-1006</strong></div><div class="contact-card reveal"><span>傳真</span><strong>02-2986-1667</strong></div><div class="contact-card reveal"><span>Email</span><strong>rickyhuang53@gmail.com</strong></div><div class="contact-card reveal"><span>營業時間</span><strong>09:00 - 19:00</strong></div><a class="contact-card contact-card-link reveal" href="./assets/lineqrq.jpg" target="_blank" rel="noopener noreferrer"><span>LINE</span><strong>@424tvsxa</strong></a></div></section>
     <div class="footer">福麟商行 FULIN FABRIC｜全新版（保留完整布料規格）</div>
   </div>
   <div class="showcase-modal" id="fabricShowcase" aria-modal="true" role="dialog">
@@ -255,6 +258,116 @@
       document.querySelector('.glow').style.transform = `translate3d(0, ${y * 0.04}px, 0)`;
       document.querySelector('.aurora').style.transform = `translate3d(0, ${y * -0.03}px, 0)`;
     }, {passive:true});
+    const isLogoImage = (url) => {
+      const lower = String(url || '').toLowerCase();
+      return lower.includes('logo.jpg') || lower.includes('logo.jpeg') || lower.includes('logo.png') || lower.includes('fulin-logo');
+    };
+    const resolveInventoryImage = (src) => {
+      if (!src) return '';
+      if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
+      return new URL(src, location.origin + '/').href;
+    };
+    const HOME_FEATURED_LIMIT = 6;
+    let homeFeaturedRotationTimer = 0;
+    const pickRotatingFeaturedItems = (items, offset) => {
+      const limit = Math.min(HOME_FEATURED_LIMIT, items.length);
+      return Array.from({ length: limit }, (_, index) => items[(offset + index) % items.length]);
+    };
+    const buildHomeFeaturedCard = (item) => {
+      const title = item.displayTitle || item.name || item.fabricType || item.code || '主力布料';
+      const image = resolveInventoryImage(item.featuredImage || item.image || '');
+      const galleryKey = String(item.code || title).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const details = [
+        item.width ? `幅寬：${item.width}"` : '',
+        item.weightPerYard ? `碼重：${item.weightPerYard}g` : '',
+        item.composition ? `成份：${item.composition}` : '',
+        item.fabricType ? `布種：${item.fabricType}` : '',
+        item.note ? `備註：${item.note}` : ''
+      ].filter(Boolean);
+
+      const card = document.createElement('a');
+      card.className = 'spec-card-link reveal visible';
+      card.href = './inventory.html' + (item.code ? `#${encodeURIComponent(item.code)}` : '');
+
+      const feature = document.createElement('div');
+      feature.className = 'feature visible';
+
+      if (image) {
+        const imageEl = document.createElement('img');
+        imageEl.className = 'spec-photo';
+        imageEl.src = image;
+        imageEl.alt = `${title}樣品圖`;
+        imageEl.dataset.gallery = galleryKey;
+        feature.appendChild(imageEl);
+      }
+
+      const titleEl = document.createElement('h3');
+      titleEl.textContent = title;
+      feature.appendChild(titleEl);
+
+      const bodyEl = document.createElement('p');
+      (details.length ? details : ['後台可編輯首頁精選、圖片與布料資訊']).forEach((line, index) => {
+        if (index) bodyEl.appendChild(document.createElement('br'));
+        bodyEl.appendChild(document.createTextNode(line));
+      });
+      feature.appendChild(bodyEl);
+
+      if (image) {
+        const galleryEl = document.createElement('div');
+        galleryEl.className = 'spec-gallery';
+        const thumb = document.createElement('img');
+        thumb.src = image;
+        thumb.alt = `${title}樣品圖`;
+        thumb.dataset.gallery = galleryKey;
+        galleryEl.appendChild(thumb);
+        feature.appendChild(galleryEl);
+      }
+
+      card.appendChild(feature);
+      return card;
+    };
+    const renderHomeFeaturedFabrics = (items, offset = 0) => {
+      const grid = document.querySelector('#features .cards');
+      if (!grid) return;
+
+      const featuredItems = items
+        .filter((item) => item && item.featuredOnHome === true)
+        .filter((item) => !isLogoImage(item.featuredImage || item.image));
+      if (!featuredItems.length) return;
+
+      grid.innerHTML = '';
+      pickRotatingFeaturedItems(featuredItems, offset).forEach((item) => {
+        grid.appendChild(buildHomeFeaturedCard(item));
+      });
+    };
+    const loadHomeFeaturedFabrics = async () => {
+      try {
+        const response = await fetch('/api/inventory');
+        if (!response.ok) return;
+        const payload = await response.json();
+        const items = Array.isArray(payload) ? payload : payload.items || [];
+        const featuredItems = items
+          .filter((item) => item && item.featuredOnHome === true)
+          .filter((item) => !isLogoImage(item.featuredImage || item.image));
+        if (!featuredItems.length) return;
+
+        let offset = Number(sessionStorage.getItem('fulinHomeFeaturedOffset') || '0');
+        offset = Number.isFinite(offset) ? offset % featuredItems.length : 0;
+        sessionStorage.setItem('fulinHomeFeaturedOffset', String((offset + HOME_FEATURED_LIMIT) % featuredItems.length));
+        renderHomeFeaturedFabrics(featuredItems, offset);
+
+        if (featuredItems.length > HOME_FEATURED_LIMIT) {
+          clearInterval(homeFeaturedRotationTimer);
+          homeFeaturedRotationTimer = setInterval(() => {
+            offset = (offset + HOME_FEATURED_LIMIT) % featuredItems.length;
+            renderHomeFeaturedFabrics(featuredItems, offset);
+          }, 15000);
+        }
+      } catch (error) {
+        console.error('Failed to load home featured fabrics:', error);
+      }
+    };
+    loadHomeFeaturedFabrics();
     const showcaseModal = document.getElementById('fabricShowcase');
     const closeShowcase = document.getElementById('closeShowcase');
     const startBrowse = document.getElementById('startBrowse');
@@ -362,6 +475,13 @@
         e.stopPropagation();
         openLightboxWithImage(img);
       });
+    });
+    document.querySelector('#features .cards')?.addEventListener('click', (e) => {
+      const img = e.target.closest('.spec-photo, .spec-gallery img');
+      if (!img) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openLightboxWithImage(img);
     });
 
     window.addEventListener('keydown', (e) => {
