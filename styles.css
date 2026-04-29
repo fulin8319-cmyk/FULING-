@@ -721,6 +721,24 @@ h1 {
   background: #fffef9;
 }
 
+.admin-image-editor {
+  display: grid;
+  grid-template-columns: 52px minmax(180px, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 260px;
+}
+
+.admin-image-editor input[type="text"] {
+  min-width: 180px;
+}
+
+.admin-image-file {
+  grid-column: 2;
+  padding: 7px 8px !important;
+  font-size: 12px;
+}
+
 .admin-filter-toggle::after {
   content: " ▾";
   color: var(--accent);
@@ -747,6 +765,31 @@ h1 {
 }
 
 .admin-code-thumb.is-empty {
+  background-image: linear-gradient(135deg, rgba(138, 75, 8, 0.06), rgba(255, 255, 255, 0.92));
+}
+
+.image-upload-field {
+  grid-column: span 2;
+}
+
+.image-upload-hint {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.image-upload-preview {
+  display: inline-block;
+  width: 52px;
+  height: 64px;
+  border: 1px solid rgba(122, 97, 62, 0.16);
+  border-radius: 12px;
+  background-color: #f3ecde;
+  background-size: cover;
+  background-position: center;
+}
+
+.image-upload-preview.is-empty {
   background-image: linear-gradient(135deg, rgba(138, 75, 8, 0.06), rgba(255, 255, 255, 0.92));
 }
 

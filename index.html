@@ -269,6 +269,17 @@
     };
     const HOME_FEATURED_LIMIT = 6;
     let homeFeaturedRotationTimer = 0;
+    const getFeaturedOrder = (item) => {
+      const order = Number(item.featuredOrder || 0);
+      return Number.isFinite(order) && order > 0 ? order : Number.MAX_SAFE_INTEGER;
+    };
+    const sortHomeFeaturedItems = (items) => {
+      return [...items].sort((a, b) => {
+        const orderDiff = getFeaturedOrder(a) - getFeaturedOrder(b);
+        if (orderDiff) return orderDiff;
+        return String(a.code || '').localeCompare(String(b.code || ''), 'zh-Hant');
+      });
+    };
     const pickRotatingFeaturedItems = (items, offset) => {
       const limit = Math.min(HOME_FEATURED_LIMIT, items.length);
       return Array.from({ length: limit }, (_, index) => items[(offset + index) % items.length]);
@@ -336,7 +347,7 @@
       if (!featuredItems.length) return;
 
       grid.innerHTML = '';
-      pickRotatingFeaturedItems(featuredItems, offset).forEach((item) => {
+      pickRotatingFeaturedItems(sortHomeFeaturedItems(featuredItems), offset).forEach((item) => {
         grid.appendChild(buildHomeFeaturedCard(item));
       });
     };
@@ -350,17 +361,18 @@
           .filter((item) => item && item.featuredOnHome === true)
           .filter((item) => !isLogoImage(item.featuredImage || item.image));
         if (!featuredItems.length) return;
+        const orderedFeaturedItems = sortHomeFeaturedItems(featuredItems);
 
         let offset = Number(sessionStorage.getItem('fulinHomeFeaturedOffset') || '0');
-        offset = Number.isFinite(offset) ? offset % featuredItems.length : 0;
-        sessionStorage.setItem('fulinHomeFeaturedOffset', String((offset + HOME_FEATURED_LIMIT) % featuredItems.length));
-        renderHomeFeaturedFabrics(featuredItems, offset);
+        offset = Number.isFinite(offset) ? offset % orderedFeaturedItems.length : 0;
+        sessionStorage.setItem('fulinHomeFeaturedOffset', String((offset + HOME_FEATURED_LIMIT) % orderedFeaturedItems.length));
+        renderHomeFeaturedFabrics(orderedFeaturedItems, offset);
 
-        if (featuredItems.length > HOME_FEATURED_LIMIT) {
+        if (orderedFeaturedItems.length > HOME_FEATURED_LIMIT) {
           clearInterval(homeFeaturedRotationTimer);
           homeFeaturedRotationTimer = setInterval(() => {
-            offset = (offset + HOME_FEATURED_LIMIT) % featuredItems.length;
-            renderHomeFeaturedFabrics(featuredItems, offset);
+            offset = (offset + HOME_FEATURED_LIMIT) % orderedFeaturedItems.length;
+            renderHomeFeaturedFabrics(orderedFeaturedItems, offset);
           }, 15000);
         }
       } catch (error) {

@@ -29,8 +29,8 @@ http://localhost:3000
 
 ## 預設管理員
 
-- 帳號：`admin`
-- 密碼：`fulin2026`
+- 帳號：`[REMOVED_ADMIN_USER]`
+- 密碼：`[REMOVED_SECRET]`
 
 正式上線前請改成環境變數：
 - `ADMIN_USER`

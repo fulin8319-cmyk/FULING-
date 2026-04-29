@@ -63,6 +63,10 @@
               <option value="true">是</option>
             </select>
           </label>
+          <label class="field">
+            展示順序
+            <input id="newFeaturedOrder" type="number" min="0" step="1" placeholder="例如 1">
+          </label>
 
           <label class="field">
             顯示名稱
@@ -84,6 +88,12 @@
           <label class="field">
             圖片
             <input id="newFeaturedImage" type="text" placeholder="貼圖片網址或 /assets/...">
+          </label>
+          <label class="field image-upload-field">
+            上傳圖片
+            <input id="newFeaturedImageFile" type="file" accept="image/*">
+            <span class="image-upload-hint">選擇圖片後會自動填入上方圖片路徑。</span>
+            <span id="newFeaturedImagePreview" class="image-upload-preview is-empty"></span>
           </label>
           <label class="field">
             幅寬
@@ -152,6 +162,7 @@
                   <button class="admin-filter-toggle" type="button" data-filter-toggle="featuredOnHome">首頁精選</button>
                   <div class="admin-filter-menu" data-filter-menu="featuredOnHome" hidden></div>
                 </th>
+                <th>展示順序</th>
                 <th>顯示名稱</th>
                 <th>
                   <button class="admin-filter-toggle" type="button" data-filter-toggle="fabricType">布種</button>

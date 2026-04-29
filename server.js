@@ -4,11 +4,13 @@ const path = require("path");
 const crypto = require("crypto");
 
 const PORT = Number(process.env.PORT || 3000);
-const ADMIN_USER = process.env.ADMIN_USER || "admin";
-const ADMIN_PASS = process.env.ADMIN_PASS || "fulin2026";
+const ADMIN_USER = process.env.ADMIN_USER || "";
+const ADMIN_PASS = process.env.ADMIN_PASS || "";
 const N8N_API_KEY = process.env.N8N_API_KEY || "";
 const SESSION_COOKIE = "fulin_session";
 const DATA_FILE = path.join(__dirname, "data", "inventory.json");
+const UPLOAD_DIR = path.join(__dirname, "assets", "uploads");
+const MAX_BODY_BYTES = 12 * 1024 * 1024;
 
 const sessions = new Map();
 
@@ -20,6 +22,8 @@ const contentTypes = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".png": "image/png",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
   ".heic": "image/heic"
 };
 
@@ -43,6 +47,28 @@ function sendJson(res, statusCode, payload, extraHeaders = {}) {
     ...extraHeaders
   });
   res.end(JSON.stringify(payload));
+}
+
+function ensureUploadDir() {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+function extensionFromMime(mimeType = "") {
+  const normalized = String(mimeType).toLowerCase().split(";")[0].trim();
+  return {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/gif": ".gif"
+  }[normalized] || "";
+}
+
+function safeFileStem(value = "fabric") {
+  return String(value)
+    .trim()
+    .replace(/[^a-z0-9_-]+/gi, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48) || "fabric";
 }
 
 function roundOne(value) {
@@ -124,6 +150,7 @@ function normalizeInventoryItem(item = {}, existingItem = {}) {
     baseCode,
     rollNo,
     featuredOnHome,
+    featuredOrder: Math.max(0, Math.round(toNumber(pickFirstString(item.featuredOrder, existingItem.featuredOrder)))),
     displayTitle: pickFirstString(item.displayTitle, item.name, item["品名"], existingItem.displayTitle, code),
     useText: pickFirstString(item.useText, item.fabricType ? `布種：${item.fabricType}` : "", existingItem.useText),
     descriptionText: pickFirstString(
@@ -235,7 +262,7 @@ function readBody(req) {
     let body = "";
     req.on("data", (chunk) => {
       body += chunk;
-      if (body.length > 2 * 1024 * 1024) {
+      if (body.length > MAX_BODY_BYTES) {
         reject(new Error("Body too large"));
         req.destroy();
       }
@@ -269,7 +296,9 @@ async function handleApi(req, res, url) {
 
   if (req.method === "POST" && url.pathname === "/api/login") {
     const body = JSON.parse((await readBody(req)) || "{}");
-    if (body.username === ADMIN_USER && body.password === ADMIN_PASS) {
+    const username = String(body.username || "").trim().toLowerCase();
+    const password = String(body.password || "").trim();
+    if (username === ADMIN_USER.toLowerCase() && password === ADMIN_PASS) {
       const token = crypto.randomBytes(24).toString("hex");
       sessions.set(token, { createdAt: Date.now() });
       return sendJson(
@@ -297,6 +326,32 @@ async function handleApi(req, res, url) {
         "Set-Cookie": `${SESSION_COOKIE}=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0`
       }
     );
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/upload-image") {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+
+    const body = JSON.parse((await readBody(req)) || "{}");
+    const mimeType = String(body.mimeType || "");
+    const ext = extensionFromMime(mimeType);
+    const base64 = String(body.data || "");
+
+    if (!ext || !base64) {
+      return sendJson(res, 400, { ok: false, message: "Please upload a JPG, PNG, WebP, or GIF image." });
+    }
+
+    const bytes = Buffer.from(base64, "base64");
+    if (!bytes.length || bytes.length > MAX_BODY_BYTES) {
+      return sendJson(res, 400, { ok: false, message: "Image is empty or too large." });
+    }
+
+    ensureUploadDir();
+    const stem = safeFileStem(body.code || "fabric");
+    const filename = `${stem}-${Date.now()}-${crypto.randomBytes(4).toString("hex")}${ext}`;
+    fs.writeFileSync(path.join(UPLOAD_DIR, filename), bytes);
+    return sendJson(res, 200, { ok: true, url: `/assets/uploads/${filename}` });
   }
 
   if (req.method === "PUT" && url.pathname === "/api/admin/inventory") {

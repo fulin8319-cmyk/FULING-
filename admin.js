@@ -32,8 +32,11 @@ const newCodeEl = document.getElementById("newCode");
 const newCategoryEl = document.getElementById("newCategory");
 const newIsPrintingFabricEl = document.getElementById("newIsPrintingFabric");
 const newFeaturedOnHomeEl = document.getElementById("newFeaturedOnHome");
+const newFeaturedOrderEl = document.getElementById("newFeaturedOrder");
 const newDisplayTitleEl = document.getElementById("newDisplayTitle");
 const newFeaturedImageEl = document.getElementById("newFeaturedImage");
+const newFeaturedImageFileEl = document.getElementById("newFeaturedImageFile");
+const newFeaturedImagePreviewEl = document.getElementById("newFeaturedImagePreview");
 const newFabricTypeEl = document.getElementById("newFabricType");
 const newPatternEl = document.getElementById("newPattern");
 const newCompositionEl = document.getElementById("newComposition");
@@ -93,6 +96,55 @@ function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("`", "&#96;");
 }
 
+function updateImagePreview(previewEl, url) {
+  if (!previewEl) {
+    return;
+  }
+
+  const imageUrl = String(url || "").trim();
+  previewEl.classList.toggle("is-empty", !imageUrl);
+  previewEl.style.backgroundImage = imageUrl ? `url("${imageUrl.replaceAll('"', "%22")}")` : "";
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      resolve(result.includes(",") ? result.split(",").pop() : result);
+    };
+    reader.onerror = () => reject(reader.error || new Error("Unable to read image."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadImageFile(file, code = "") {
+  if (!file) {
+    return "";
+  }
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("請選擇圖片檔。");
+  }
+
+  const response = await fetch("/api/admin/upload-image", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      code,
+      mimeType: file.type,
+      data: await fileToBase64(file)
+    })
+  });
+
+  const data = await response.json();
+  if (!response.ok || !data.ok) {
+    throw new Error(data.message || "圖片上傳失敗。");
+  }
+  return data.url;
+}
+
 function normalizeItem(item = {}) {
   const category = item.category || (item.isPrintingFabric ? "印花用布" : "其他布料");
   const isPrintingFabric = item.isPrintingFabric === true || category === "印花用布";
@@ -112,6 +164,7 @@ function normalizeItem(item = {}) {
     category,
     isPrintingFabric,
     featuredOnHome: Boolean(item.featuredOnHome),
+    featuredOrder: Number(item.featuredOrder || 0),
     displayTitle: item.displayTitle || item.code || "",
     fabricType: item.fabricType || "",
     pattern: item.pattern || "",
@@ -310,6 +363,13 @@ function renderAdminRows() {
   adminRowsEl.innerHTML = filteredIndexes.map((realIndex) => {
     const item = adminInventory[realIndex];
     const thumbnailUrl = item.featuredImage || item.image || "";
+    const imageCell = `
+      <div class="admin-image-editor">
+        <span class="image-upload-preview${thumbnailUrl ? "" : " is-empty"}" data-image-preview="${realIndex}"${thumbnailUrl ? ` style="background-image:url('${escapeAttribute(thumbnailUrl)}')"` : ""}></span>
+        <input data-index="${realIndex}" data-field="featuredImage" type="text" value="${escapeAttribute(item.featuredImage)}" placeholder="/assets/uploads/...">
+        <input class="admin-image-file" data-image-file-index="${realIndex}" type="file" accept="image/*">
+      </div>
+    `;
     const codeCell = `
       <div class="admin-code-cell">
         <div class="admin-code-thumb${thumbnailUrl ? "" : " is-empty"}"${thumbnailUrl ? ` style="background-image:url('${escapeAttribute(thumbnailUrl)}')"` : ""}></div>
@@ -322,11 +382,12 @@ function renderAdminRows() {
         <td><select data-index="${realIndex}" data-field="category">${buildCategoryOptions(item.category)}</select></td>
         <td><select data-index="${realIndex}" data-field="isPrintingFabric">${buildBooleanOptions(item.isPrintingFabric)}</select></td>
         <td><select data-index="${realIndex}" data-field="featuredOnHome">${buildBooleanOptions(item.featuredOnHome)}</select></td>
+        <td><input data-index="${realIndex}" data-field="featuredOrder" type="number" min="0" step="1" value="${item.featuredOrder || ""}" placeholder="1"></td>
         <td><input data-index="${realIndex}" data-field="displayTitle" type="text" value="${escapeAttribute(item.displayTitle)}"></td>
         <td><input data-index="${realIndex}" data-field="fabricType" type="text" list="fabricTypeOptions" value="${escapeAttribute(item.fabricType)}"></td>
         <td><input data-index="${realIndex}" data-field="pattern" type="text" list="patternOptions" value="${escapeAttribute(item.pattern)}"></td>
         <td><input data-index="${realIndex}" data-field="composition" type="text" list="compositionOptions" value="${escapeAttribute(item.composition)}"></td>
-        <td><input data-index="${realIndex}" data-field="featuredImage" type="text" value="${escapeAttribute(item.featuredImage)}"></td>
+        <td>${imageCell}</td>
         <td><input data-index="${realIndex}" data-field="width" type="number" value="${item.width || ""}"></td>
         <td><input data-index="${realIndex}" data-field="weightPerYard" type="number" value="${item.weightPerYard || ""}"></td>
         <td><input data-index="${realIndex}" data-field="kg" type="number" step="0.1" value="${item.kg || ""}"></td>
@@ -348,7 +409,7 @@ function readFormData() {
     const field = element.dataset.field;
     let value = element.value;
 
-    if (["width", "weightPerYard", "kg", "yards"].includes(field)) {
+    if (["featuredOrder", "width", "weightPerYard", "kg", "yards"].includes(field)) {
       value = value === "" ? 0 : Number(value);
     }
 
@@ -383,8 +444,13 @@ function clearAddForm() {
   newCategoryEl.value = "其他布料";
   newIsPrintingFabricEl.value = "false";
   newFeaturedOnHomeEl.value = "false";
+  newFeaturedOrderEl.value = "";
   newDisplayTitleEl.value = "";
   newFeaturedImageEl.value = "";
+  if (newFeaturedImageFileEl) {
+    newFeaturedImageFileEl.value = "";
+  }
+  updateImagePreview(newFeaturedImagePreviewEl, "");
   newFabricTypeEl.value = "";
   newPatternEl.value = "";
   newCompositionEl.value = "";
@@ -402,6 +468,7 @@ function buildNewItem() {
   const category = newCategoryEl.value;
   const isPrintingFabric = newIsPrintingFabricEl.value === "true" || category === "印花用布";
   const featuredOnHome = newFeaturedOnHomeEl.value === "true";
+  const featuredOrder = Number(newFeaturedOrderEl.value || 0);
   const displayTitle = newDisplayTitleEl.value.trim();
   const featuredImage = newFeaturedImageEl.value.trim();
   const fabricType = newFabricTypeEl.value.trim();
@@ -434,6 +501,7 @@ function buildNewItem() {
     category: isPrintingFabric ? "印花用布" : category,
     isPrintingFabric,
     featuredOnHome,
+    featuredOrder,
     displayTitle,
     fabricType,
     pattern,
@@ -469,6 +537,39 @@ adminRowsEl.addEventListener("click", (event) => {
   adminMessageEl.textContent = "這筆資料已從畫面移除，記得按儲存全部變更。";
 });
 
+adminRowsEl.addEventListener("input", (event) => {
+  const input = event.target.closest("[data-field='featuredImage']");
+  if (!input) {
+    return;
+  }
+
+  const index = Number(input.dataset.index);
+  updateImagePreview(document.querySelector(`[data-image-preview="${index}"]`), input.value);
+});
+
+adminRowsEl.addEventListener("change", async (event) => {
+  const input = event.target.closest("[data-image-file-index]");
+  if (!input || !input.files?.[0]) {
+    return;
+  }
+
+  try {
+    adminInventory = readFormData();
+    const index = Number(input.dataset.imageFileIndex);
+    const item = adminInventory[index] || {};
+    adminMessageEl.textContent = "圖片上傳中...";
+    const url = await uploadImageFile(input.files[0], item.code);
+    item.featuredImage = url;
+    item.image = url;
+    renderAdminRows();
+    adminMessageEl.textContent = "圖片已更新，記得按儲存全部變更。";
+  } catch (error) {
+    adminMessageEl.textContent = error.message;
+  } finally {
+    input.value = "";
+  }
+});
+
 addButtonEl.addEventListener("click", () => {
   try {
     adminInventory = readFormData();
@@ -490,6 +591,28 @@ addButtonEl.addEventListener("click", () => {
 clearFormButtonEl.addEventListener("click", () => {
   clearAddForm();
   adminMessageEl.textContent = "新增表單已清空。";
+});
+
+newFeaturedImageEl.addEventListener("input", () => {
+  updateImagePreview(newFeaturedImagePreviewEl, newFeaturedImageEl.value);
+});
+
+newFeaturedImageFileEl?.addEventListener("change", async () => {
+  if (!newFeaturedImageFileEl.files?.[0]) {
+    return;
+  }
+
+  try {
+    adminMessageEl.textContent = "圖片上傳中...";
+    const url = await uploadImageFile(newFeaturedImageFileEl.files[0], newCodeEl.value.trim());
+    newFeaturedImageEl.value = url;
+    updateImagePreview(newFeaturedImagePreviewEl, url);
+    adminMessageEl.textContent = "圖片已上傳，新增這筆布料時會使用這張圖。";
+  } catch (error) {
+    adminMessageEl.textContent = error.message;
+  } finally {
+    newFeaturedImageFileEl.value = "";
+  }
 });
 
 saveButtonEl.addEventListener("click", async () => {
