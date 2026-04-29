@@ -284,9 +284,22 @@
       const limit = Math.min(HOME_FEATURED_LIMIT, items.length);
       return Array.from({ length: limit }, (_, index) => items[(offset + index) % items.length]);
     };
+    const getInventoryImages = (item) => {
+      const values = [
+        ...(Array.isArray(item.images) ? item.images : []),
+        item.featuredImage,
+        item.imagePrimary,
+        item.image,
+        item.imageSecondary
+      ];
+      return [...new Set(values
+        .map((src) => resolveInventoryImage(src))
+        .filter((src) => src && !isLogoImage(src)))];
+    };
     const buildHomeFeaturedCard = (item) => {
       const title = item.displayTitle || item.name || item.fabricType || item.code || '主力布料';
-      const image = resolveInventoryImage(item.featuredImage || item.image || '');
+      const images = getInventoryImages(item);
+      const image = images[0] || '';
       const galleryKey = String(item.code || title).toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const details = [
         item.width ? `幅寬：${item.width}"` : '',
@@ -326,11 +339,13 @@
       if (image) {
         const galleryEl = document.createElement('div');
         galleryEl.className = 'spec-gallery';
-        const thumb = document.createElement('img');
-        thumb.src = image;
-        thumb.alt = `${title}樣品圖`;
-        thumb.dataset.gallery = galleryKey;
-        galleryEl.appendChild(thumb);
+        images.forEach((src, index) => {
+          const thumb = document.createElement('img');
+          thumb.src = src;
+          thumb.alt = `${title}樣品圖 ${index + 1}`;
+          thumb.dataset.gallery = galleryKey;
+          galleryEl.appendChild(thumb);
+        });
         feature.appendChild(galleryEl);
       }
 
@@ -343,7 +358,7 @@
 
       const featuredItems = items
         .filter((item) => item && item.featuredOnHome === true)
-        .filter((item) => !isLogoImage(item.featuredImage || item.image));
+        .filter((item) => getInventoryImages(item).length);
       if (!featuredItems.length) return;
 
       grid.innerHTML = '';
@@ -359,7 +374,7 @@
         const items = Array.isArray(payload) ? payload : payload.items || [];
         const featuredItems = items
           .filter((item) => item && item.featuredOnHome === true)
-          .filter((item) => !isLogoImage(item.featuredImage || item.image));
+          .filter((item) => getInventoryImages(item).length);
         if (!featuredItems.length) return;
         const orderedFeaturedItems = sortHomeFeaturedItems(featuredItems);
 

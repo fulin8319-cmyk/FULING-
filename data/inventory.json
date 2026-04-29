@@ -780,7 +780,7 @@
     "displayTitle": "大目鳥眼布",
     "useText": "適合用途：運動休閒服、機能服、背心、外套款式、展示布、特殊加工、數位印花、布料開發。",
     "descriptionText": "孔洞比一般鳥眼布更大，網目紋理清楚，近看有明顯立體感；碼重 250g，有肉身、有份量，可做硬挺款式。",
-    "featuredImage": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/0qtLD3aoq5svUvrhKTwS/pub/dAGp8gUw6OMYJ14i2QSP.HEIC",
+    "featuredImage": "./assets/featured/a021542-1.png",
     "width": 64,
     "weightPerYard": 250,
     "kg": 18.6,
@@ -789,7 +789,7 @@
     "side": "csv",
     "status": "confirmed",
     "note": "大目鳥眼布｜64吋｜250g｜漂白白\n找一款孔洞比較大、透氣感明顯、又有肉身的網目布嗎？\n這款大目鳥眼布，布面孔洞比一般鳥眼布更大，網目紋理清楚，近看有明顯立體感，透氣感佳。\n它不是薄軟型網眼布，碼重 250g，布身比較有厚度、有份量，成品可以呈現比較挺、比較有型的效果。\n適合需要透氣感、網目感，又希望布料不要太塌、不要太軟的服裝或產品開發。\n規格資訊：布種：大目鳥眼布；幅寬：64吋；碼重：250g；顏色：漂白白；布感：有肉身、有份量、可做硬挺款式；特色：大孔洞、大網目、透氣明顯、立體紋理。\n適合用途：運動休閒服、機能服、背心、外套款式、展示布、特殊加工、數位印花、布料開發。",
-    "image": "https://storage.googleapis.com/glide-prod.appspot.com/uploads-v2/0qtLD3aoq5svUvrhKTwS/pub/dAGp8gUw6OMYJ14i2QSP.HEIC",
+    "image": "./assets/featured/a021542-1.png",
     "fabricType": "大目鳥眼布",
     "name": "大目鳥眼布",
     "pattern": "漂白白",
@@ -797,7 +797,12 @@
     "category": "印花用布",
     "rowId": "K9ygHTbnTST1kc6xjbYl",
     "isPrintingFabric": true,
-    "featuredOrder": 4
+    "featuredOrder": 4,
+    "images": [
+      "./assets/featured/a021542-1.png",
+      "./assets/featured/a021542-2.png",
+      "./assets/featured/a021542-3.png"
+    ]
   },
   {
     "code": "A021906",
@@ -9121,11 +9126,16 @@
     "weightPerYard": 190,
     "kg": 0,
     "yards": 0,
-    "image": "./assets/pk-1.png",
-    "featuredImage": "./assets/pk-1.png",
+    "image": "./assets/featured/a022439-1.png",
+    "featuredImage": "./assets/featured/a022439-1.png",
     "note": "幅寬：62\"；碼重：190g；特性：吸濕排汗、數位熱昇華專用；用途：運動服、團體服、活動布料",
     "featuredOrder": 1,
-    "featuredOnHome": true
+    "featuredOnHome": true,
+    "images": [
+      "./assets/featured/a022439-1.png",
+      "./assets/featured/a022439-2.png",
+      "./assets/featured/a022439-3.png"
+    ]
   },
   {
     "code": "A021844",
@@ -9146,10 +9156,14 @@
     "weightPerYard": 210,
     "kg": 0,
     "yards": 0,
-    "image": "./assets/birdneedle-1.png",
-    "featuredImage": "./assets/birdneedle-1.png",
+    "image": "./assets/featured/a021844-1.png",
+    "featuredImage": "./assets/featured/a021844-1.png",
     "note": "幅寬：62\"；碼重：210g；特性：透氣、環保紗、導濕排汗；用途：機能上衣、活動背心、制服布料",
     "featuredOrder": 2,
-    "featuredOnHome": true
+    "featuredOnHome": true,
+    "images": [
+      "./assets/featured/a021844-1.png",
+      "./assets/featured/a021844-2.png"
+    ]
   }
 ]

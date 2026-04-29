@@ -104,6 +104,26 @@ function pickFirstString(...values) {
   return "";
 }
 
+function normalizeImageList(...values) {
+  const images = [];
+  const addImage = (value) => {
+    const text = String(value || "").trim();
+    if (text && !images.includes(text)) {
+      images.push(text);
+    }
+  };
+
+  for (const value of values) {
+    if (Array.isArray(value)) {
+      value.forEach(addImage);
+    } else {
+      addImage(value);
+    }
+  }
+
+  return images;
+}
+
 function mapInventoryStatus(status) {
   const text = String(status || "").trim().toLowerCase();
   if (!text) return "confirmed";
@@ -144,6 +164,7 @@ function normalizeInventoryItem(item = {}, existingItem = {}) {
     item["照片 2"],
     existingItem.image
   );
+  const images = normalizeImageList(item.images, item.imagePrimary, item.imageSecondary, image, existingItem.images);
 
   return {
     code,
@@ -169,6 +190,7 @@ function normalizeInventoryItem(item = {}, existingItem = {}) {
     status: mapInventoryStatus(item.status || item["狀態"] || existingItem.status),
     note: pickFirstString(item.note, existingItem.note),
     image,
+    images,
     fabricType: pickFirstString(item.fabricType, item["布種"], existingItem.fabricType),
     name: pickFirstString(item.name, item["品名"], existingItem.name),
     pattern: pickFirstString(item.pattern, item["顏色／花紋"], existingItem.pattern),

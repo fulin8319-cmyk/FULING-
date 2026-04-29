@@ -93,6 +93,7 @@ function deriveCategory(item) {
 
 function deriveImage(item) {
   const candidates = [
+    ...(Array.isArray(item.images) ? item.images : []),
     item.image,
     item.imagePrimary,
     item.featuredImage,
