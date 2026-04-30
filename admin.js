@@ -37,6 +37,7 @@ const newDisplayTitleEl = document.getElementById("newDisplayTitle");
 const newFeaturedImageEl = document.getElementById("newFeaturedImage");
 const newFeaturedImageFileEl = document.getElementById("newFeaturedImageFile");
 const newFeaturedImagePreviewEl = document.getElementById("newFeaturedImagePreview");
+const newStoredImagesEl = document.getElementById("newStoredImages");
 const newFabricTypeEl = document.getElementById("newFabricType");
 const newPatternEl = document.getElementById("newPattern");
 const newCompositionEl = document.getElementById("newComposition");
@@ -57,6 +58,7 @@ let filteredIndexes = [];
 let editingExistingIndex = -1;
 let editingLoadedCode = "";
 let codeLookupTimer = 0;
+let addFormImages = [];
 
 const adminFilters = {
   category: "",
@@ -107,6 +109,55 @@ function updateImagePreview(previewEl, url) {
   const imageUrl = String(url || "").trim();
   previewEl.classList.toggle("is-empty", !imageUrl);
   previewEl.style.backgroundImage = imageUrl ? `url("${imageUrl.replaceAll('"', "%22")}")` : "";
+}
+
+function uniqueImages(values = []) {
+  return [...new Set(values.map((value) => String(value || "").trim()).filter(Boolean))];
+}
+
+function collectItemImages(item = {}) {
+  return uniqueImages([
+    ...(Array.isArray(item.images) ? item.images : []),
+    item.featuredImage,
+    item.image,
+    item.imagePrimary,
+    item.imageSecondary
+  ]);
+}
+
+function syncAddFormMainImage() {
+  const currentMain = String(newFeaturedImageEl.value || "").trim();
+  addFormImages = uniqueImages([currentMain, ...addFormImages]);
+  if (!currentMain && addFormImages[0]) {
+    newFeaturedImageEl.value = addFormImages[0];
+    updateImagePreview(newFeaturedImagePreviewEl, addFormImages[0]);
+  }
+}
+
+function renderStoredImages() {
+  if (!newStoredImagesEl) {
+    return;
+  }
+
+  syncAddFormMainImage();
+  const mainImage = String(newFeaturedImageEl.value || "").trim();
+  newStoredImagesEl.classList.toggle("is-empty", addFormImages.length === 0);
+
+  if (!addFormImages.length) {
+    newStoredImagesEl.innerHTML = '<span class="muted-text">輸入既有編號後會顯示已上傳照片。</span>';
+    return;
+  }
+
+  newStoredImagesEl.innerHTML = addFormImages.map((src, index) => `
+    <div class="admin-stored-image">
+      <span class="admin-stored-thumb" style="background-image:url('${escapeAttribute(src)}')"></span>
+      <div class="admin-stored-image-actions">
+        <span>${index + 1}${src === mainImage ? "・主圖" : ""}</span>
+        <button type="button" class="secondary-button" data-set-main-image="${escapeAttribute(src)}">設為主圖</button>
+        <button type="button" class="secondary-button" data-remove-image="${escapeAttribute(src)}">移除</button>
+      </div>
+    </div>
+  `).join("");
 }
 
 function fileToBase64(file) {
@@ -173,6 +224,7 @@ function normalizeItem(item = {}) {
     pattern: item.pattern || "",
     composition: item.composition || "",
     featuredImage: item.featuredImage || item.image || "",
+    images: collectItemImages(item),
     width: Number(item.width || 0),
     weightPerYard,
     kg,
@@ -445,6 +497,7 @@ function readFormData() {
 function clearAddForm() {
   editingExistingIndex = -1;
   editingLoadedCode = "";
+  addFormImages = [];
   newCodeEl.value = "";
   newCategoryEl.value = "其他布料";
   newIsPrintingFabricEl.value = "false";
@@ -456,6 +509,7 @@ function clearAddForm() {
     newFeaturedImageFileEl.value = "";
   }
   updateImagePreview(newFeaturedImagePreviewEl, "");
+  renderStoredImages();
   newFabricTypeEl.value = "";
   newPatternEl.value = "";
   newCompositionEl.value = "";
@@ -487,6 +541,7 @@ function buildNewItem() {
   const location = newLocationEl.value.trim();
   const status = newStatusEl.value;
   const note = newNoteEl.value.trim();
+  const images = uniqueImages([featuredImage, ...addFormImages]);
 
   if (!code) {
     throw new Error("請先輸入編號。");
@@ -514,6 +569,7 @@ function buildNewItem() {
     composition,
     featuredImage,
     image: featuredImage,
+    images,
     width,
     weightPerYard,
     kg,
@@ -559,10 +615,12 @@ function fillAddFormFromItem(item) {
   newFeaturedOrderEl.value = normalized.featuredOrder || "";
   newDisplayTitleEl.value = normalized.displayTitle || "";
   newFeaturedImageEl.value = normalized.featuredImage || normalized.image || "";
+  addFormImages = collectItemImages(normalized);
   if (newFeaturedImageFileEl) {
     newFeaturedImageFileEl.value = "";
   }
   updateImagePreview(newFeaturedImagePreviewEl, newFeaturedImageEl.value);
+  renderStoredImages();
   newFabricTypeEl.value = normalized.fabricType || "";
   newPatternEl.value = normalized.pattern || "";
   newCompositionEl.value = normalized.composition || "";
@@ -618,6 +676,29 @@ adminRowsEl.addEventListener("click", (event) => {
   adminInventory.splice(Number(button.dataset.deleteIndex), 1);
   renderAdminRows();
   adminMessageEl.textContent = "這筆資料已從畫面移除，記得按儲存全部變更。";
+});
+
+newStoredImagesEl?.addEventListener("click", (event) => {
+  const setMainButton = event.target.closest("[data-set-main-image]");
+  const removeButton = event.target.closest("[data-remove-image]");
+
+  if (setMainButton) {
+    const src = setMainButton.dataset.setMainImage;
+    newFeaturedImageEl.value = src;
+    updateImagePreview(newFeaturedImagePreviewEl, src);
+    renderStoredImages();
+    return;
+  }
+
+  if (removeButton) {
+    const src = removeButton.dataset.removeImage;
+    addFormImages = addFormImages.filter((image) => image !== src);
+    if (newFeaturedImageEl.value.trim() === src) {
+      newFeaturedImageEl.value = addFormImages[0] || "";
+      updateImagePreview(newFeaturedImagePreviewEl, newFeaturedImageEl.value);
+    }
+    renderStoredImages();
+  }
 });
 
 adminRowsEl.addEventListener("input", (event) => {
@@ -707,6 +788,8 @@ clearFormButtonEl.addEventListener("click", () => {
 
 newFeaturedImageEl.addEventListener("input", () => {
   updateImagePreview(newFeaturedImagePreviewEl, newFeaturedImageEl.value);
+  addFormImages = uniqueImages([newFeaturedImageEl.value, ...addFormImages]);
+  renderStoredImages();
 });
 
 newCodeEl.addEventListener("input", () => {
@@ -728,7 +811,9 @@ newFeaturedImageFileEl?.addEventListener("change", async () => {
     adminMessageEl.textContent = "圖片上傳中...";
     const url = await uploadImageFile(newFeaturedImageFileEl.files[0], newCodeEl.value.trim());
     newFeaturedImageEl.value = url;
+    addFormImages = uniqueImages([url, ...addFormImages]);
     updateImagePreview(newFeaturedImagePreviewEl, url);
+    renderStoredImages();
     adminMessageEl.textContent = "圖片已上傳，新增這筆布料時會使用這張圖。";
   } catch (error) {
     adminMessageEl.textContent = error.message;
