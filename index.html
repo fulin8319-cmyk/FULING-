@@ -107,6 +107,13 @@
     .reveal.visible{transform:translateY(0);opacity:1;transition:transform .8s ease,opacity .8s ease}
     #features .lead{display:none}#features h2{display:block;margin-bottom:24px}
     #features .feature{min-height:170px;display:block}
+    #features .spec-card-link{cursor:default}
+    #features .feature h3{font-size:28px;line-height:1.25;margin-top:18px}
+    #features .feature-summary{display:grid;gap:8px;color:#b7c9da;font-size:18px;line-height:1.65}
+    #features .feature-summary div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #features .feature-details{display:none;margin-top:12px;color:#c8d7e6;font-size:15px;line-height:1.75}
+    #features .feature.is-expanded .feature-details{display:block}
+    #features .feature-toggle{margin-top:14px;padding:8px 0;border:0;background:transparent;color:#9cdfff;font:inherit;font-size:14px;cursor:pointer}
     body.modal-open{overflow:hidden}
     .showcase-modal{position:fixed;inset:0;z-index:90;background:rgba(4,10,18,.72);backdrop-filter:blur(8px);display:none;place-items:center;padding:20px}
     .showcase-modal.active{display:grid}
@@ -301,17 +308,25 @@
       const images = getInventoryImages(item);
       const image = images[0] || '';
       const galleryKey = String(item.code || title).toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const details = [
+      const noteLines = String(item.note || '')
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const summaryLines = [
         item.width ? `幅寬：${item.width}"` : '',
         item.weightPerYard ? `碼重：${item.weightPerYard}g` : '',
-        item.composition ? `成份：${item.composition}` : '',
         item.fabricType ? `布種：${item.fabricType}` : '',
-        item.note ? `備註：${item.note}` : ''
+        noteLines[0] ? `備註：${noteLines[0]}` : ''
+      ].filter(Boolean);
+      const detailLines = [
+        ...noteLines.slice(1),
+        item.descriptionText ? `特色：${item.descriptionText}` : '',
+        item.useText || ''
       ].filter(Boolean);
 
       const card = document.createElement('a');
       card.className = 'spec-card-link reveal visible';
-      card.href = './inventory.html' + (item.code ? `#${encodeURIComponent(item.code)}` : '');
+      card.href = '#features';
 
       const feature = document.createElement('div');
       feature.className = 'feature visible';
@@ -329,24 +344,35 @@
       titleEl.textContent = title;
       feature.appendChild(titleEl);
 
-      const bodyEl = document.createElement('p');
-      (details.length ? details : ['後台可編輯首頁精選、圖片與布料資訊']).forEach((line, index) => {
-        if (index) bodyEl.appendChild(document.createElement('br'));
-        bodyEl.appendChild(document.createTextNode(line));
+      const summaryEl = document.createElement('div');
+      summaryEl.className = 'feature-summary';
+      (summaryLines.length ? summaryLines : ['後台可編輯首頁精選、圖片與布料資訊']).forEach((line) => {
+        const lineEl = document.createElement('div');
+        lineEl.textContent = line;
+        summaryEl.appendChild(lineEl);
       });
-      feature.appendChild(bodyEl);
+      feature.appendChild(summaryEl);
 
-      if (image) {
-        const galleryEl = document.createElement('div');
-        galleryEl.className = 'spec-gallery';
-        images.forEach((src, index) => {
-          const thumb = document.createElement('img');
-          thumb.src = src;
-          thumb.alt = `${title}樣品圖 ${index + 1}`;
-          thumb.dataset.gallery = galleryKey;
-          galleryEl.appendChild(thumb);
+      if (detailLines.length) {
+        const detailsEl = document.createElement('div');
+        detailsEl.className = 'feature-details';
+        detailLines.forEach((line, index) => {
+          if (index) detailsEl.appendChild(document.createElement('br'));
+          detailsEl.appendChild(document.createTextNode(line));
         });
-        feature.appendChild(galleryEl);
+        feature.appendChild(detailsEl);
+
+        const toggleEl = document.createElement('button');
+        toggleEl.className = 'feature-toggle';
+        toggleEl.type = 'button';
+        toggleEl.textContent = '展開完整說明';
+        toggleEl.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const isExpanded = feature.classList.toggle('is-expanded');
+          toggleEl.textContent = isExpanded ? '收合說明' : '展開完整說明';
+        });
+        feature.appendChild(toggleEl);
       }
 
       card.appendChild(feature);
@@ -505,7 +531,12 @@
     });
     document.querySelector('#features .cards')?.addEventListener('click', (e) => {
       const img = e.target.closest('.spec-photo, .spec-gallery img');
-      if (!img) return;
+      if (!img) {
+        if (e.target.closest('#features .spec-card-link')) {
+          e.preventDefault();
+        }
+        return;
+      }
       e.preventDefault();
       e.stopPropagation();
       openLightboxWithImage(img);
