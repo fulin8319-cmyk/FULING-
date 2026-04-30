@@ -54,6 +54,9 @@ const compositionOptionsEl = document.getElementById("compositionOptions");
 
 let adminInventory = [];
 let filteredIndexes = [];
+let editingExistingIndex = -1;
+let editingLoadedCode = "";
+let codeLookupTimer = 0;
 
 const adminFilters = {
   category: "",
@@ -440,6 +443,8 @@ function readFormData() {
 }
 
 function clearAddForm() {
+  editingExistingIndex = -1;
+  editingLoadedCode = "";
   newCodeEl.value = "";
   newCategoryEl.value = "其他布料";
   newIsPrintingFabricEl.value = "false";
@@ -461,6 +466,7 @@ function clearAddForm() {
   newLocationEl.value = "";
   newStatusEl.value = "confirmed";
   newNoteEl.value = "";
+  updateAddFormMode();
 }
 
 function buildNewItem() {
@@ -518,11 +524,88 @@ function buildNewItem() {
   });
 }
 
+function normalizeCode(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function findInventoryIndexByCode(code) {
+  const target = normalizeCode(code);
+  if (!target) {
+    return -1;
+  }
+  return adminInventory.findIndex((item) => normalizeCode(item.code) === target);
+}
+
+function setSelectValue(selectEl, value, fallback) {
+  const nextValue = value || fallback || "";
+  selectEl.value = nextValue;
+  if (selectEl.value !== nextValue && fallback) {
+    selectEl.value = fallback;
+  }
+}
+
+function updateAddFormMode() {
+  const isEditing = editingExistingIndex >= 0;
+  addButtonEl.textContent = isEditing ? "更新這筆布料" : "新增這筆布料";
+  addButtonEl.dataset.mode = isEditing ? "update" : "add";
+}
+
+function fillAddFormFromItem(item) {
+  const normalized = normalizeItem(item);
+  newCodeEl.value = normalized.code;
+  setSelectValue(newCategoryEl, normalized.category, "其他布料");
+  newIsPrintingFabricEl.value = String(Boolean(normalized.isPrintingFabric));
+  newFeaturedOnHomeEl.value = String(Boolean(normalized.featuredOnHome));
+  newFeaturedOrderEl.value = normalized.featuredOrder || "";
+  newDisplayTitleEl.value = normalized.displayTitle || "";
+  newFeaturedImageEl.value = normalized.featuredImage || normalized.image || "";
+  if (newFeaturedImageFileEl) {
+    newFeaturedImageFileEl.value = "";
+  }
+  updateImagePreview(newFeaturedImagePreviewEl, newFeaturedImageEl.value);
+  newFabricTypeEl.value = normalized.fabricType || "";
+  newPatternEl.value = normalized.pattern || "";
+  newCompositionEl.value = normalized.composition || "";
+  newWidthEl.value = normalized.width || "";
+  newWeightEl.value = normalized.weightPerYard || "";
+  newKgEl.value = normalized.kg || "";
+  newYardsEl.value = normalized.yards || "";
+  newLocationEl.value = normalized.location || "";
+  setSelectValue(newStatusEl, normalized.status, "confirmed");
+  newNoteEl.value = normalized.note || "";
+}
+
+function loadExistingItemIntoAddForm({ silent = false } = {}) {
+  const code = newCodeEl.value.trim();
+  const foundIndex = findInventoryIndexByCode(code);
+
+  if (foundIndex < 0) {
+    editingExistingIndex = -1;
+    editingLoadedCode = "";
+    updateAddFormMode();
+    return;
+  }
+
+  const normalizedCode = normalizeCode(code);
+  if (editingExistingIndex === foundIndex && editingLoadedCode === normalizedCode) {
+    return;
+  }
+
+  editingExistingIndex = foundIndex;
+  editingLoadedCode = normalizedCode;
+  fillAddFormFromItem(adminInventory[foundIndex]);
+  updateAddFormMode();
+  if (!silent) {
+    adminMessageEl.textContent = `已帶入 ${adminInventory[foundIndex].code}，修改後按「更新這筆布料」。`;
+  }
+}
+
 async function loadAdminInventory() {
   const response = await fetch("/api/inventory", { credentials: "include" });
   const data = await response.json();
   adminInventory = (data.items || []).map((item) => normalizeItem(item));
   renderAdminRows();
+  updateAddFormMode();
 }
 
 adminRowsEl.addEventListener("click", (event) => {
@@ -573,7 +656,36 @@ adminRowsEl.addEventListener("change", async (event) => {
 addButtonEl.addEventListener("click", () => {
   try {
     adminInventory = readFormData();
+    const typedCode = newCodeEl.value.trim();
+    const preExistingIndex = findInventoryIndexByCode(typedCode);
+    if (
+      preExistingIndex >= 0 &&
+      (editingExistingIndex !== preExistingIndex || editingLoadedCode !== normalizeCode(typedCode))
+    ) {
+      editingExistingIndex = preExistingIndex;
+      editingLoadedCode = normalizeCode(typedCode);
+      fillAddFormFromItem(adminInventory[preExistingIndex]);
+      updateAddFormMode();
+      adminMessageEl.textContent = `已先帶入 ${adminInventory[preExistingIndex].code} 的資料，確認修改後再按「更新這筆布料」。`;
+      return;
+    }
+
     const newItem = buildNewItem();
+    const existingIndex = findInventoryIndexByCode(newItem.code);
+
+    if (existingIndex >= 0) {
+      adminInventory[existingIndex] = normalizeItem({
+        ...adminInventory[existingIndex],
+        ...newItem,
+        code: adminInventory[existingIndex].code || newItem.code
+      });
+      editingExistingIndex = existingIndex;
+      editingLoadedCode = normalizeCode(newItem.code);
+      renderAdminRows();
+      updateAddFormMode();
+      adminMessageEl.textContent = "已更新這筆布料，記得按「儲存全部變更」。";
+      return;
+    }
 
     if (adminInventory.some((item) => item.code === newItem.code)) {
       throw new Error("這個編號已存在，請直接在下方表格修改。");
@@ -595,6 +707,16 @@ clearFormButtonEl.addEventListener("click", () => {
 
 newFeaturedImageEl.addEventListener("input", () => {
   updateImagePreview(newFeaturedImagePreviewEl, newFeaturedImageEl.value);
+});
+
+newCodeEl.addEventListener("input", () => {
+  clearTimeout(codeLookupTimer);
+  codeLookupTimer = setTimeout(() => loadExistingItemIntoAddForm(), 250);
+});
+
+newCodeEl.addEventListener("change", () => {
+  clearTimeout(codeLookupTimer);
+  loadExistingItemIntoAddForm();
 });
 
 newFeaturedImageFileEl?.addEventListener("change", async () => {
