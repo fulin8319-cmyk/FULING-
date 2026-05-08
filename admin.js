@@ -27,6 +27,12 @@ const saveButtonEl = document.getElementById("saveInventoryButton");
 const resetButtonEl = document.getElementById("resetInventoryButton");
 const addButtonEl = document.getElementById("addInventoryButton");
 const clearFormButtonEl = document.getElementById("clearInventoryFormButton");
+const analyticsTodayViewsEl = document.getElementById("analyticsTodayViews");
+const analyticsTodayVisitorsEl = document.getElementById("analyticsTodayVisitors");
+const analyticsWeekViewsEl = document.getElementById("analyticsWeekViews");
+const analyticsWeekVisitorsEl = document.getElementById("analyticsWeekVisitors");
+const analyticsDaysEl = document.getElementById("analyticsDays");
+const analyticsPagesEl = document.getElementById("analyticsPages");
 
 const newCodeEl = document.getElementById("newCode");
 const newCategoryEl = document.getElementById("newCategory");
@@ -234,6 +240,74 @@ function normalizeItem(item = {}) {
     note: item.note || "",
     image: item.image || item.featuredImage || ""
   };
+}
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString("zh-TW");
+}
+
+function renderAnalyticsList(target, rows, emptyText, rowRenderer) {
+  if (!target) {
+    return;
+  }
+
+  if (!rows.length) {
+    target.innerHTML = `<div class="analytics-row is-empty">${emptyText}</div>`;
+    return;
+  }
+
+  target.innerHTML = rows.map(rowRenderer).join("");
+}
+
+async function loadAnalytics() {
+  if (!analyticsTodayViewsEl) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/admin/analytics", { credentials: "include" });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.message || "統計資料載入失敗。");
+    }
+
+    const analytics = data.analytics || {};
+    analyticsTodayViewsEl.textContent = formatNumber(analytics.today?.pageViews);
+    analyticsTodayVisitorsEl.textContent = formatNumber(analytics.today?.visitors);
+    analyticsWeekViewsEl.textContent = formatNumber(analytics.last7?.pageViews);
+    analyticsWeekVisitorsEl.textContent = formatNumber(analytics.last7?.visitors);
+
+    renderAnalyticsList(
+      analyticsDaysEl,
+      analytics.recentDays || [],
+      "目前還沒有瀏覽紀錄。",
+      (day) => `
+        <div class="analytics-row">
+          <strong>${escapeHtml(day.date)}</strong>
+          <span>${formatNumber(day.pageViews)} 次瀏覽 / ${formatNumber(day.visitors)} 位訪客</span>
+        </div>
+      `
+    );
+
+    renderAnalyticsList(
+      analyticsPagesEl,
+      analytics.topPages || [],
+      "目前還沒有熱門頁面資料。",
+      (page) => `
+        <div class="analytics-row">
+          <strong>${escapeHtml(page.title)}</strong>
+          <span>${formatNumber(page.pageViews)} 次瀏覽 / ${formatNumber(page.visitors)} 位訪客</span>
+        </div>
+      `
+    );
+  } catch (error) {
+    if (analyticsDaysEl) {
+      analyticsDaysEl.innerHTML = `<div class="analytics-row is-empty">${escapeHtml(error.message)}</div>`;
+    }
+    if (analyticsPagesEl) {
+      analyticsPagesEl.innerHTML = `<div class="analytics-row is-empty">請稍後再試。</div>`;
+    }
+  }
 }
 
 function buildDataListMarkup(values) {
@@ -876,4 +950,5 @@ document.addEventListener("change", (event) => {
 
 populateCategorySelect(newCategoryEl);
 applyAdminHeaderLabels();
+loadAnalytics();
 loadAdminInventory();

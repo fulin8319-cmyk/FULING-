@@ -9,8 +9,17 @@ const ADMIN_PASS = process.env.ADMIN_PASS || "";
 const N8N_API_KEY = process.env.N8N_API_KEY || "";
 const SESSION_COOKIE = "fulin_session";
 const DATA_FILE = path.join(__dirname, "data", "inventory.json");
+const ANALYTICS_FILE = path.join(__dirname, "data", "analytics.json");
 const UPLOAD_DIR = path.join(__dirname, "assets", "uploads");
 const MAX_BODY_BYTES = 12 * 1024 * 1024;
+
+const TRACKED_PAGES = {
+  "/index.html": "首頁",
+  "/inventory.html": "現貨查詢",
+  "/printing.html": "印花用布",
+  "/wordpress/products.html": "主力布料產品",
+  "/wordpress/faq.html": "常見問題"
+};
 
 const sessions = new Map();
 
@@ -279,6 +288,116 @@ function writeInventory(items) {
   fs.writeFileSync(DATA_FILE, `${JSON.stringify(items, null, 2)}\n`, "utf8");
 }
 
+function todayKey() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(new Date());
+}
+
+function readAnalytics() {
+  if (!fs.existsSync(ANALYTICS_FILE)) {
+    return { days: {} };
+  }
+
+  try {
+    const data = JSON.parse(fs.readFileSync(ANALYTICS_FILE, "utf8"));
+    return data && typeof data === "object" && data.days ? data : { days: {} };
+  } catch {
+    return { days: {} };
+  }
+}
+
+function writeAnalytics(data) {
+  fs.mkdirSync(path.dirname(ANALYTICS_FILE), { recursive: true });
+  fs.writeFileSync(ANALYTICS_FILE, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+}
+
+function getVisitorHash(req) {
+  const forwardedFor = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
+  const ip = forwardedFor || req.socket.remoteAddress || "";
+  const userAgent = String(req.headers["user-agent"] || "");
+  return crypto.createHash("sha256").update(`${ip}|${userAgent}`).digest("hex").slice(0, 24);
+}
+
+function trackPageView(req, pathname) {
+  if (req.method !== "GET" || !TRACKED_PAGES[pathname]) {
+    return;
+  }
+
+  const data = readAnalytics();
+  const date = todayKey();
+  const visitor = getVisitorHash(req);
+  const day = data.days[date] || { pageViews: 0, visitors: {}, pages: {} };
+  const page = day.pages[pathname] || {
+    title: TRACKED_PAGES[pathname],
+    pageViews: 0,
+    visitors: {}
+  };
+
+  day.pageViews += 1;
+  day.visitors[visitor] = true;
+  page.title = TRACKED_PAGES[pathname];
+  page.pageViews += 1;
+  page.visitors[visitor] = true;
+  day.pages[pathname] = page;
+  data.days[date] = day;
+  writeAnalytics(data);
+}
+
+function summarizeAnalytics() {
+  const data = readAnalytics();
+  const dates = Object.keys(data.days).sort().reverse();
+  const today = todayKey();
+  const todayData = data.days[today] || { pageViews: 0, visitors: {}, pages: {} };
+  const recentDays = dates.slice(0, 14).map((date) => {
+    const day = data.days[date] || { pageViews: 0, visitors: {}, pages: {} };
+    return {
+      date,
+      pageViews: Number(day.pageViews || 0),
+      visitors: Object.keys(day.visitors || {}).length
+    };
+  });
+  const last7 = recentDays.slice(0, 7).reduce(
+    (sum, day) => ({
+      pageViews: sum.pageViews + day.pageViews,
+      visitors: sum.visitors + day.visitors
+    }),
+    { pageViews: 0, visitors: 0 }
+  );
+  const pageTotals = {};
+
+  for (const date of dates) {
+    const day = data.days[date] || {};
+    for (const [pathname, page] of Object.entries(day.pages || {})) {
+      const total = pageTotals[pathname] || {
+        path: pathname,
+        title: page.title || TRACKED_PAGES[pathname] || pathname,
+        pageViews: 0,
+        visitors: 0
+      };
+      total.pageViews += Number(page.pageViews || 0);
+      total.visitors += Object.keys(page.visitors || {}).length;
+      pageTotals[pathname] = total;
+    }
+  }
+
+  return {
+    today: {
+      date: today,
+      pageViews: Number(todayData.pageViews || 0),
+      visitors: Object.keys(todayData.visitors || {}).length
+    },
+    last7,
+    recentDays,
+    topPages: Object.values(pageTotals)
+      .sort((a, b) => b.pageViews - a.pageViews)
+      .slice(0, 8)
+  };
+}
+
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
@@ -314,6 +433,13 @@ async function handleApi(req, res, url) {
 
   if (req.method === "GET" && url.pathname === "/api/me") {
     return sendJson(res, 200, { authenticated: isAuthenticated(req) });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/analytics") {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+    return sendJson(res, 200, { ok: true, analytics: summarizeAnalytics() });
   }
 
   if (req.method === "POST" && url.pathname === "/api/login") {
@@ -471,6 +597,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    trackPageView(req, pathname);
     serveFile(res, filePath);
   } catch (error) {
     sendJson(res, 500, { ok: false, message: error.message });

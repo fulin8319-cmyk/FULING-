@@ -12,6 +12,7 @@ inventory_snapshot.json
 outbox.json
 outbox_manual_once.json
 posting_selection.json
+data/analytics.json
 index.backup-*.html
 __pycache__/
 publish_state.json
