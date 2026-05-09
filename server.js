@@ -8,9 +8,12 @@ const ADMIN_USER = process.env.ADMIN_USER || "";
 const ADMIN_PASS = process.env.ADMIN_PASS || "";
 const N8N_API_KEY = process.env.N8N_API_KEY || "";
 const SESSION_COOKIE = "fulin_session";
-const DATA_FILE = path.join(__dirname, "data", "inventory.json");
-const ANALYTICS_FILE = path.join(__dirname, "data", "analytics.json");
-const UPLOAD_DIR = path.join(__dirname, "assets", "uploads");
+const SEED_DATA_DIR = path.join(__dirname, "data");
+const PUBLIC_UPLOAD_DIR = path.join(__dirname, "assets", "uploads");
+const PERSIST_DIR = process.env.FULIN_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || SEED_DATA_DIR;
+const DATA_FILE = path.join(PERSIST_DIR, "inventory.json");
+const ANALYTICS_FILE = path.join(PERSIST_DIR, "analytics.json");
+const UPLOAD_DIR = path.join(PERSIST_DIR, "uploads");
 const MAX_BODY_BYTES = 12 * 1024 * 1024;
 
 const TRACKED_PAGES = {
@@ -61,6 +64,28 @@ function sendJson(res, statusCode, payload, extraHeaders = {}) {
 }
 
 function ensureUploadDir() {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
+function seedPersistentFile(filename, fallbackContent) {
+  const target = path.join(PERSIST_DIR, filename);
+  if (fs.existsSync(target)) {
+    return;
+  }
+
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  const seed = path.join(SEED_DATA_DIR, filename);
+  if (fs.existsSync(seed) && path.resolve(seed) !== path.resolve(target)) {
+    fs.copyFileSync(seed, target);
+    return;
+  }
+
+  fs.writeFileSync(target, fallbackContent, "utf8");
+}
+
+function initializePersistentStorage() {
+  seedPersistentFile("inventory.json", "[]\n");
+  seedPersistentFile("analytics.json", "{\"days\":{}}\n");
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
@@ -282,11 +307,28 @@ function upsertInventoryItems(nextItems) {
   return merged;
 }
 
+function readJsonFile(filePath, fallback) {
+  try {
+    const content = fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, "");
+    return JSON.parse(content);
+  } catch {
+    return fallback;
+  }
+}
+
 function readInventory() {
-  return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+  const data = readJsonFile(DATA_FILE, []);
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && Array.isArray(data.items)) {
+    return data.items;
+  }
+  return [];
 }
 
 function writeInventory(items) {
+  fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
   fs.writeFileSync(DATA_FILE, `${JSON.stringify(items, null, 2)}\n`, "utf8");
 }
 
@@ -304,12 +346,8 @@ function readAnalytics() {
     return { days: {} };
   }
 
-  try {
-    const data = JSON.parse(fs.readFileSync(ANALYTICS_FILE, "utf8"));
-    return data && typeof data === "object" && data.days ? data : { days: {} };
-  } catch {
-    return { days: {} };
-  }
+  const data = readJsonFile(ANALYTICS_FILE, { days: {} });
+  return data && typeof data === "object" && data.days ? data : { days: {} };
 }
 
 function writeAnalytics(data) {
@@ -442,6 +480,21 @@ async function handleApi(req, res, url) {
       return sendJson(res, 401, { ok: false, message: "Unauthorized." });
     }
     return sendJson(res, 200, { ok: true, analytics: summarizeAnalytics() });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/storage") {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+    return sendJson(res, 200, {
+      ok: true,
+      storage: {
+        dataDir: PERSIST_DIR,
+        volumeMounted: Boolean(process.env.RAILWAY_VOLUME_MOUNT_PATH),
+        inventoryFile: DATA_FILE,
+        uploadDir: UPLOAD_DIR
+      }
+    });
   }
 
   if (req.method === "POST" && url.pathname === "/api/login") {
@@ -591,9 +644,21 @@ const server = http.createServer(async (req, res) => {
     }
 
     const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
-    const filePath = path.join(__dirname, pathname);
+    let filePath = path.join(__dirname, pathname);
 
-    if (!filePath.startsWith(__dirname)) {
+    if (pathname.startsWith("/assets/uploads/")) {
+      const uploadName = path.basename(pathname);
+      const persistedUpload = path.join(UPLOAD_DIR, uploadName);
+      if (fs.existsSync(persistedUpload)) {
+        filePath = persistedUpload;
+      } else {
+        filePath = path.join(PUBLIC_UPLOAD_DIR, uploadName);
+      }
+    }
+
+    const safeStaticPath = filePath.startsWith(__dirname);
+    const safeUploadPath = filePath.startsWith(UPLOAD_DIR);
+    if (!safeStaticPath && !safeUploadPath) {
       res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
       res.end("Forbidden");
       return;
@@ -605,6 +670,8 @@ const server = http.createServer(async (req, res) => {
     sendJson(res, 500, { ok: false, message: error.message });
   }
 });
+
+initializePersistentStorage();
 
 server.listen(PORT, () => {
   console.log(`Fulin server running at http://localhost:${PORT}`);
