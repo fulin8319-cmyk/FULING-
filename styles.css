@@ -1114,6 +1114,13 @@ h1 {
   font-weight: 700;
 }
 
+.field-hint {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
 .field input,
 .field select {
   border: 1px solid var(--line);

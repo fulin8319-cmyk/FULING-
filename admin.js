@@ -391,7 +391,7 @@ function applyAdminHeaderLabels() {
   const textMap = {
     category: "布料種類",
     isPrintingFabric: "印花用布",
-    featuredOnHome: "首頁精選",
+    featuredOnHome: "主力布料",
     fabricType: "布種",
     pattern: "顏色",
     composition: "成份",
@@ -466,7 +466,7 @@ function updateFilterSummary() {
   const labels = {
     category: "布料種類",
     isPrintingFabric: "印花用布",
-    featuredOnHome: "首頁精選",
+    featuredOnHome: "主力布料",
     fabricType: "布種",
     pattern: "顏色",
     composition: "成份",

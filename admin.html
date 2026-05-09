@@ -28,7 +28,7 @@
           <p class="eyebrow">Admin Panel</p>
           <h1>庫存後台管理</h1>
           <p class="hero-lead">
-            你可以直接改每一筆的布料種類、是否為印花用布、首頁精選、圖片與庫存資訊。
+            你可以直接改每一筆的布料種類、是否為印花用布、主力布料、圖片與庫存資訊。
             點上方表頭像是顏色、成份、布種、布料種類時，會展開下拉式選單，方便你快速篩出要改的資料。
           </p>
         </div>
@@ -72,7 +72,7 @@
       <section class="admin-panel">
         <div class="panel-head">
           <h2>新增布料</h2>
-          <p>新增時先填主資料，之後也可以在下方表格繼續編輯。印花用布與首頁精選都可以直接指定。</p>
+          <p>新增時先填主資料，之後也可以在下方表格繼續編輯。印花用布與主力布料都可以直接指定。</p>
         </div>
 
         <div class="admin-add-grid">
@@ -92,11 +92,12 @@
             </select>
           </label>
           <label class="field">
-            首頁精選
+            主力布料（首頁顯示）
             <select id="newFeaturedOnHome">
               <option value="false" selected>否</option>
               <option value="true">是</option>
             </select>
+            <span class="field-hint">選「是」會出現在首頁主力布料區；展示順序數字越小越前面。</span>
           </label>
           <label class="field">
             展示順序
@@ -200,7 +201,7 @@
                   <div class="admin-filter-menu" data-filter-menu="isPrintingFabric" hidden></div>
                 </th>
                 <th>
-                  <button class="admin-filter-toggle" type="button" data-filter-toggle="featuredOnHome">首頁精選</button>
+                  <button class="admin-filter-toggle" type="button" data-filter-toggle="featuredOnHome">主力布料</button>
                   <div class="admin-filter-menu" data-filter-menu="featuredOnHome" hidden></div>
                 </th>
                 <th>展示順序</th>
