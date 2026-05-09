@@ -9,6 +9,7 @@ const ADMIN_PASS = process.env.ADMIN_PASS || "";
 const N8N_API_KEY = process.env.N8N_API_KEY || "";
 const SESSION_COOKIE = "fulin_session";
 const SEED_DATA_DIR = path.join(__dirname, "data");
+const FALLBACK_SEED_DATA_DIR = path.join(__dirname, "seed-data");
 const PUBLIC_UPLOAD_DIR = path.join(__dirname, "assets", "uploads");
 const PERSIST_DIR = process.env.FULIN_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || SEED_DATA_DIR;
 const DATA_FILE = path.join(PERSIST_DIR, "inventory.json");
@@ -74,8 +75,16 @@ function seedPersistentFile(filename, fallbackContent) {
   }
 
   fs.mkdirSync(path.dirname(target), { recursive: true });
-  const seed = path.join(SEED_DATA_DIR, filename);
-  if (fs.existsSync(seed) && path.resolve(seed) !== path.resolve(target)) {
+  const seedCandidates = [
+    path.join(FALLBACK_SEED_DATA_DIR, filename),
+    path.join(SEED_DATA_DIR, filename)
+  ];
+
+  const seed = seedCandidates.find(
+    (candidate) => fs.existsSync(candidate) && path.resolve(candidate) !== path.resolve(target)
+  );
+
+  if (seed) {
     fs.copyFileSync(seed, target);
     return;
   }
