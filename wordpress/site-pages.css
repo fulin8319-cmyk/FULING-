@@ -128,12 +128,36 @@ h1 {
 }
 .lead { max-width: 780px; color: var(--muted); font-size: 18px; line-height: 1.9; margin: 0 0 26px; }
 .actions, .quick-links { display: flex; gap: 14px; flex-wrap: wrap; }
+@property --runner-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
 .btn, .chip {
+  --runner-angle: 0deg;
   border: 1px solid rgba(255,255,255,.12);
   background: rgba(255,255,255,.06);
   color: #e4f4ff;
   box-shadow: var(--shadow);
-  transition: transform .25s ease, border-color .25s ease, background .25s ease;
+  transition: transform .25s ease, border-color .25s ease, background .25s ease, box-shadow .25s ease;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.btn:before, .chip:before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--runner-angle), transparent 0 58%, rgba(102,224,255,.15) 66%, rgba(102,224,255,.95) 74%, #fff 78%, rgba(138,125,255,.95) 83%, transparent 92% 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+  z-index: -1;
 }
 .btn {
   padding: 14px 20px;
@@ -143,7 +167,15 @@ h1 {
   align-items: center;
   justify-content: center;
 }
-.btn:hover, .chip:hover { transform: translateY(-2px); border-color: rgba(102,224,255,.45); }
+.btn:hover, .chip:hover {
+  transform: translateY(-2px);
+  border-color: rgba(102,224,255,.45);
+  box-shadow: 0 18px 44px rgba(24,86,123,.34), 0 0 22px rgba(102,224,255,.14);
+}
+.btn:hover:before, .chip:hover:before {
+  opacity: 1;
+  animation: borderRunner 1.25s linear infinite;
+}
 .btn-primary { background: linear-gradient(135deg, rgba(102,224,255,.2), rgba(138,125,255,.22)); }
 .chip { padding: 10px 12px; border-radius: 999px; font-size: 13px; color: #d7e7fb; }
 .section {
@@ -228,4 +260,8 @@ h1 {
   .site-header { padding: 18px 5vw 0; }
   .actions { flex-direction: column; }
   .btn { width: 100%; }
+}
+
+@keyframes borderRunner {
+  to { --runner-angle: 360deg; }
 }
