@@ -760,6 +760,56 @@ h1 {
   font-size: 13px;
 }
 
+.featured-editor-list {
+  display: grid;
+  gap: 16px;
+}
+
+.featured-editor-card {
+  display: grid;
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid rgba(122, 97, 62, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 250, 241, 0.72);
+  box-shadow: 0 12px 28px rgba(62, 40, 20, 0.08);
+}
+
+.featured-editor-preview {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.featured-editor-preview .image-upload-preview {
+  width: 100%;
+  min-height: 150px;
+}
+
+.featured-editor-preview strong {
+  font-size: 18px;
+}
+
+.featured-editor-preview span:last-child {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.featured-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.featured-editor-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .admin-stored-image-actions .secondary-button {
   min-height: 32px;
   padding: 0 10px;
@@ -1442,6 +1492,7 @@ button:focus-visible {
   .category-grid,
   .workflow-grid,
   .featured-grid,
+  .featured-editor-card,
   .content-grid,
   .modal-layout,
   .uploader-grid,
@@ -1484,6 +1535,18 @@ button:focus-visible {
 
   .admin-add-grid {
     grid-template-columns: 1fr;
+  }
+
+  .featured-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .featured-editor-actions {
+    justify-content: stretch;
+  }
+
+  .featured-editor-actions .secondary-button {
+    width: 100%;
   }
 
   .analytics-summary,

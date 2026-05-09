@@ -33,6 +33,10 @@ const analyticsWeekViewsEl = document.getElementById("analyticsWeekViews");
 const analyticsWeekVisitorsEl = document.getElementById("analyticsWeekVisitors");
 const analyticsDaysEl = document.getElementById("analyticsDays");
 const analyticsPagesEl = document.getElementById("analyticsPages");
+const featuredEditorListEl = document.getElementById("featuredEditorList");
+const saveFeaturedButtonEl = document.getElementById("saveFeaturedButton");
+const reloadFeaturedButtonEl = document.getElementById("reloadFeaturedButton");
+const featuredEditorMessageEl = document.getElementById("featuredEditorMessage");
 
 const newCodeEl = document.getElementById("newCode");
 const newCategoryEl = document.getElementById("newCategory");
@@ -348,6 +352,61 @@ function buildBooleanOptions(selectedValue) {
   `;
 }
 
+function getFeaturedIndexes() {
+  return adminInventory
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => item.featuredOnHome === true)
+    .sort((a, b) =>
+      Number(a.item.featuredOrder || 0) - Number(b.item.featuredOrder || 0) ||
+      String(a.item.code || "").localeCompare(String(b.item.code || ""), "zh-Hant")
+    )
+    .map(({ index }) => index);
+}
+
+function renderFeaturedEditor() {
+  if (!featuredEditorListEl) {
+    return;
+  }
+
+  const featuredIndexes = getFeaturedIndexes();
+  if (!featuredIndexes.length) {
+    featuredEditorListEl.innerHTML = '<div class="muted-text">目前沒有主力布料。請先到下方表格把某筆「主力布料」改成「是」，再按儲存。</div>';
+    return;
+  }
+
+  featuredEditorListEl.innerHTML = featuredIndexes.map((realIndex) => {
+    const item = adminInventory[realIndex];
+    const thumbnailUrl = item.featuredImage || item.image || "";
+    return `
+      <article class="featured-editor-card" data-featured-card="${realIndex}">
+        <div class="featured-editor-preview">
+          <span class="image-upload-preview${thumbnailUrl ? "" : " is-empty"}" data-featured-image-preview="${realIndex}"${thumbnailUrl ? ` style="background-image:url('${escapeAttribute(thumbnailUrl)}')"` : ""}></span>
+          <strong>${escapeHtml(item.code)}</strong>
+          <span>${escapeHtml(item.displayTitle || item.name || "未命名布料")}</span>
+        </div>
+        <div class="featured-editor-grid">
+          <label class="field">展示順序<input data-featured-index="${realIndex}" data-featured-field="featuredOrder" type="number" min="0" step="1" value="${item.featuredOrder || ""}" placeholder="1"></label>
+          <label class="field">顯示名稱<input data-featured-index="${realIndex}" data-featured-field="displayTitle" type="text" value="${escapeAttribute(item.displayTitle)}"></label>
+          <label class="field">布種<input data-featured-index="${realIndex}" data-featured-field="fabricType" type="text" list="fabricTypeOptions" value="${escapeAttribute(item.fabricType)}"></label>
+          <label class="field">顏色<input data-featured-index="${realIndex}" data-featured-field="pattern" type="text" list="patternOptions" value="${escapeAttribute(item.pattern)}"></label>
+          <label class="field">成份<input data-featured-index="${realIndex}" data-featured-field="composition" type="text" list="compositionOptions" value="${escapeAttribute(item.composition)}"></label>
+          <label class="field">圖片<input data-featured-index="${realIndex}" data-featured-field="featuredImage" type="text" value="${escapeAttribute(item.featuredImage)}" placeholder="/assets/uploads/..."></label>
+          <label class="field image-upload-field">上傳圖片<input data-featured-image-file-index="${realIndex}" type="file" accept="image/*"><span class="image-upload-hint">上傳後會自動設為這款主圖。</span></label>
+          <label class="field">幅寬<input data-featured-index="${realIndex}" data-featured-field="width" type="number" value="${item.width || ""}"></label>
+          <label class="field">碼重<input data-featured-index="${realIndex}" data-featured-field="weightPerYard" type="number" value="${item.weightPerYard || ""}"></label>
+          <label class="field">公斤數<input data-featured-index="${realIndex}" data-featured-field="kg" type="number" step="0.1" value="${item.kg || ""}"></label>
+          <label class="field">碼數<input data-featured-index="${realIndex}" data-featured-field="yards" type="number" step="0.1" value="${item.yards || ""}"></label>
+          <label class="field">備註<input data-featured-index="${realIndex}" data-featured-field="note" type="text" value="${escapeAttribute(item.note)}"></label>
+        </div>
+        <div class="featured-editor-actions">
+          <button class="secondary-button" type="button" data-unfeature-index="${realIndex}">從主力布料移除</button>
+          <button class="secondary-button" type="button" data-scroll-row-index="${realIndex}">到完整表格查看</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
 function populateCategorySelect(selectEl) {
   selectEl.innerHTML = buildCategoryOptions("其他布料");
 }
@@ -488,6 +547,7 @@ function renderAdminRows() {
   applyAdminHeaderLabels();
   renderHeaderFilters();
   updateFilterSummary();
+  renderFeaturedEditor();
 
   adminRowsEl.innerHTML = filteredIndexes.map((realIndex) => {
     const item = adminInventory[realIndex];
@@ -566,6 +626,59 @@ function readFormData() {
   });
 
   return next;
+}
+
+function applyFeaturedEditorData(items = adminInventory) {
+  document.querySelectorAll("[data-featured-index][data-featured-field]").forEach((element) => {
+    const index = Number(element.dataset.featuredIndex);
+    const field = element.dataset.featuredField;
+    if (!items[index]) {
+      return;
+    }
+
+    let value = element.value;
+    if (["featuredOrder", "width", "weightPerYard", "kg", "yards"].includes(field)) {
+      value = value === "" ? 0 : Number(value);
+    }
+
+    items[index][field] = value;
+    if (field === "featuredImage") {
+      items[index].image = value || items[index].image || "";
+      items[index].images = uniqueImages([value, ...collectItemImages(items[index])]);
+    }
+  });
+
+  items.forEach((item) => {
+    if (item.kg && item.weightPerYard && !item.yards) {
+      item.yards = yardsFromKg(item.kg, item.weightPerYard);
+    } else if (item.yards && item.weightPerYard && !item.kg) {
+      item.kg = kgFromYards(item.yards, item.weightPerYard);
+    }
+  });
+
+  return items;
+}
+
+async function saveInventoryItems(messageEl, successMessage) {
+  adminInventory = applyFeaturedEditorData(readFormData()).map((item) => normalizeItem(item));
+
+  const response = await fetch("/api/admin/inventory", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ items: adminInventory })
+  });
+
+  const data = await response.json();
+  const message = response.ok ? successMessage : (data.message || "儲存失敗。");
+  if (messageEl) {
+    messageEl.textContent = message;
+  }
+  if (messageEl !== adminMessageEl && adminMessageEl) {
+    adminMessageEl.textContent = message;
+  }
+  renderAdminRows();
+  return response.ok;
 }
 
 function clearAddForm() {
@@ -740,6 +853,63 @@ async function loadAdminInventory() {
   updateAddFormMode();
 }
 
+featuredEditorListEl?.addEventListener("input", (event) => {
+  const input = event.target.closest("[data-featured-field='featuredImage']");
+  if (!input) {
+    return;
+  }
+
+  const index = Number(input.dataset.featuredIndex);
+  updateImagePreview(document.querySelector(`[data-featured-image-preview="${index}"]`), input.value);
+});
+
+featuredEditorListEl?.addEventListener("change", async (event) => {
+  const input = event.target.closest("[data-featured-image-file-index]");
+  if (!input || !input.files?.[0]) {
+    return;
+  }
+
+  try {
+    adminInventory = applyFeaturedEditorData(readFormData());
+    const index = Number(input.dataset.featuredImageFileIndex);
+    const item = adminInventory[index] || {};
+    featuredEditorMessageEl.textContent = "主力布料圖片上傳中...";
+    const url = await uploadImageFile(input.files[0], item.code);
+    item.featuredImage = url;
+    item.image = url;
+    item.images = uniqueImages([url, ...collectItemImages(item)]);
+    renderAdminRows();
+    featuredEditorMessageEl.textContent = "圖片已更新，記得按「儲存主力布料變更」。";
+  } catch (error) {
+    featuredEditorMessageEl.textContent = error.message;
+  } finally {
+    input.value = "";
+  }
+});
+
+featuredEditorListEl?.addEventListener("click", (event) => {
+  const unfeatureButton = event.target.closest("[data-unfeature-index]");
+  const scrollButton = event.target.closest("[data-scroll-row-index]");
+
+  if (unfeatureButton) {
+    adminInventory = applyFeaturedEditorData(readFormData());
+    const index = Number(unfeatureButton.dataset.unfeatureIndex);
+    if (adminInventory[index]) {
+      adminInventory[index].featuredOnHome = false;
+      renderAdminRows();
+      featuredEditorMessageEl.textContent = "已從主力布料移除，記得按「儲存主力布料變更」。";
+    }
+    return;
+  }
+
+  if (scrollButton) {
+    const index = Number(scrollButton.dataset.scrollRowIndex);
+    const rowField = document.querySelector(`[data-index="${index}"][data-field="displayTitle"]`);
+    rowField?.scrollIntoView({ behavior: "smooth", block: "center" });
+    rowField?.focus();
+  }
+});
+
 adminRowsEl.addEventListener("click", (event) => {
   const button = event.target.closest("[data-delete-index]");
   if (!button) {
@@ -897,22 +1067,21 @@ newFeaturedImageFileEl?.addEventListener("change", async () => {
 });
 
 saveButtonEl.addEventListener("click", async () => {
-  adminInventory = readFormData();
-
-  const response = await fetch("/api/admin/inventory", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ items: adminInventory })
-  });
-
-  const data = await response.json();
-  adminMessageEl.textContent = response.ok ? "已儲存全部變更。" : (data.message || "儲存失敗。");
+  await saveInventoryItems(adminMessageEl, "已儲存全部變更。");
 });
 
 resetButtonEl.addEventListener("click", async () => {
   await loadAdminInventory();
   adminMessageEl.textContent = "已重新載入最新資料。";
+});
+
+saveFeaturedButtonEl?.addEventListener("click", async () => {
+  await saveInventoryItems(featuredEditorMessageEl, "已儲存主力布料變更到雲端。");
+});
+
+reloadFeaturedButtonEl?.addEventListener("click", async () => {
+  await loadAdminInventory();
+  featuredEditorMessageEl.textContent = "已重新載入主力布料。";
 });
 
 document.addEventListener("click", (event) => {
