@@ -37,6 +37,7 @@ const featuredEditorListEl = document.getElementById("featuredEditorList");
 const saveFeaturedButtonEl = document.getElementById("saveFeaturedButton");
 const reloadFeaturedButtonEl = document.getElementById("reloadFeaturedButton");
 const featuredEditorMessageEl = document.getElementById("featuredEditorMessage");
+const socialSchedulerLinkEl = document.getElementById("socialSchedulerLink");
 
 const newCodeEl = document.getElementById("newCode");
 const newCategoryEl = document.getElementById("newCategory");
@@ -69,6 +70,13 @@ let editingExistingIndex = -1;
 let editingLoadedCode = "";
 let codeLookupTimer = 0;
 let addFormImages = [];
+
+if (socialSchedulerLinkEl) {
+  socialSchedulerLinkEl.addEventListener("click", (event) => {
+    event.preventDefault();
+    window.open(socialSchedulerLinkEl.href, "_blank", "noopener,noreferrer");
+  });
+}
 
 const adminFilters = {
   category: "",
