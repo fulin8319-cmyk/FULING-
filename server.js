@@ -5,8 +5,21 @@ const crypto = require("crypto");
 
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_USER = process.env.ADMIN_USER || "";
-const ADMIN_PASS = process.env.ADMIN_PASS || "";
+const ADMIN_PASS = process.env.ADMIN_PASS || process.env.ADMIN_PASSWORD || "";
 const N8N_API_KEY = process.env.N8N_API_KEY || "";
+const FB_PAGE_ID = process.env.FB_PAGE_ID || "";
+const FB_PAGE_ACCESS_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN || "";
+const X_API_KEY = process.env.X_API_KEY || "";
+const X_API_SECRET = process.env.X_API_SECRET || "";
+const X_ACCESS_TOKEN = process.env.X_ACCESS_TOKEN || "";
+const X_ACCESS_SECRET = process.env.X_ACCESS_SECRET || "";
+const TIKTOK_CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY || "";
+const TIKTOK_CLIENT_SECRET = process.env.TIKTOK_CLIENT_SECRET || "";
+const TIKTOK_ACCESS_TOKEN = process.env.TIKTOK_ACCESS_TOKEN || "";
+const TIKTOK_OPEN_ID = process.env.TIKTOK_OPEN_ID || "";
+const IG_USER_ID = process.env.IG_USER_ID || "";
+const IG_ACCESS_TOKEN = process.env.IG_ACCESS_TOKEN || FB_PAGE_ACCESS_TOKEN;
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || process.env.RAILWAY_PUBLIC_DOMAIN || "";
 const SESSION_COOKIE = "fulin_session";
 const SEED_DATA_DIR = path.join(__dirname, "data");
 const FALLBACK_SEED_DATA_DIR = path.join(__dirname, "seed-data");
@@ -14,8 +27,9 @@ const PUBLIC_UPLOAD_DIR = path.join(__dirname, "assets", "uploads");
 const PERSIST_DIR = process.env.FULIN_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || SEED_DATA_DIR;
 const DATA_FILE = path.join(PERSIST_DIR, "inventory.json");
 const ANALYTICS_FILE = path.join(PERSIST_DIR, "analytics.json");
+const SOCIAL_POSTS_FILE = path.join(PERSIST_DIR, "social-posts.json");
 const UPLOAD_DIR = path.join(PERSIST_DIR, "uploads");
-const MAX_BODY_BYTES = 12 * 1024 * 1024;
+const MAX_BODY_BYTES = 120 * 1024 * 1024;
 
 const TRACKED_PAGES = {
   "/index.html": "首頁",
@@ -39,7 +53,10 @@ const contentTypes = {
   ".png": "image/png",
   ".webp": "image/webp",
   ".gif": "image/gif",
-  ".heic": "image/heic"
+  ".heic": "image/heic",
+  ".mp4": "video/mp4",
+  ".mov": "video/quicktime",
+  ".webm": "video/webm"
 };
 
 function parseCookies(req) {
@@ -95,6 +112,7 @@ function seedPersistentFile(filename, fallbackContent) {
 function initializePersistentStorage() {
   seedPersistentFile("inventory.json", "[]\n");
   seedPersistentFile("analytics.json", "{\"days\":{}}\n");
+  seedPersistentFile("social-posts.json", "[]\n");
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
@@ -104,8 +122,18 @@ function extensionFromMime(mimeType = "") {
     "image/jpeg": ".jpg",
     "image/png": ".png",
     "image/webp": ".webp",
-    "image/gif": ".gif"
+    "image/gif": ".gif",
+    "video/mp4": ".mp4",
+    "video/quicktime": ".mov",
+    "video/webm": ".webm"
   }[normalized] || "";
+}
+
+function mediaKindFromMime(mimeType = "") {
+  const normalized = String(mimeType).toLowerCase().split(";")[0].trim();
+  if (normalized.startsWith("image/")) return "image";
+  if (normalized.startsWith("video/")) return "video";
+  return "";
 }
 
 function safeFileStem(value = "fabric") {
@@ -341,6 +369,160 @@ function writeInventory(items) {
   fs.writeFileSync(DATA_FILE, `${JSON.stringify(items, null, 2)}\n`, "utf8");
 }
 
+function readSocialPosts() {
+  const data = readJsonFile(SOCIAL_POSTS_FILE, []);
+  return Array.isArray(data) ? data : [];
+}
+
+function writeSocialPosts(posts) {
+  fs.mkdirSync(path.dirname(SOCIAL_POSTS_FILE), { recursive: true });
+  fs.writeFileSync(SOCIAL_POSTS_FILE, `${JSON.stringify(posts, null, 2)}\n`, "utf8");
+}
+
+function normalizePlatforms(platforms) {
+  const allowed = new Set(["facebook", "x", "tiktok", "instagram"]);
+  return (Array.isArray(platforms) ? platforms : [])
+    .map((platform) => String(platform || "").trim().toLowerCase())
+    .filter((platform, index, list) => allowed.has(platform) && list.indexOf(platform) === index);
+}
+
+function normalizeMediaList(media) {
+  return (Array.isArray(media) ? media : [])
+    .map((item) => ({
+      url: String(item.url || "").trim(),
+      type: String(item.type || "").trim().toLowerCase() === "video" ? "video" : "image",
+      name: String(item.name || "").trim()
+    }))
+    .filter((item) => item.url);
+}
+
+function getCredentialStatus() {
+  return {
+    facebook: Boolean(FB_PAGE_ID && FB_PAGE_ACCESS_TOKEN),
+    x: Boolean(X_API_KEY && X_API_SECRET && X_ACCESS_TOKEN && X_ACCESS_SECRET),
+    tiktok: Boolean(TIKTOK_CLIENT_KEY && TIKTOK_CLIENT_SECRET && TIKTOK_ACCESS_TOKEN && TIKTOK_OPEN_ID),
+    instagram: Boolean(IG_USER_ID && IG_ACCESS_TOKEN)
+  };
+}
+
+function makeAbsoluteUrl(req, url) {
+  const text = String(url || "").trim();
+  if (/^https?:\/\//i.test(text)) return text;
+  if (!req && PUBLIC_BASE_URL) {
+    const base = PUBLIC_BASE_URL.startsWith("http") ? PUBLIC_BASE_URL : `https://${PUBLIC_BASE_URL}`;
+    return `${base.replace(/\/+$/, "")}${text.startsWith("/") ? text : `/${text}`}`;
+  }
+  if (!req) {
+    throw new Error("PUBLIC_BASE_URL is required for scheduled media publishing.");
+  }
+  const proto = req.headers["x-forwarded-proto"] || "https";
+  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  return `${proto}://${host}${text.startsWith("/") ? text : `/${text}`}`;
+}
+
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, options);
+  const text = await response.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { raw: text };
+  }
+  if (!response.ok || data.error) {
+    throw new Error(data.error?.message || data.message || `Request failed with ${response.status}`);
+  }
+  return data;
+}
+
+async function publishFacebook(req, post) {
+  if (!FB_PAGE_ID || !FB_PAGE_ACCESS_TOKEN) {
+    throw new Error("Facebook Page API is not configured.");
+  }
+
+  const images = post.media.filter((item) => item.type === "image").slice(0, 10);
+  const videos = post.media.filter((item) => item.type === "video");
+  if (videos.length) {
+    const body = new URLSearchParams({
+      access_token: FB_PAGE_ACCESS_TOKEN,
+      description: post.content,
+      file_url: makeAbsoluteUrl(req, videos[0].url)
+    });
+    return fetchJson(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/videos`, { method: "POST", body });
+  }
+
+  if (images.length) {
+    const attached = [];
+    for (const image of images) {
+      const body = new URLSearchParams({
+        access_token: FB_PAGE_ACCESS_TOKEN,
+        url: makeAbsoluteUrl(req, image.url),
+        published: "false"
+      });
+      const photo = await fetchJson(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/photos`, { method: "POST", body });
+      attached.push({ media_fbid: photo.id });
+    }
+    const body = new URLSearchParams({
+      access_token: FB_PAGE_ACCESS_TOKEN,
+      message: post.content
+    });
+    attached.forEach((item, index) => body.append(`attached_media[${index}]`, JSON.stringify(item)));
+    return fetchJson(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/feed`, { method: "POST", body });
+  }
+
+  const body = new URLSearchParams({
+    access_token: FB_PAGE_ACCESS_TOKEN,
+    message: post.content
+  });
+  return fetchJson(`https://graph.facebook.com/v20.0/${FB_PAGE_ID}/feed`, { method: "POST", body });
+}
+
+async function publishToPlatform(req, post, platform) {
+  if (platform === "facebook") return publishFacebook(req, post);
+  if (platform === "x") throw new Error("X media/text publishing needs OAuth 1.0a signing before it can be enabled.");
+  if (platform === "tiktok") throw new Error("TikTok Content Posting API is not approved/configured yet.");
+  if (platform === "instagram") throw new Error("Instagram Graph API account is not ready yet.");
+  throw new Error(`Unsupported platform: ${platform}`);
+}
+
+async function publishSocialPost(req, post) {
+  const results = {};
+  for (const platform of post.platforms) {
+    try {
+      const data = await publishToPlatform(req, post, platform);
+      results[platform] = { ok: true, data };
+    } catch (error) {
+      results[platform] = { ok: false, message: error.message };
+    }
+  }
+  const ok = Object.values(results).some((result) => result.ok);
+  return { ok, results };
+}
+
+async function publishDueSocialPosts() {
+  const posts = readSocialPosts();
+  const now = Date.now();
+  let changed = false;
+
+  for (const post of posts) {
+    if (post.status !== "scheduled" || !post.scheduledAt) continue;
+    const dueAt = Date.parse(post.scheduledAt);
+    if (!Number.isFinite(dueAt) || dueAt > now) continue;
+
+    post.status = "publishing";
+    post.updatedAt = new Date().toISOString();
+    changed = true;
+    const result = await publishSocialPost(null, post);
+    post.status = result.ok ? "published" : "failed";
+    post.results = result.results;
+    post.updatedAt = new Date().toISOString();
+  }
+
+  if (changed) {
+    writeSocialPosts(posts);
+  }
+}
+
 function todayKey() {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Taipei",
@@ -506,10 +688,27 @@ async function handleApi(req, res, url) {
     });
   }
 
+  if (req.method === "GET" && url.pathname === "/api/admin/social/status") {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+    return sendJson(res, 200, { ok: true, credentials: getCredentialStatus() });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/admin/social/posts") {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+    return sendJson(res, 200, { ok: true, posts: readSocialPosts().sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))) });
+  }
+
   if (req.method === "POST" && url.pathname === "/api/login") {
     const body = JSON.parse((await readBody(req)) || "{}");
     const username = String(body.username || "").trim().toLowerCase();
     const password = String(body.password || "").trim();
+    if (!ADMIN_USER || !ADMIN_PASS) {
+      return sendJson(res, 503, { ok: false, message: "Admin login is not configured." });
+    }
     if (username === ADMIN_USER.toLowerCase() && password === ADMIN_PASS) {
       const token = crypto.randomBytes(24).toString("hex");
       sessions.set(token, { createdAt: Date.now() });
@@ -564,6 +763,88 @@ async function handleApi(req, res, url) {
     const filename = `${stem}-${Date.now()}-${crypto.randomBytes(4).toString("hex")}${ext}`;
     fs.writeFileSync(path.join(UPLOAD_DIR, filename), bytes);
     return sendJson(res, 200, { ok: true, url: `/assets/uploads/${filename}` });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/upload-social-media") {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+
+    const body = JSON.parse((await readBody(req)) || "{}");
+    const mimeType = String(body.mimeType || "");
+    const ext = extensionFromMime(mimeType);
+    const mediaType = mediaKindFromMime(mimeType);
+    const base64 = String(body.data || "");
+
+    if (!ext || !mediaType || !base64) {
+      return sendJson(res, 400, { ok: false, message: "Please upload a JPG, PNG, WebP, GIF, MP4, MOV, or WebM file." });
+    }
+
+    const bytes = Buffer.from(base64, "base64");
+    if (!bytes.length || bytes.length > 80 * 1024 * 1024) {
+      return sendJson(res, 400, { ok: false, message: "Media is empty or larger than 80MB." });
+    }
+
+    ensureUploadDir();
+    const stem = safeFileStem(body.name || "social");
+    const filename = `${stem}-${Date.now()}-${crypto.randomBytes(4).toString("hex")}${ext}`;
+    fs.writeFileSync(path.join(UPLOAD_DIR, filename), bytes);
+    return sendJson(res, 200, { ok: true, url: `/assets/uploads/${filename}`, type: mediaType, name: body.name || filename });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/admin/social/posts") {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+
+    const body = JSON.parse((await readBody(req)) || "{}");
+    const platforms = normalizePlatforms(body.platforms);
+    const content = String(body.content || "").trim();
+    const media = normalizeMediaList(body.media);
+    const scheduledAt = String(body.scheduledAt || "").trim();
+
+    if (!platforms.length) {
+      return sendJson(res, 400, { ok: false, message: "Please select at least one platform." });
+    }
+    if (!content && !media.length) {
+      return sendJson(res, 400, { ok: false, message: "Please add text, images, or a video." });
+    }
+
+    const posts = readSocialPosts();
+    const post = {
+      id: crypto.randomBytes(10).toString("hex"),
+      content,
+      media,
+      platforms,
+      scheduledAt,
+      status: scheduledAt ? "scheduled" : "draft",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      results: {}
+    };
+    posts.push(post);
+    writeSocialPosts(posts);
+    return sendJson(res, 200, { ok: true, post });
+  }
+
+  if (req.method === "POST" && url.pathname.startsWith("/api/admin/social/posts/") && url.pathname.endsWith("/publish")) {
+    if (!isAuthenticated(req)) {
+      return sendJson(res, 401, { ok: false, message: "Unauthorized." });
+    }
+
+    const id = url.pathname.split("/").at(-2);
+    const posts = readSocialPosts();
+    const post = posts.find((item) => item.id === id);
+    if (!post) {
+      return sendJson(res, 404, { ok: false, message: "Post not found." });
+    }
+
+    const result = await publishSocialPost(req, post);
+    post.status = result.ok ? "published" : "failed";
+    post.results = result.results;
+    post.updatedAt = new Date().toISOString();
+    writeSocialPosts(posts);
+    return sendJson(res, result.ok ? 200 : 400, { ok: result.ok, post, results: result.results });
   }
 
   if (req.method === "PUT" && url.pathname === "/api/admin/inventory") {
@@ -681,6 +962,11 @@ const server = http.createServer(async (req, res) => {
 });
 
 initializePersistentStorage();
+setInterval(() => {
+  publishDueSocialPosts().catch((error) => {
+    console.error("Social scheduler failed:", error.message);
+  });
+}, 60 * 1000);
 
 server.listen(PORT, () => {
   console.log(`Fulin server running at http://localhost:${PORT}`);

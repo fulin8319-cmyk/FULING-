@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>社群推播排程｜福麟商行</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="site-shell social-shell">
+    <header class="site-header">
+      <a class="brand-mark" href="./index.html">
+        <span class="brand-cn">福麟商行</span>
+        <span class="brand-en">Fulin</span>
+      </a>
+      <nav class="site-nav">
+        <a href="./admin.html">布料後台</a>
+        <a href="./inventory.html">現貨查詢</a>
+        <button id="logoutButton" class="secondary-button" type="button">登出</button>
+      </nav>
+    </header>
+
+    <main class="admin-page social-page">
+      <section class="inventory-hero social-hero">
+        <div>
+          <p class="eyebrow">Social Scheduler</p>
+          <h1>社群推播排程</h1>
+          <p class="hero-lead">這裡獨立管理 Facebook、X、TikTok、Instagram 的貼文草稿、圖片、影片與排程，不會和布料庫存混在同一個工作畫面。</p>
+        </div>
+      </section>
+
+      <section class="admin-panel social-composer">
+        <div class="panel-head">
+          <h2>新增推播</h2>
+          <p>先存成草稿，API 權限設定好後可以直接送出。圖片與影片會先上傳到網站空間。</p>
+        </div>
+
+        <div class="social-platforms" id="platforms">
+          <label><input type="checkbox" value="facebook" checked> Facebook</label>
+          <label><input type="checkbox" value="x"> X</label>
+          <label><input type="checkbox" value="tiktok"> TikTok</label>
+          <label><input type="checkbox" value="instagram"> Instagram</label>
+        </div>
+
+        <label class="field">
+          <span>貼文內容</span>
+          <textarea id="postContent" rows="7" placeholder="輸入要發送的文字..."></textarea>
+        </label>
+
+        <div class="social-grid">
+          <label class="field">
+            <span>排程時間</span>
+            <input id="scheduledAt" type="datetime-local">
+          </label>
+          <label class="field">
+            <span>圖片 / 影片</span>
+            <input id="mediaInput" type="file" accept="image/*,video/mp4,video/quicktime,video/webm" multiple>
+          </label>
+        </div>
+
+        <div id="mediaPreview" class="social-media-preview is-empty">尚未上傳媒體</div>
+
+        <div class="admin-actions">
+          <button id="savePostButton" class="primary-button" type="button">儲存草稿</button>
+          <button id="refreshButton" class="secondary-button" type="button">重新整理</button>
+        </div>
+        <p id="socialMessage" class="upload-note"></p>
+      </section>
+
+      <section class="admin-panel">
+        <div class="panel-head">
+          <h2>API 狀態</h2>
+          <p>綠色代表 Railway Variables 已填好；灰色代表還需要去平台申請權限或貼上 token。</p>
+        </div>
+        <div id="credentialStatus" class="credential-status"></div>
+      </section>
+
+      <section class="admin-panel">
+        <div class="panel-head">
+          <h2>貼文清單</h2>
+          <p>目前會保存草稿與送出結果。正式排程自動送出可在下一步加上背景排程器。</p>
+        </div>
+        <div id="postList" class="social-post-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./auth.js"></script>
+  <script src="./social-scheduler.js"></script>
+</body>
+</html>
