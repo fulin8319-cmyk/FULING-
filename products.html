@@ -66,7 +66,7 @@
             <p class="section-intro">每款都用同一套頁面節奏呈現，方便客人比較，也跟首頁的布料卡片連得起來。</p>
           </div>
         </div>
-        <div class="grid-cards">
+        <div class="grid-cards" id="productCards">
           <article class="panel product-card">
             <img src="./assets/pk-1.png" alt="單面PK布樣品" />
             <h3>單面PK布</h3>
@@ -115,6 +115,13 @@
     <footer class="footer">福麟商行 | 新北市三重區碧華街83號 | 09:00-19:00</footer>
   </div>
 
+  <div class="product-lightbox" id="productLightbox" aria-modal="true" role="dialog">
+    <button class="product-lightbox-nav prev" id="productLightboxPrev" type="button" hidden>‹</button>
+    <button class="product-lightbox-nav next" id="productLightboxNext" type="button" hidden>›</button>
+    <button class="product-lightbox-close" id="productLightboxClose" type="button">關閉</button>
+    <img id="productLightboxImage" src="" alt="">
+  </div>
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -131,6 +138,7 @@
     "provider": {"@type":"LocalBusiness","name":"福麟商行","telephone":"02-2987-1006","address":{"@type":"PostalAddress","streetAddress":"碧華街83號","addressLocality":"三重區","addressRegion":"新北市","addressCountry":"TW"}}
   }
   </script>
+  <script src="./products.js"></script>
 </body>
 </html>
 
