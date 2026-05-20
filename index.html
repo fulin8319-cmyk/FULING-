@@ -11,12 +11,13 @@
     a{text-decoration:none;color:inherit}
     .page{min-height:100vh;position:relative;isolation:isolate;overflow:hidden}
     .noise,.grid,.glow,.aurora,.particles,.scanline{position:absolute;inset:0;pointer-events:none}
-    .noise{opacity:.04;background-image:radial-gradient(circle at 20% 20%, #fff 0 0.8px, transparent 0.9px),radial-gradient(circle at 70% 65%, #fff 0 0.8px, transparent 0.9px),radial-gradient(circle at 40% 80%, #fff 0 0.8px, transparent 0.9px);background-size:120px 120px,160px 160px,200px 200px;mix-blend-mode:screen;animation:noiseMove 12s linear infinite}
+    .noise{opacity:.026;background-image:radial-gradient(circle at 20% 20%, #fff 0 0.8px, transparent 0.9px),radial-gradient(circle at 70% 65%, #fff 0 0.8px, transparent 0.9px),radial-gradient(circle at 40% 80%, #fff 0 0.8px, transparent 0.9px);background-size:160px 160px,220px 220px,280px 280px;mix-blend-mode:screen}
     .grid{background:linear-gradient(rgba(102,224,255,.06) 1px, transparent 1px),linear-gradient(90deg, rgba(102,224,255,.06) 1px, transparent 1px);background-size:48px 48px;mask-image:linear-gradient(to bottom, rgba(255,255,255,.65), transparent 82%);transform:perspective(1200px) rotateX(70deg) translateY(30%);transform-origin:center top;opacity:.5}
-    .glow{background:radial-gradient(circle at 15% 25%, rgba(102,224,255,.22), transparent 28%),radial-gradient(circle at 80% 20%, rgba(138,125,255,.18), transparent 24%),radial-gradient(circle at 65% 72%, rgba(49,242,192,.14), transparent 22%);filter:blur(20px);animation:floatGlow 12s ease-in-out infinite alternate}
-    .aurora{background:conic-gradient(from 180deg at 50% 50%, rgba(102,224,255,.0), rgba(102,224,255,.08), rgba(138,125,255,.12), rgba(49,242,192,.08), rgba(102,224,255,.0));filter:blur(48px);transform:translateY(-8%);opacity:.85;animation:rotateAurora 20s linear infinite}
-    .scanline{background:linear-gradient(to bottom, transparent 0%, rgba(255,255,255,.06) 48%, transparent 100%);height:18vh;inset:auto 0 0 0;animation:scan 6s linear infinite;opacity:.22}
-    .particles span{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 0 16px rgba(102,224,255,.7),0 0 28px rgba(138,125,255,.45);animation:particleFloat linear infinite}
+    .glow{background:radial-gradient(circle at 15% 25%, rgba(102,224,255,.16), transparent 28%),radial-gradient(circle at 80% 20%, rgba(138,125,255,.13), transparent 24%),radial-gradient(circle at 65% 72%, rgba(49,242,192,.1), transparent 22%);filter:blur(10px)}
+    .aurora{background:conic-gradient(from 180deg at 50% 50%, rgba(102,224,255,.0), rgba(102,224,255,.055), rgba(138,125,255,.075), rgba(49,242,192,.05), rgba(102,224,255,.0));filter:blur(18px);transform:translateY(-8%);opacity:.55}
+    .scanline{display:none}
+    .particles{display:none}
+    .particles span{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 0 16px rgba(102,224,255,.7),0 0 28px rgba(138,125,255,.45)}
     header{position:relative;z-index:2;padding:22px 6vw 0;display:flex;align-items:center;justify-content:space-between}
     .brand{display:flex;align-items:center;gap:14px;font-weight:700;letter-spacing:.04em}
     .brand-badge{width:42px;height:42px;border-radius:14px;border:1px solid rgba(255,255,255,.18);background:#05070a url("./assets/fulin-brand-mark.jpeg") center/cover no-repeat;box-shadow:inset 0 0 18px rgba(255,255,255,.05), 0 8px 20px rgba(0,0,0,.18);position:relative;overflow:hidden}
@@ -95,7 +96,7 @@
     .spec-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
     .spec-gallery img{width:100%;height:74px;object-fit:cover;border-radius:10px;border:1px solid rgba(255,255,255,.14)}
     .quote-box{margin-top:26px;padding:34px;border-radius:28px;background:linear-gradient(135deg, rgba(102,224,255,.09), rgba(138,125,255,.09), rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.12);box-shadow:var(--shadow);display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center;overflow:hidden;position:relative}
-    .quote-box:before{content:"";position:absolute;inset:-20%;background:radial-gradient(circle at 0% 50%, rgba(102,224,255,.12), transparent 32%),radial-gradient(circle at 100% 50%, rgba(138,125,255,.1), transparent 28%);animation:floatGlow 10s ease-in-out infinite alternate}
+    .quote-box:before{content:"";position:absolute;inset:-20%;background:radial-gradient(circle at 0% 50%, rgba(102,224,255,.1), transparent 32%),radial-gradient(circle at 100% 50%, rgba(138,125,255,.08), transparent 28%)}
     .quote-box > *{position:relative;z-index:1}
     .list{display:grid;gap:12px}
     .list div{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
@@ -242,22 +243,25 @@
   </div>
   <script>
     const particles = document.getElementById('particles');
-    const count = 24;
-    for (let i = 0; i < count; i++) {
-      const p = document.createElement('span');
-      const left = Math.random() * 100;
-      const top = 55 + Math.random() * 45;
-      const dur = 7 + Math.random() * 8;
-      const delay = -Math.random() * 10;
-      const x = (-30 + Math.random() * 60).toFixed(1) + 'vw';
-      const y = (-20 - Math.random() * 60).toFixed(1) + 'vh';
-      p.style.left = left + 'vw';
-      p.style.top = top + 'vh';
-      p.style.animationDuration = dur + 's';
-      p.style.animationDelay = delay + 's';
-      p.style.setProperty('--x', x);
-      p.style.setProperty('--y', y);
-      particles.appendChild(p);
+    const enableParticles = window.matchMedia('(min-width: 1180px) and (prefers-reduced-motion: no-preference)').matches;
+    if (enableParticles) {
+      particles.style.display = 'block';
+      const count = 10;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('span');
+        const left = Math.random() * 100;
+        const top = 55 + Math.random() * 45;
+        const dur = 10 + Math.random() * 8;
+        const delay = -Math.random() * 10;
+        const x = (-22 + Math.random() * 44).toFixed(1) + 'vw';
+        const y = (-16 - Math.random() * 42).toFixed(1) + 'vh';
+        p.style.left = left + 'vw';
+        p.style.top = top + 'vh';
+        p.style.animation = `particleFloat ${dur}s linear ${delay}s infinite`;
+        p.style.setProperty('--x', x);
+        p.style.setProperty('--y', y);
+        particles.appendChild(p);
+      }
     }
     const tiltArea = document.getElementById('tiltArea');
     const fabricShell = document.getElementById('fabricShell');
