@@ -20,6 +20,17 @@ function resolveImage(src) {
   return new URL(text, location.origin + "/").href;
 }
 
+function optimizedImage(src) {
+  const absolute = resolveImage(src);
+  if (!absolute) return "";
+  const url = new URL(absolute, location.href);
+  if (url.origin !== location.origin) return absolute;
+  if (!url.pathname.startsWith("/assets/") || url.pathname.startsWith("/assets/uploads/")) return absolute;
+  if (!/\.(jpe?g|png)$/i.test(url.pathname)) return absolute;
+  url.pathname = url.pathname.replace(/^\/assets\//, "/assets/optimized/").replace(/\.(jpe?g|png)$/i, ".jpg");
+  return url.href;
+}
+
 function uniqueImages(item) {
   const values = [
     ...(Array.isArray(item.images) ? item.images : []),
@@ -94,6 +105,7 @@ function enhanceStaticCards() {
     const image = card.querySelector("img");
     if (!image) return;
     const src = resolveImage(image.getAttribute("src"));
+    image.src = optimizedImage(src);
     tuneImageLoading(image, index === 0);
     image.dataset.productGallery = `static-${index}`;
     image.style.cursor = "zoom-in";
@@ -115,7 +127,7 @@ function renderProductCards(items) {
     imageWrap.setAttribute("aria-label", `放大檢視 ${title}`);
 
     const image = document.createElement("img");
-    image.src = images[0];
+    image.src = optimizedImage(images[0]);
     image.alt = `${title}樣品圖`;
     tuneImageLoading(image, index === 0);
     imageWrap.appendChild(image);
@@ -130,7 +142,7 @@ function renderProductCards(items) {
         thumbButton.type = "button";
         thumbButton.setAttribute("aria-label", `放大檢視 ${title} 圖片 ${imageIndex + 1}`);
         const thumb = document.createElement("img");
-        thumb.src = src;
+        thumb.src = optimizedImage(src);
         thumb.alt = `${title}樣品圖 ${imageIndex + 1}`;
         tuneImageLoading(thumb);
         thumbButton.appendChild(thumb);

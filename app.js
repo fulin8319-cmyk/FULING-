@@ -108,6 +108,22 @@ function deriveImage(item) {
   return "";
 }
 
+function optimizedImageSrc(src) {
+  const text = String(src || "").trim();
+  if (!text) return "";
+  let url;
+  try {
+    url = new URL(text, location.origin + "/");
+  } catch {
+    return text;
+  }
+  if (url.origin !== location.origin) return text;
+  if (!url.pathname.startsWith("/assets/") || url.pathname.startsWith("/assets/uploads/")) return text;
+  if (!/\.(jpe?g|png)$/i.test(url.pathname)) return text;
+  url.pathname = url.pathname.replace(/^\/assets\//, "/assets/optimized/").replace(/\.(jpe?g|png)$/i, ".jpg");
+  return url.href;
+}
+
 function buildViewItem(item) {
   const code = cleanText(item.code, "");
   const codeKey = normalizeCodeKey(code);
@@ -237,7 +253,7 @@ function renderTable(items) {
   items.forEach((item) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${item.displayImage ? `<img class="table-thumb" src="${item.displayImage}" alt="${item.displayCode}" loading="lazy" decoding="async">` : '<span class="muted-text">無圖</span>'}</td>
+      <td>${item.displayImage ? `<img class="table-thumb" src="${optimizedImageSrc(item.displayImage)}" alt="${item.displayCode}" loading="lazy" decoding="async">` : '<span class="muted-text">無圖</span>'}</td>
       <td>${item.displayCode}</td>
       <td>${item.displayFabricType}</td>
       <td>${item.displayColor}</td>
@@ -270,7 +286,7 @@ function renderCards(items) {
     card.className = "inventory-card";
     card.innerHTML = `
       <button class="inventory-card-image" type="button">
-        ${item.displayImage ? `<img src="${item.displayImage}" alt="${item.displayCode}" loading="lazy" decoding="async">` : '<span class="muted-text">無圖片</span>'}
+        ${item.displayImage ? `<img src="${optimizedImageSrc(item.displayImage)}" alt="${item.displayCode}" loading="lazy" decoding="async">` : '<span class="muted-text">無圖片</span>'}
       </button>
       <div class="inventory-card-body">
         <h3>${item.displayCode}</h3>

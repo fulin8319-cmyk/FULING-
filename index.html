@@ -58,7 +58,7 @@
     .hero-glow{position:absolute;width:82%;height:16%;bottom:6%;border-radius:999px;background:radial-gradient(circle, rgba(91,214,255,.34) 0%, rgba(138,125,255,.24) 44%, transparent 75%);filter:blur(18px);animation:glowPulse 4.5s ease-in-out infinite}
     .hero-shimmer{position:absolute;inset:14% 18%;border-radius:28px;background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,0) 34%,rgba(255,255,255,.26) 46%,rgba(255,255,255,0) 58%,transparent 100%);mix-blend-mode:screen;filter:blur(6px);animation:shimmerMove 4.8s ease-in-out infinite;pointer-events:none}
     .planet-orb{position:relative;z-index:2;width:min(90vw,470px);aspect-ratio:1;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 34% 26%, rgba(255,255,255,.35), rgba(166,190,236,.08) 44%, rgba(35,51,84,.8) 100%);border:1px solid rgba(191,225,255,.4);box-shadow:inset -28px -16px 46px rgba(9,18,36,.56), inset 24px 12px 28px rgba(255,255,255,.34), 0 0 74px rgba(119,181,255,.24);animation:planetFloat 8s ease-in-out infinite}
-    .planet-texture{position:absolute;inset:-18%;background-image:url('./assets/planet-earth-cloth.png');background-size:cover;background-position:center;opacity:.98;mix-blend-mode:screen;filter:contrast(1.06) brightness(1.02);animation:planetSpin 62s linear infinite}
+    .planet-texture{position:absolute;inset:-18%;background-image:url('./assets/optimized/planet-earth-cloth.jpg');background-size:cover;background-position:center;opacity:.98;mix-blend-mode:screen;filter:contrast(1.06) brightness(1.02);animation:planetSpin 62s linear infinite}
     .planet-drape,.planet-fold-core,.planet-crease-shadow,.planet-ridge-arcs,.planet-fold-line{display:none}
     .planet-shadow{position:absolute;inset:0;background:radial-gradient(circle at 66% 35%, rgba(255,255,255,.2), transparent 30%),linear-gradient(90deg, rgba(255,255,255,.3) 0%, rgba(255,255,255,0) 32%, rgba(7,15,26,.35) 64%, rgba(5,9,18,.8) 100%)}
 
@@ -303,6 +303,16 @@
       if (/^https?:\/\//i.test(src) || src.startsWith('data:')) return src;
       return new URL(src, location.origin + '/').href;
     };
+    const optimizedInventoryImage = (src) => {
+      const absolute = resolveInventoryImage(src);
+      if (!absolute) return '';
+      const url = new URL(absolute, location.href);
+      if (url.origin !== location.origin) return absolute;
+      if (!url.pathname.startsWith('/assets/') || url.pathname.startsWith('/assets/uploads/')) return absolute;
+      if (!/\.(jpe?g|png)$/i.test(url.pathname)) return absolute;
+      url.pathname = url.pathname.replace(/^\/assets\//, '/assets/optimized/').replace(/\.(jpe?g|png)$/i, '.jpg');
+      return url.href;
+    };
     const HOME_FEATURED_LIMIT = 6;
     let homeFeaturedRotationTimer = 0;
     const getFeaturedOrder = (item) => {
@@ -367,9 +377,10 @@
       if (image) {
         const imageEl = document.createElement('img');
         imageEl.className = 'spec-photo';
-        imageEl.src = image;
+        imageEl.src = optimizedInventoryImage(image);
         imageEl.alt = `${title}樣品圖`;
         imageEl.dataset.gallery = galleryKey;
+        imageEl.dataset.fullSrc = image;
         tuneImageLoading(imageEl);
         feature.appendChild(imageEl);
       }
@@ -392,9 +403,10 @@
         galleryEl.className = 'spec-gallery';
         images.forEach((src, index) => {
           const thumb = document.createElement('img');
-          thumb.src = src;
+          thumb.src = optimizedInventoryImage(src);
           thumb.alt = `${title}樣品圖 ${index + 1}`;
           thumb.dataset.gallery = galleryKey;
+          thumb.dataset.fullSrc = src;
           tuneImageLoading(thumb);
           galleryEl.appendChild(thumb);
         });
@@ -515,7 +527,7 @@
     const renderGalleryImage = () => {
       const activeImg = currentGalleryImages[currentGalleryIndex];
       if (!activeImg) return;
-      lightboxImage.src = activeImg.src;
+      lightboxImage.src = activeImg.dataset.fullSrc || activeImg.src;
       lightboxImage.alt = activeImg.alt || '布料圖片';
       const isGroup = currentGalleryImages.length > 1;
       lightboxPrev.hidden = !isGroup;
