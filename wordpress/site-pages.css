@@ -384,6 +384,36 @@ h1 {
   .btn { width: 100%; }
 }
 
+@media (max-width: 760px), (prefers-reduced-motion: reduce) {
+  .grid,
+  .noise {
+    display: none;
+  }
+
+  .glow,
+  .aurora {
+    filter: none;
+    opacity: .42;
+  }
+
+  .panel,
+  .btn,
+  .chip,
+  .product-image-button img {
+    transition-duration: .15s;
+  }
+
+  .panel {
+    backdrop-filter: none;
+  }
+
+  .panel:hover:before,
+  .btn:hover:before,
+  .chip:hover:before {
+    animation: none;
+  }
+}
+
 @keyframes borderRunner {
   to { --runner-angle: 360deg; }
 }

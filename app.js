@@ -237,7 +237,7 @@ function renderTable(items) {
   items.forEach((item) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${item.displayImage ? `<img class="table-thumb" src="${item.displayImage}" alt="${item.displayCode}">` : '<span class="muted-text">無圖</span>'}</td>
+      <td>${item.displayImage ? `<img class="table-thumb" src="${item.displayImage}" alt="${item.displayCode}" loading="lazy" decoding="async">` : '<span class="muted-text">無圖</span>'}</td>
       <td>${item.displayCode}</td>
       <td>${item.displayFabricType}</td>
       <td>${item.displayColor}</td>
@@ -270,7 +270,7 @@ function renderCards(items) {
     card.className = "inventory-card";
     card.innerHTML = `
       <button class="inventory-card-image" type="button">
-        ${item.displayImage ? `<img src="${item.displayImage}" alt="${item.displayCode}">` : '<span class="muted-text">無圖片</span>'}
+        ${item.displayImage ? `<img src="${item.displayImage}" alt="${item.displayCode}" loading="lazy" decoding="async">` : '<span class="muted-text">無圖片</span>'}
       </button>
       <div class="inventory-card-body">
         <h3>${item.displayCode}</h3>

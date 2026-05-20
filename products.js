@@ -78,6 +78,11 @@ function openLightbox(images, index = 0, alt = "布料圖片") {
   lightboxEl.classList.add("active");
 }
 
+function tuneImageLoading(image, eager = false) {
+  image.decoding = "async";
+  image.loading = eager ? "eager" : "lazy";
+}
+
 function moveLightbox(step) {
   if (!productGallery.length) return;
   productGalleryIndex = (productGalleryIndex + step + productGallery.length) % productGallery.length;
@@ -89,6 +94,7 @@ function enhanceStaticCards() {
     const image = card.querySelector("img");
     if (!image) return;
     const src = resolveImage(image.getAttribute("src"));
+    tuneImageLoading(image, index === 0);
     image.dataset.productGallery = `static-${index}`;
     image.style.cursor = "zoom-in";
     image.addEventListener("click", () => openLightbox([src], 0, image.alt || "布料圖片"));
@@ -111,6 +117,7 @@ function renderProductCards(items) {
     const image = document.createElement("img");
     image.src = images[0];
     image.alt = `${title}樣品圖`;
+    tuneImageLoading(image, index === 0);
     imageWrap.appendChild(image);
     imageWrap.addEventListener("click", () => openLightbox(images, 0, image.alt));
     card.appendChild(imageWrap);
@@ -125,6 +132,7 @@ function renderProductCards(items) {
         const thumb = document.createElement("img");
         thumb.src = src;
         thumb.alt = `${title}樣品圖 ${imageIndex + 1}`;
+        tuneImageLoading(thumb);
         thumbButton.appendChild(thumb);
         thumbButton.addEventListener("click", () => openLightbox(images, imageIndex, thumb.alt));
         thumbs.appendChild(thumbButton);

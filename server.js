@@ -2,6 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const zlib = require("zlib");
 
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_USER = process.env.ADMIN_USER || "";
@@ -74,11 +75,12 @@ function parseCookies(req) {
 }
 
 function sendJson(res, statusCode, payload, extraHeaders = {}) {
+  const body = JSON.stringify(payload);
   res.writeHead(statusCode, {
     "Content-Type": "application/json; charset=utf-8",
     ...extraHeaders
   });
-  res.end(JSON.stringify(payload));
+  res.end(body);
 }
 
 function ensureUploadDir() {
@@ -910,17 +912,42 @@ async function handleApi(req, res, url) {
   return sendJson(res, 404, { ok: false, message: "Not found." });
 }
 
-function serveFile(res, filePath) {
+function isCompressibleType(contentType = "") {
+  return /text\/|javascript|json|xml|svg/i.test(contentType);
+}
+
+function serveFile(req, res, filePath) {
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Not found");
     return;
   }
 
+  const stat = fs.statSync(filePath);
   const ext = path.extname(filePath).toLowerCase();
-  res.writeHead(200, {
-    "Content-Type": contentTypes[ext] || "application/octet-stream"
-  });
+  const contentType = contentTypes[ext] || "application/octet-stream";
+  const etag = `"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}"`;
+  const isAsset = filePath.includes(`${path.sep}assets${path.sep}`) || filePath.includes(`${path.sep}wordpress${path.sep}`);
+  const headers = {
+    "Content-Type": contentType,
+    "Cache-Control": isAsset ? "public, max-age=604800, stale-while-revalidate=86400" : "no-cache",
+    ETag: etag
+  };
+
+  if (req.headers["if-none-match"] === etag) {
+    res.writeHead(304, headers);
+    res.end();
+    return;
+  }
+
+  const acceptsGzip = /\bgzip\b/.test(String(req.headers["accept-encoding"] || ""));
+  if (acceptsGzip && stat.size > 1024 && isCompressibleType(contentType)) {
+    res.writeHead(200, { ...headers, "Content-Encoding": "gzip", Vary: "Accept-Encoding" });
+    fs.createReadStream(filePath).pipe(zlib.createGzip({ level: 6 })).pipe(res);
+    return;
+  }
+
+  res.writeHead(200, headers);
   fs.createReadStream(filePath).pipe(res);
 }
 
@@ -955,7 +982,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     trackPageView(req, pathname);
-    serveFile(res, filePath);
+    serveFile(req, res, filePath);
   } catch (error) {
     sendJson(res, 500, { ok: false, message: error.message });
   }
