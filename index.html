@@ -484,7 +484,8 @@
         console.error('Failed to load home featured fabrics:', error);
       }
     };
-    loadHomeFeaturedFabrics();
+    // Keep the homepage copy curated. Products and admin pages still sync with inventory data.
+    // loadHomeFeaturedFabrics();
     const showcaseModal = document.getElementById('fabricShowcase');
     const closeShowcase = document.getElementById('closeShowcase');
     const startBrowse = document.getElementById('startBrowse');
