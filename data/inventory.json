@@ -3360,7 +3360,7 @@
     "displayTitle": "75D 雙面布",
     "useText": "用途：機能服飾、潮流款、品牌布樣",
     "descriptionText": "特性：柔軟、挺度平衡、適合熱昇華",
-    "featuredImage": "./assets/75d-sample-1.png",
+    "featuredImage": "/assets/uploads/A022877-1777541075786-a378e155.png",
     "width": 62,
     "weightPerYard": 200,
     "kg": 1000,
@@ -3369,7 +3369,7 @@
     "side": "csv",
     "status": "confirmed",
     "note": "幅寬：62\"/72\"；碼重：200g/230g；特性：柔軟、挺度平衡、適合熱昇華；用途：機能服飾、潮流款、品牌布樣",
-    "image": "./assets/75d-sample-1.png",
+    "image": "/assets/uploads/A022877-1777541075786-a378e155.png",
     "fabricType": "針織",
     "name": "75D 雙面布",
     "pattern": "",
@@ -3377,7 +3377,12 @@
     "category": "印花用布",
     "rowId": "9tnwfYSxTe2ynE47tOVtVA",
     "isPrintingFabric": true,
-    "featuredOrder": 3
+    "featuredOrder": 3,
+    "images": [
+      "/assets/uploads/A022877-1777541075786-a378e155.png",
+      "/assets/uploads/A022877-1777541073003-7e289d8e.png",
+      "./assets/75d-sample-1.png"
+    ]
   },
   {
     "code": "A023001",
@@ -8321,24 +8326,29 @@
     "code": "A023811",
     "width": 72,
     "weightPerYard": 230,
-    "kg": 20.7,
-    "yards": 90,
+    "kg": 0,
+    "yards": 0,
     "location": "",
-    "side": "L1",
+    "side": "manual-featured",
     "status": "confirmed",
-    "note": "Left column starting record.",
-    "image": "./assets/IMG_1519.jpg",
-    "featuredOnHome": false,
+    "note": "幅寬：72\"；碼重：230g；特性：適合數位印刷、布樣開發；用途：客製服飾、品牌布樣、打樣展示",
+    "image": "./assets/featured/restored-digital-print-20260520.png",
+    "featuredOnHome": true,
     "displayTitle": "數位印刷布料",
-    "useText": "適合：客製印刷 / 服飾開發",
-    "descriptionText": "成份與規格可依實際布號補充。",
-    "featuredImage": "./assets/IMG_1519.jpg",
-    "category": "其他布料",
-    "isPrintingFabric": false,
-    "featuredOrder": 0,
-    "fabricType": "",
-    "pattern": "",
-    "composition": ""
+    "useText": "數位印刷、熱昇華、客製布樣",
+    "descriptionText": "適合需要色彩表現與布樣開發的印刷應用。",
+    "featuredImage": "./assets/featured/restored-digital-print-20260520.png",
+    "category": "印花用布",
+    "isPrintingFabric": true,
+    "featuredOrder": 6,
+    "fabricType": "針織",
+    "pattern": "多色布樣",
+    "composition": "",
+    "name": "數位印刷布料",
+    "rowId": "",
+    "images": [
+      "./assets/featured/restored-digital-print-20260520.png"
+    ]
   },
   {
     "code": "A023812",
@@ -9156,14 +9166,14 @@
     "weightPerYard": 210,
     "kg": 0,
     "yards": 0,
-    "image": "./assets/featured/a021844-1.png",
-    "featuredImage": "./assets/featured/a021844-1.png",
-    "note": "幅寬：62\"；碼重：210g；特性：透氣、環保紗、導濕排汗；用途：機能上衣、活動背心、制服布料",
+    "image": "./assets/featured/a021844-2.png",
+    "featuredImage": "./assets/featured/a021844-2.png",
+    "note": "???62\"????210g???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????",
     "featuredOrder": 2,
     "featuredOnHome": true,
     "images": [
-      "./assets/featured/a021844-1.png",
-      "./assets/featured/a021844-2.png"
+      "./assets/featured/a021844-2.png",
+      "/assets/uploads/A021844-1777540428848-2dd876b8.png"
     ]
   },
   {
@@ -9176,9 +9186,10 @@
     "fabricType": "針織",
     "pattern": "白色",
     "composition": "",
-    "featuredImage": "/assets/uploads/022169-1777540967774-3b099b6d.png",
-    "image": "/assets/uploads/022169-1777540967774-3b099b6d.png",
+    "featuredImage": "./assets/featured/restored-pk-health-20260520.png",
+    "image": "./assets/featured/restored-pk-health-20260520.png",
     "images": [
+      "./assets/featured/restored-pk-health-20260520.png",
       "/assets/uploads/022169-1777540967774-3b099b6d.png"
     ],
     "width": 62,
