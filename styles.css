@@ -1402,7 +1402,8 @@ h1 {
   margin-bottom: 16px;
 }
 
-.table-wrap {
+.table-wrap,
+.table-wrapper {
   overflow: auto;
   border-radius: 18px;
   border: 1px solid rgba(122, 97, 62, 0.14);
@@ -1444,6 +1445,14 @@ tbody tr:hover {
   cursor: pointer;
 }
 
+.table-thumb {
+  width: 58px;
+  height: 72px;
+  display: block;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -1479,6 +1488,23 @@ tbody tr:hover {
   border: 1px solid rgba(122, 97, 62, 0.12);
   border-radius: 20px;
   padding: 14px;
+}
+
+.inventory-card-image {
+  width: 100%;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.inventory-card-image img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  display: block;
+  object-fit: cover;
+  border-radius: 14px;
 }
 
 .fabric-card-sold,

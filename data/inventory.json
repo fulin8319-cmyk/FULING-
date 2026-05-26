@@ -9165,5 +9165,28 @@
       "./assets/featured/a021844-1.png",
       "./assets/featured/a021844-2.png"
     ]
+  },
+  {
+    "code": "022169",
+    "category": "印花用布",
+    "isPrintingFabric": true,
+    "featuredOnHome": true,
+    "featuredOrder": 5,
+    "displayTitle": "PK健康布",
+    "fabricType": "針織",
+    "pattern": "白色",
+    "composition": "",
+    "featuredImage": "/assets/uploads/022169-1777540967774-3b099b6d.png",
+    "image": "/assets/uploads/022169-1777540967774-3b099b6d.png",
+    "images": [
+      "/assets/uploads/022169-1777540967774-3b099b6d.png"
+    ],
+    "width": 62,
+    "weightPerYard": 400,
+    "kg": 0,
+    "yards": 0,
+    "location": "",
+    "status": "confirmed",
+    "note": ""
   }
 ]
