@@ -217,6 +217,15 @@ async function uploadImageFile(file, code = "") {
   return data.url;
 }
 
+async function uploadImageFiles(files, code = "") {
+  const selectedFiles = Array.from(files || []);
+  const urls = [];
+  for (const file of selectedFiles) {
+    urls.push(await uploadImageFile(file, code));
+  }
+  return urls;
+}
+
 function normalizeItem(item = {}) {
   const category = item.category || (item.isPrintingFabric ? "印花用布" : "其他布料");
   const isPrintingFabric = item.isPrintingFabric === true || category === "印花用布";
@@ -399,7 +408,7 @@ function renderFeaturedEditor() {
           <label class="field">顏色<input data-featured-index="${realIndex}" data-featured-field="pattern" type="text" list="patternOptions" value="${escapeAttribute(item.pattern)}"></label>
           <label class="field">成份<input data-featured-index="${realIndex}" data-featured-field="composition" type="text" list="compositionOptions" value="${escapeAttribute(item.composition)}"></label>
           <label class="field">圖片<input data-featured-index="${realIndex}" data-featured-field="featuredImage" type="text" value="${escapeAttribute(item.featuredImage)}" placeholder="/assets/uploads/..."></label>
-          <label class="field image-upload-field">上傳圖片<input data-featured-image-file-index="${realIndex}" type="file" accept="image/*"><span class="image-upload-hint">上傳後會自動設為這款主圖。</span></label>
+          <label class="field image-upload-field">上傳圖片<input data-featured-image-file-index="${realIndex}" type="file" accept="image/*" multiple><span class="image-upload-hint">可一次選多張，第一張會自動設為這款主圖。</span></label>
           <label class="field">幅寬<input data-featured-index="${realIndex}" data-featured-field="width" type="number" value="${item.width || ""}"></label>
           <label class="field">碼重<input data-featured-index="${realIndex}" data-featured-field="weightPerYard" type="number" value="${item.weightPerYard || ""}"></label>
           <label class="field">公斤數<input data-featured-index="${realIndex}" data-featured-field="kg" type="number" step="0.1" value="${item.kg || ""}"></label>
@@ -564,7 +573,7 @@ function renderAdminRows() {
       <div class="admin-image-editor">
         <span class="image-upload-preview${thumbnailUrl ? "" : " is-empty"}" data-image-preview="${realIndex}"${thumbnailUrl ? ` style="background-image:url('${escapeAttribute(thumbnailUrl)}')"` : ""}></span>
         <input data-index="${realIndex}" data-field="featuredImage" type="text" value="${escapeAttribute(item.featuredImage)}" placeholder="/assets/uploads/...">
-        <input class="admin-image-file" data-image-file-index="${realIndex}" type="file" accept="image/*">
+        <input class="admin-image-file" data-image-file-index="${realIndex}" type="file" accept="image/*" multiple>
       </div>
     `;
     const codeCell = `
@@ -873,7 +882,8 @@ featuredEditorListEl?.addEventListener("input", (event) => {
 
 featuredEditorListEl?.addEventListener("change", async (event) => {
   const input = event.target.closest("[data-featured-image-file-index]");
-  if (!input || !input.files?.[0]) {
+  const files = Array.from(input?.files || []);
+  if (!input || !files.length) {
     return;
   }
 
@@ -881,13 +891,14 @@ featuredEditorListEl?.addEventListener("change", async (event) => {
     adminInventory = applyFeaturedEditorData(readFormData());
     const index = Number(input.dataset.featuredImageFileIndex);
     const item = adminInventory[index] || {};
-    featuredEditorMessageEl.textContent = "主力布料圖片上傳中...";
-    const url = await uploadImageFile(input.files[0], item.code);
-    item.featuredImage = url;
-    item.image = url;
-    item.images = uniqueImages([url, ...collectItemImages(item)]);
+    featuredEditorMessageEl.textContent = `主力布料圖片上傳中...共 ${files.length} 張`;
+    const urls = await uploadImageFiles(files, item.code);
+    const mainUrl = urls[0];
+    item.featuredImage = mainUrl;
+    item.image = mainUrl;
+    item.images = uniqueImages([...urls, ...collectItemImages(item)]);
     renderAdminRows();
-    featuredEditorMessageEl.textContent = "圖片已更新，記得按「儲存主力布料變更」。";
+    featuredEditorMessageEl.textContent = `已上傳 ${urls.length} 張圖片，記得按「儲存主力布料變更」。`;
   } catch (error) {
     featuredEditorMessageEl.textContent = error.message;
   } finally {
@@ -965,7 +976,8 @@ adminRowsEl.addEventListener("input", (event) => {
 
 adminRowsEl.addEventListener("change", async (event) => {
   const input = event.target.closest("[data-image-file-index]");
-  if (!input || !input.files?.[0]) {
+  const files = Array.from(input?.files || []);
+  if (!input || !files.length) {
     return;
   }
 
@@ -973,12 +985,14 @@ adminRowsEl.addEventListener("change", async (event) => {
     adminInventory = readFormData();
     const index = Number(input.dataset.imageFileIndex);
     const item = adminInventory[index] || {};
-    adminMessageEl.textContent = "圖片上傳中...";
-    const url = await uploadImageFile(input.files[0], item.code);
-    item.featuredImage = url;
-    item.image = url;
+    adminMessageEl.textContent = `圖片上傳中...共 ${files.length} 張`;
+    const urls = await uploadImageFiles(files, item.code);
+    const mainUrl = urls[0];
+    item.featuredImage = mainUrl;
+    item.image = mainUrl;
+    item.images = uniqueImages([...urls, ...collectItemImages(item)]);
     renderAdminRows();
-    adminMessageEl.textContent = "圖片已更新，記得按儲存全部變更。";
+    adminMessageEl.textContent = `已上傳 ${urls.length} 張圖片，記得按儲存全部變更。`;
   } catch (error) {
     adminMessageEl.textContent = error.message;
   } finally {
@@ -1055,18 +1069,20 @@ newCodeEl.addEventListener("change", () => {
 });
 
 newFeaturedImageFileEl?.addEventListener("change", async () => {
-  if (!newFeaturedImageFileEl.files?.[0]) {
+  const files = Array.from(newFeaturedImageFileEl.files || []);
+  if (!files.length) {
     return;
   }
 
   try {
-    adminMessageEl.textContent = "圖片上傳中...";
-    const url = await uploadImageFile(newFeaturedImageFileEl.files[0], newCodeEl.value.trim());
-    newFeaturedImageEl.value = url;
-    addFormImages = uniqueImages([url, ...addFormImages]);
-    updateImagePreview(newFeaturedImagePreviewEl, url);
+    adminMessageEl.textContent = `圖片上傳中...共 ${files.length} 張`;
+    const urls = await uploadImageFiles(files, newCodeEl.value.trim());
+    const mainUrl = urls[0];
+    newFeaturedImageEl.value = mainUrl;
+    addFormImages = uniqueImages([...urls, ...addFormImages]);
+    updateImagePreview(newFeaturedImagePreviewEl, mainUrl);
     renderStoredImages();
-    adminMessageEl.textContent = "圖片已上傳，新增這筆布料時會使用這張圖。";
+    adminMessageEl.textContent = `已上傳 ${urls.length} 張圖片，新增或更新這筆布料時會一起保存。`;
   } catch (error) {
     adminMessageEl.textContent = error.message;
   } finally {
