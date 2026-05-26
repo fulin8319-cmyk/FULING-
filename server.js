@@ -25,7 +25,23 @@ const SESSION_COOKIE = "fulin_session";
 const SEED_DATA_DIR = path.join(__dirname, "data");
 const FALLBACK_SEED_DATA_DIR = path.join(__dirname, "seed-data");
 const PUBLIC_UPLOAD_DIR = path.join(__dirname, "assets", "uploads");
-const PERSIST_DIR = process.env.FULIN_DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || SEED_DATA_DIR;
+const isRailwayRuntime = Boolean(
+  process.env.RAILWAY_ENVIRONMENT ||
+  process.env.RAILWAY_PROJECT_ID ||
+  process.env.RAILWAY_SERVICE_ID
+);
+const DEFAULT_RAILWAY_DATA_DIR = "/app/data";
+const PERSIST_DIR =
+  process.env.FULIN_DATA_DIR ||
+  process.env.RAILWAY_VOLUME_MOUNT_PATH ||
+  (isRailwayRuntime ? DEFAULT_RAILWAY_DATA_DIR : SEED_DATA_DIR);
+const PERSIST_DIR_SOURCE = process.env.FULIN_DATA_DIR
+  ? "FULIN_DATA_DIR"
+  : process.env.RAILWAY_VOLUME_MOUNT_PATH
+    ? "RAILWAY_VOLUME_MOUNT_PATH"
+    : isRailwayRuntime
+      ? "railway-default"
+      : "local-data";
 const DATA_FILE = path.join(PERSIST_DIR, "inventory.json");
 const ANALYTICS_FILE = path.join(PERSIST_DIR, "analytics.json");
 const SOCIAL_POSTS_FILE = path.join(PERSIST_DIR, "social-posts.json");
@@ -683,7 +699,9 @@ async function handleApi(req, res, url) {
       ok: true,
       storage: {
         dataDir: PERSIST_DIR,
-        volumeMounted: Boolean(process.env.RAILWAY_VOLUME_MOUNT_PATH),
+        dataDirSource: PERSIST_DIR_SOURCE,
+        railwayRuntime: isRailwayRuntime,
+        volumeMounted: Boolean(process.env.RAILWAY_VOLUME_MOUNT_PATH || PERSIST_DIR === DEFAULT_RAILWAY_DATA_DIR),
         inventoryFile: DATA_FILE,
         uploadDir: UPLOAD_DIR
       }
