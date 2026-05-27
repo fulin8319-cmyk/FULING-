@@ -143,6 +143,78 @@ function collectItemImages(item = {}) {
   ]);
 }
 
+function renderItemImageManager(item = {}, index, scope = "row") {
+  const images = collectItemImages(item);
+  const mainImage = item.featuredImage || item.image || "";
+  if (!images.length) {
+    return '<div class="admin-photo-manager is-empty"><span class="muted-text">尚未加入照片</span></div>';
+  }
+
+  return `
+    <div class="admin-photo-manager" data-photo-manager="${index}" data-photo-scope="${scope}">
+      ${images.map((src) => `
+        <div class="admin-photo-item${src === mainImage ? " is-main" : ""}">
+          <button class="admin-photo-thumb" type="button" data-photo-action="main" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}" title="設為主圖" style="background-image:url('${escapeAttribute(src)}')"></button>
+          <div class="admin-photo-actions">
+            <button type="button" class="secondary-button" data-photo-action="main" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}">設為主圖</button>
+            <button type="button" class="secondary-button" data-photo-action="remove" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}">刪除</button>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function setItemMainImage(index, src) {
+  const item = adminInventory[index];
+  if (!item || !src) {
+    return;
+  }
+  item.featuredImage = src;
+  item.image = src;
+  item.images = uniqueImages([src, ...collectItemImages(item)]);
+}
+
+function removeItemImage(index, src) {
+  const item = adminInventory[index];
+  if (!item || !src) {
+    return;
+  }
+
+  const remaining = collectItemImages(item).filter((image) => image !== src);
+  item.images = remaining;
+  if (item.featuredImage === src || item.image === src) {
+    const nextMain = remaining[0] || "";
+    item.featuredImage = nextMain;
+    item.image = nextMain;
+  }
+}
+
+function handlePhotoManagerClick(event, messageEl, saveHint) {
+  const button = event.target.closest("[data-photo-action]");
+  if (!button) {
+    return false;
+  }
+
+  adminInventory = applyFeaturedEditorData(readFormData());
+  const index = Number(button.dataset.photoIndex);
+  const src = button.dataset.photoSrc || "";
+  if (button.dataset.photoAction === "main") {
+    setItemMainImage(index, src);
+    if (messageEl) {
+      messageEl.textContent = `已設為主圖，${saveHint}`;
+    }
+  }
+  if (button.dataset.photoAction === "remove") {
+    removeItemImage(index, src);
+    if (messageEl) {
+      messageEl.textContent = `已從照片清單移除，${saveHint}`;
+    }
+  }
+  renderAdminRows();
+  return true;
+}
+
 function syncAddFormMainImage() {
   const currentMain = String(newFeaturedImageEl.value || "").trim();
   addFormImages = uniqueImages([currentMain, ...addFormImages]);
@@ -415,6 +487,7 @@ function renderFeaturedEditor() {
           <label class="field">碼數<input data-featured-index="${realIndex}" data-featured-field="yards" type="number" step="0.1" value="${item.yards || ""}"></label>
           <label class="field">備註<input data-featured-index="${realIndex}" data-featured-field="note" type="text" value="${escapeAttribute(item.note)}"></label>
         </div>
+        ${renderItemImageManager(item, realIndex, "featured")}
         <div class="featured-editor-actions">
           <button class="secondary-button" type="button" data-unfeature-index="${realIndex}">從主力布料移除</button>
           <button class="secondary-button" type="button" data-scroll-row-index="${realIndex}">到完整表格查看</button>
@@ -574,6 +647,7 @@ function renderAdminRows() {
         <span class="image-upload-preview${thumbnailUrl ? "" : " is-empty"}" data-image-preview="${realIndex}"${thumbnailUrl ? ` style="background-image:url('${escapeAttribute(thumbnailUrl)}')"` : ""}></span>
         <input data-index="${realIndex}" data-field="featuredImage" type="text" value="${escapeAttribute(item.featuredImage)}" placeholder="/assets/uploads/...">
         <input class="admin-image-file" data-image-file-index="${realIndex}" type="file" accept="image/*" multiple>
+        ${renderItemImageManager(item, realIndex, "row")}
       </div>
     `;
     const codeCell = `
@@ -907,6 +981,10 @@ featuredEditorListEl?.addEventListener("change", async (event) => {
 });
 
 featuredEditorListEl?.addEventListener("click", (event) => {
+  if (handlePhotoManagerClick(event, featuredEditorMessageEl, "記得按「儲存主力布料變更」")) {
+    return;
+  }
+
   const unfeatureButton = event.target.closest("[data-unfeature-index]");
   const scrollButton = event.target.closest("[data-scroll-row-index]");
 
@@ -930,6 +1008,10 @@ featuredEditorListEl?.addEventListener("click", (event) => {
 });
 
 adminRowsEl.addEventListener("click", (event) => {
+  if (handlePhotoManagerClick(event, adminMessageEl, "記得按「儲存全部變更」")) {
+    return;
+  }
+
   const button = event.target.closest("[data-delete-index]");
   if (!button) {
     return;
