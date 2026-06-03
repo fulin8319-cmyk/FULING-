@@ -164,8 +164,8 @@ function renderProductCards(items) {
     links.className = "quick-links";
     const inventoryLink = document.createElement("a");
     inventoryLink.className = "chip";
-    inventoryLink.href = item.code ? `./inventory.html#${encodeURIComponent(item.code)}` : "./inventory.html";
-    inventoryLink.textContent = "看現貨";
+    inventoryLink.href = "https://line.me/R/ti/p/@424tvsxa";
+    inventoryLink.textContent = "詢問現貨布";
     const lineLink = document.createElement("a");
     lineLink.className = "chip";
     lineLink.href = "https://line.me/R/ti/p/@424tvsxa";

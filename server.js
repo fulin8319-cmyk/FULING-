@@ -47,6 +47,9 @@ const ANALYTICS_FILE = path.join(PERSIST_DIR, "analytics.json");
 const SOCIAL_POSTS_FILE = path.join(PERSIST_DIR, "social-posts.json");
 const UPLOAD_DIR = path.join(PERSIST_DIR, "uploads");
 const MAX_BODY_BYTES = 120 * 1024 * 1024;
+const PUBLIC_INVENTORY_ENABLED = /^(1|true|yes)$/i.test(process.env.PUBLIC_INVENTORY_ENABLED || "");
+const PUBLIC_INVENTORY_AUTO_OPEN = /^(1|true|yes)$/i.test(process.env.PUBLIC_INVENTORY_AUTO_OPEN || "");
+const PUBLIC_INVENTORY_MIN_ITEMS = Number(process.env.PUBLIC_INVENTORY_MIN_ITEMS || 30);
 
 const TRACKED_PAGES = {
   "/index.html": "首頁",
@@ -387,6 +390,47 @@ function writeInventory(items) {
   fs.writeFileSync(DATA_FILE, `${JSON.stringify(items, null, 2)}\n`, "utf8");
 }
 
+function hasPublicText(value) {
+  return String(value || "").trim().length > 0;
+}
+
+function hasPublicQuantity(value) {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 0;
+}
+
+function getPublicInventoryStatus() {
+  const inventory = readInventory();
+  const readyItems = inventory.filter((item) => {
+    if (!item) return false;
+    const status = String(item.status || "").toLowerCase();
+    const isSold = status.includes("sold") || status.includes("售完");
+    return (
+      !isSold &&
+      hasPublicText(item.code) &&
+      (hasPublicText(item.displayTitle) || hasPublicText(item.name) || hasPublicText(item.fabricType)) &&
+      (hasPublicText(item.pattern) || hasPublicText(item.color)) &&
+      (hasPublicQuantity(item.kg) || hasPublicQuantity(item.yards))
+    );
+  });
+
+  const autoOpen = PUBLIC_INVENTORY_AUTO_OPEN && readyItems.length >= PUBLIC_INVENTORY_MIN_ITEMS;
+  return {
+    open: PUBLIC_INVENTORY_ENABLED || autoOpen,
+    mode: PUBLIC_INVENTORY_ENABLED ? "manual" : autoOpen ? "auto" : "closed",
+    readyCount: readyItems.length,
+    minItems: PUBLIC_INVENTORY_MIN_ITEMS,
+    autoOpenEnabled: PUBLIC_INVENTORY_AUTO_OPEN
+  };
+}
+
+function parseCsv(value = "") {
+  return String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function readSocialPosts() {
   const data = readJsonFile(SOCIAL_POSTS_FILE, []);
   return Array.isArray(data) ? data : [];
@@ -668,6 +712,10 @@ function isAuthenticated(req) {
 }
 
 async function handleApi(req, res, url) {
+  if (req.method === "GET" && url.pathname === "/api/public-inventory-status") {
+    return sendJson(res, 200, getPublicInventoryStatus());
+  }
+
   if (req.method === "GET" && url.pathname === "/api/inventory") {
     return sendJson(res, 200, { items: readInventory() });
   }
@@ -980,6 +1028,15 @@ const server = http.createServer(async (req, res) => {
 
     const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
     let filePath = path.join(__dirname, pathname);
+
+    if (pathname === "/inventory.html" && !isAuthenticated(req) && !getPublicInventoryStatus().open) {
+      res.writeHead(302, {
+        Location: "/",
+        "Cache-Control": "no-cache"
+      });
+      res.end();
+      return;
+    }
 
     if (pathname.startsWith("/assets/uploads/")) {
       const uploadName = path.basename(pathname);
