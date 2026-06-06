@@ -55,8 +55,21 @@ const TRACKED_PAGES = {
   "/index.html": "首頁",
   "/inventory.html": "現貨查詢",
   "/printing.html": "印花用布",
-  "/wordpress/products.html": "主力布料產品",
-  "/wordpress/faq.html": "常見問題"
+  "/products.html": "主力布料產品",
+  "/functional-fabric": "機能布",
+  "/printed-fabric": "印花布",
+  "/n66-nylon-fabric": "N66尼龍布",
+  "/cooling-fabric": "涼感布",
+  "/moisture-wicking": "排汗布",
+  "/sportswear-fabric": "運動服布料",
+  "/underwear-fabric": "內衣內褲布料",
+  "/t-shirt-fabric": "T恤用布",
+  "/fabric-wholesale": "布料批發",
+  "/photo-fabric-matching": "傳照片找布",
+  "/about": "關於福麟商行",
+  "/contact": "聯絡我們",
+  "/ricky-master": "Ricky大師",
+  "/faq.html": "常見問題"
 };
 
 const sessions = new Map();
@@ -1028,6 +1041,12 @@ const server = http.createServer(async (req, res) => {
 
     const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
     let filePath = path.join(__dirname, pathname);
+    if (!path.extname(pathname)) {
+      const htmlFilePath = path.join(__dirname, `${pathname}.html`);
+      if (fs.existsSync(htmlFilePath)) {
+        filePath = htmlFilePath;
+      }
+    }
 
     if (pathname === "/inventory.html" && !isAuthenticated(req) && !getPublicInventoryStatus().open) {
       res.writeHead(302, {
