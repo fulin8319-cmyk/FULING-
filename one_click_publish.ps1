@@ -178,7 +178,8 @@ try {
         -UseBasicParsing
     $createData = $create.Content | ConvertFrom-Json
     if (-not $createData.ok) {
-        throw ($createData.message || "Create post failed.")
+        $createError = if ($createData.message) { $createData.message } else { "Create post failed." }
+        throw $createError
     }
 
     $postId = $createData.post.id
@@ -190,7 +191,8 @@ try {
     $publishData = $publish.Content | ConvertFrom-Json
     if (-not $publishData.ok) {
         $resultText = ($publishData.results.PSObject.Properties | ForEach-Object { "$($_.Name): $($_.Value.message)" }) -join " / "
-        throw ($resultText || "Publish failed.")
+        $publishError = if ($resultText) { $resultText } else { "Publish failed." }
+        throw $publishError
     }
 
     Write-Report -Status "SUCCESS" -Message "Published via social scheduler API." -Extra @{
