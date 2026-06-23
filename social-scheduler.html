@@ -15,7 +15,7 @@
       </a>
       <nav class="site-nav">
         <a href="./admin.html">布料後台</a>
-        <a href="./inventory.html">現貨查詢</a>
+        <a href="./products.html">主力布料</a>
         <button id="logoutButton" class="secondary-button" type="button">登出</button>
       </nav>
     </header>
@@ -32,11 +32,12 @@
       <section class="admin-panel social-composer">
         <div class="panel-head">
           <h2>新增推播</h2>
-          <p>先存成草稿，API 權限設定好後可以直接送出。圖片與影片會先上傳到網站空間。</p>
+          <p>先存成草稿，API 權限設定好後可以直接送出。目前僅 Facebook 與 Buffer 可選；X、TikTok、Instagram 會依後端狀態自動停用並顯示原因。</p>
         </div>
 
         <div class="social-platforms" id="platforms">
           <label><input type="checkbox" value="facebook" checked> Facebook</label>
+          <label><input type="checkbox" value="buffer"> Buffer</label>
           <label><input type="checkbox" value="x"> X</label>
           <label><input type="checkbox" value="tiktok"> TikTok</label>
           <label><input type="checkbox" value="instagram"> Instagram</label>

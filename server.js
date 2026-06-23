@@ -20,6 +20,8 @@ const TIKTOK_ACCESS_TOKEN = process.env.TIKTOK_ACCESS_TOKEN || "";
 const TIKTOK_OPEN_ID = process.env.TIKTOK_OPEN_ID || "";
 const IG_USER_ID = process.env.IG_USER_ID || "";
 const IG_ACCESS_TOKEN = process.env.IG_ACCESS_TOKEN || FB_PAGE_ACCESS_TOKEN;
+const BUFFER_API_KEY = process.env.BUFFER_API_KEY || "";
+const BUFFER_CHANNEL_IDS = parseCsv(process.env.BUFFER_CHANNEL_IDS);
 const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || process.env.RAILWAY_PUBLIC_DOMAIN || "";
 const SESSION_COOKIE = "fulin_session";
 const SEED_DATA_DIR = path.join(__dirname, "data");
@@ -455,7 +457,7 @@ function writeSocialPosts(posts) {
 }
 
 function normalizePlatforms(platforms) {
-  const allowed = new Set(["facebook", "x", "tiktok", "instagram"]);
+  const allowed = new Set(["facebook", "x", "tiktok", "instagram", "buffer"]);
   return (Array.isArray(platforms) ? platforms : [])
     .map((platform) => String(platform || "").trim().toLowerCase())
     .filter((platform, index, list) => allowed.has(platform) && list.indexOf(platform) === index);
@@ -476,7 +478,41 @@ function getCredentialStatus() {
     facebook: Boolean(FB_PAGE_ID && FB_PAGE_ACCESS_TOKEN),
     x: Boolean(X_API_KEY && X_API_SECRET && X_ACCESS_TOKEN && X_ACCESS_SECRET),
     tiktok: Boolean(TIKTOK_CLIENT_KEY && TIKTOK_CLIENT_SECRET && TIKTOK_ACCESS_TOKEN && TIKTOK_OPEN_ID),
-    instagram: Boolean(IG_USER_ID && IG_ACCESS_TOKEN)
+    instagram: Boolean(IG_USER_ID && IG_ACCESS_TOKEN),
+    buffer: Boolean(BUFFER_API_KEY && BUFFER_CHANNEL_IDS.length)
+  };
+}
+
+function getPlatformCapabilities() {
+  const credentials = getCredentialStatus();
+  return {
+    facebook: {
+      ready: credentials.facebook,
+      selectable: credentials.facebook,
+      reason: credentials.facebook ? "" : "請在 Railway Variables 設定 FB_PAGE_ID 與 FB_PAGE_ACCESS_TOKEN。"
+    },
+    buffer: {
+      ready: credentials.buffer,
+      selectable: credentials.buffer,
+      reason: credentials.buffer ? "" : "請設定 BUFFER_API_KEY 與 BUFFER_CHANNEL_IDS。"
+    },
+    x: {
+      ready: false,
+      selectable: false,
+      reason: "X 發文尚未完成 OAuth 1.0a 簽章，暫時無法自動送出。"
+    },
+    tiktok: {
+      ready: false,
+      selectable: false,
+      reason: "TikTok Content Posting API 尚未核准或完成設定。"
+    },
+    instagram: {
+      ready: false,
+      selectable: false,
+      reason: credentials.instagram
+        ? "Instagram Graph API 帳號權限尚未就緒，暫時無法自動送出。"
+        : "請先設定 IG_USER_ID 與 IG_ACCESS_TOKEN。"
+    }
   };
 }
 
@@ -508,6 +544,88 @@ async function fetchJson(url, options = {}) {
     throw new Error(data.error?.message || data.message || `Request failed with ${response.status}`);
   }
   return data;
+}
+
+async function bufferGraphql(query) {
+  if (!BUFFER_API_KEY) {
+    throw new Error("Buffer API key is not configured.");
+  }
+
+  const data = await fetchJson("https://api.buffer.com", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${BUFFER_API_KEY}`
+    },
+    body: JSON.stringify({ query })
+  });
+
+  if (Array.isArray(data.errors) && data.errors.length) {
+    throw new Error(data.errors.map((error) => error.message).filter(Boolean).join(" / ") || "Buffer API request failed.");
+  }
+
+  return data.data;
+}
+
+function graphQlString(value) {
+  return JSON.stringify(String(value || ""));
+}
+
+function bufferAssetInput(req, media) {
+  if (!media.length) return "";
+  const assets = media
+    .map((item) => {
+      const url = graphQlString(makeAbsoluteUrl(req, item.url));
+      return item.type === "video" ? `{ video: { url: ${url} } }` : `{ image: { url: ${url} } }`;
+    })
+    .join(", ");
+  return `assets: [${assets}]`;
+}
+
+async function publishBuffer(req, post) {
+  if (!BUFFER_API_KEY || !BUFFER_CHANNEL_IDS.length) {
+    throw new Error("Buffer API is not configured. Set BUFFER_API_KEY and BUFFER_CHANNEL_IDS.");
+  }
+
+  const media = (post.media || []).filter((item) => item.type === "image" || item.type === "video");
+  const scheduledAt = Date.parse(post.scheduledAt || "");
+  const scheduleFields = Number.isFinite(scheduledAt) && scheduledAt > Date.now()
+    ? `mode: customScheduled, dueAt: ${graphQlString(new Date(scheduledAt).toISOString())}`
+    : "mode: addToQueue";
+  const assetFields = bufferAssetInput(req, media);
+  const results = [];
+
+  for (const channelId of BUFFER_CHANNEL_IDS) {
+    const query = `
+      mutation CreatePost {
+        createPost(input: {
+          text: ${graphQlString(post.content)}
+          channelId: ${graphQlString(channelId)}
+          schedulingType: automatic
+          ${scheduleFields}
+          ${assetFields}
+        }) {
+          ... on PostActionSuccess {
+            post {
+              id
+              text
+            }
+          }
+          ... on MutationError {
+            message
+          }
+        }
+      }
+    `;
+    const data = await bufferGraphql(query);
+    const response = data?.createPost;
+    if (response?.message) {
+      throw new Error(response.message);
+    }
+    results.push(response?.post || response);
+  }
+
+  return { channels: BUFFER_CHANNEL_IDS.length, posts: results };
 }
 
 async function publishFacebook(req, post) {
@@ -554,6 +672,7 @@ async function publishFacebook(req, post) {
 
 async function publishToPlatform(req, post, platform) {
   if (platform === "facebook") return publishFacebook(req, post);
+  if (platform === "buffer") return publishBuffer(req, post);
   if (platform === "x") throw new Error("X media/text publishing needs OAuth 1.0a signing before it can be enabled.");
   if (platform === "tiktok") throw new Error("TikTok Content Posting API is not approved/configured yet.");
   if (platform === "instagram") throw new Error("Instagram Graph API account is not ready yet.");
@@ -773,7 +892,11 @@ async function handleApi(req, res, url) {
     if (!isAuthenticated(req)) {
       return sendJson(res, 401, { ok: false, message: "Unauthorized." });
     }
-    return sendJson(res, 200, { ok: true, credentials: getCredentialStatus() });
+    return sendJson(res, 200, {
+      ok: true,
+      credentials: getCredentialStatus(),
+      capabilities: getPlatformCapabilities()
+    });
   }
 
   if (req.method === "GET" && url.pathname === "/api/admin/social/posts") {

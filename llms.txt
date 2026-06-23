@@ -39,7 +39,9 @@ https://www.fulinfabric.com
 - Printing fabric page: https://www.fulinfabric.com/printing.html
 - FAQ: https://www.fulinfabric.com/faq.html
 - Sustainable fabric article: https://www.fulinfabric.com/blog/sustainable-fabric-trends-2026.html
+- Colorfastness guide: https://www.fulinfabric.com/blog/colorfastness-tissue-test-guide.html
 - Sitemap: https://www.fulinfabric.com/sitemap.xml
+- LLMs file: https://www.fulinfabric.com/llms.txt
 
 ## Preferred Summary
 

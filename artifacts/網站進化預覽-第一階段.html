@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>福麟網站進化預覽｜第一階段</title>
+  <style>
+    :root{--ink:#17211d;--muted:#64716b;--paper:#f4f1e9;--card:#fffdf8;--green:#176b4d;--lime:#dceda8;--line:#d8ded7;--amber:#a15c17}
+    *{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft JhengHei","Noto Sans TC",sans-serif;line-height:1.65}
+    .wrap{width:min(1080px,calc(100% - 36px));margin:0 auto;padding:42px 0 70px}.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:30px}
+    .eyebrow{font-size:13px;font-weight:800;letter-spacing:.16em;color:var(--green);text-transform:uppercase}.badge{background:#fff2d6;color:#875018;border:1px solid #edc98e;padding:7px 12px;border-radius:999px;font-size:13px;font-weight:800;white-space:nowrap}
+    h1{font-size:clamp(34px,5.2vw,66px);line-height:1.06;letter-spacing:-.045em;margin:8px 0 14px;max-width:850px} .lead{font-size:18px;color:var(--muted);max-width:760px;margin:0}
+    .hero{display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden;border-radius:28px;background:var(--ink);color:white;box-shadow:0 20px 60px rgba(25,37,31,.13);margin:34px 0}
+    .hero-copy{padding:42px}.hero-copy small{color:var(--lime);font-weight:800}.hero-copy h2{font-size:34px;line-height:1.18;margin:10px 0}.hero-copy p{color:#cbd5d0}.hero img{width:100%;height:100%;min-height:380px;object-fit:cover}.pill{display:inline-block;margin-top:8px;padding:8px 12px;background:rgba(220,237,168,.12);border:1px solid rgba(220,237,168,.35);border-radius:999px;color:var(--lime);font-size:13px}
+    .section-title{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:46px 0 18px}.section-title h2{margin:0;font-size:28px}.section-title p{margin:0;color:var(--muted);font-size:14px}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px}.num{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:var(--lime);color:#29451d;font-weight:900}.card h3{font-size:20px;margin:14px 0 8px}.card p{margin:0;color:var(--muted)}.status{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--amber);font-weight:800}
+    .detail{margin-top:18px;padding:16px;border-radius:14px;background:#f1f4ef;border:1px solid #dbe3dc}.detail-label{font-size:12px;font-weight:900;letter-spacing:.08em;color:var(--green);margin-bottom:8px}.code{font-family:Consolas,"Microsoft JhengHei",monospace;font-size:12px;line-height:1.55;word-break:break-all;background:#17211d;color:#e7f2ec;border-radius:10px;padding:12px}.tag-list{display:flex;flex-wrap:wrap;gap:7px}.tag{font-size:12px;padding:6px 9px;border-radius:999px;background:white;border:1px solid #cfd8d1;color:#315344;font-weight:700}.mini-share{overflow:hidden;border-radius:12px;background:white;border:1px solid #d5ddd6}.mini-share img{display:block;width:100%;aspect-ratio:1.91/1;object-fit:cover}.mini-share div{padding:10px 12px}.mini-share strong{display:block;font-size:13px;line-height:1.35}.mini-share small{color:var(--muted)}.fact-list{margin:0;padding-left:20px;font-size:13px;color:#435149}.fact-list li{margin:5px 0}
+    .share{background:white;border-radius:20px;border:1px solid var(--line);overflow:hidden;max-width:620px}.share img{width:100%;aspect-ratio:1.91/1;object-fit:cover;display:block}.share-copy{padding:18px 20px}.domain{font-size:12px;color:#7b8580;text-transform:uppercase}.share h3{margin:5px 0 3px;font-size:20px;line-height:1.35}.share p{margin:0;color:var(--muted);font-size:14px}
+    .compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}.compare .card:first-child{opacity:.72}.check{margin:10px 0 0;padding:0;list-style:none}.check li{padding:7px 0}.check li:before{content:"✓";color:var(--green);font-weight:900;margin-right:9px}
+    .approval{margin-top:34px;background:var(--green);color:white;border-radius:24px;padding:28px 30px;display:flex;justify-content:space-between;align-items:center;gap:24px}.approval strong{font-size:22px}.approval p{margin:4px 0 0;color:#d9e8e0}.approval span{background:white;color:var(--green);padding:10px 16px;border-radius:999px;font-weight:900;white-space:nowrap}
+    @media(max-width:760px){.top,.approval{display:block}.badge{display:inline-block;margin-top:16px}.hero,.grid,.compare{grid-template-columns:1fr}.hero img{min-height:260px}.hero-copy{padding:28px}.approval span{display:inline-block;margin-top:16px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top"><div><div class="eyebrow">Fulin Fabric · Upgrade Preview</div><h1>福麟網站進化<br>第一階段預覽</h1><p class="lead">先補齊搜尋、AI 可讀性與詢價追蹤；不改現有版面、不碰庫存，也不增加複雜系統。</p></div><div class="badge">已上線 · 2026-06-23</div></div>
+
+    <section class="hero"><div class="hero-copy"><small>建議社群分享預覽</small><h2>福麟商行｜機能布、印花布、成衣用布一次找齊</h2><p>新北三重布料批發商，提供機能布、N66 尼龍布、排汗布、涼感布與成衣開發布料。</p><span class="pill">分享至 LINE、Facebook 時會出現圖片與摘要</span></div><img src="../assets/fulin-fabric-samples-hero-v2.png" alt="福麟商行布樣牆"></section>
+
+    <div class="section-title"><h2>建議先做的 4 件事</h2><p>都屬於小範圍、可獨立驗證的修改</p></div>
+    <section class="grid">
+      <article class="card"><div class="num">1</div><h3>搜尋結果網址確認</h3><p>首頁正式網址固定為下方版本，讓 Google、Bing 與 AI 搜尋不會把不同網址誤認成不同頁面。</p><div class="detail"><div class="detail-label">實際填入內容</div><div class="code">&lt;link rel="canonical" href="https://www.fulinfabric.com/"&gt;</div><ul class="fact-list"><li>套用位置：首頁</li><li>不改標題、不改畫面</li><li>搜尋結果仍顯示福麟商行</li></ul></div><div class="status">已完成 · 已上線</div></article>
+      <article class="card"><div class="num">2</div><h3>社群分享圖片</h3><p>沿用現有布樣主圖。網址貼到 LINE、Facebook 或通訊軟體時，會顯示下面這張卡片。</p><div class="detail"><div class="detail-label">實際分享預覽</div><div class="mini-share"><img src="../assets/fulin-fabric-samples-hero-v2.png" alt="福麟商行布樣牆"><div><small>FULINFABRIC.COM</small><strong>福麟商行｜機能布、印花布、成衣用布一次找齊</strong></div></div><div class="code" style="margin-top:10px">og:image = https://www.fulinfabric.com/assets/fulin-fabric-samples-hero-v2.png</div></div><div class="status">已完成 · fulin-resource-reuse-og.png</div></article>
+      <article class="card"><div class="num">3</div><h3>AI 網站說明檔</h3><p>讓 AI 快速辨認福麟是誰、賣哪些布、重要頁面在哪裡。以下就是準備公開的主要內容。</p><div class="detail"><div class="detail-label">LLMS.TXT 實際摘要</div><div class="code"># 福麟商行 Fulin Fabric<br><br>新北市三重區碧華街 83 號的布料供應商。<br>提供機能布、印花布、排汗布、PK 布、鳥眼布、75D 雙面布、N66 尼龍布與成衣用布。<br><br>重要頁面：首頁／現貨查詢／產品總覽／印花布／FAQ</div><ul class="fact-list"><li>不公開庫存數量</li><li>不公開客戶或後台資料</li><li>只放品牌與公開頁面資訊</li></ul></div><div class="status">已完成 · /llms.txt 已上線</div></article>
+      <article class="card"><div class="num">4</div><h3>有效詢價追蹤</h3><p>GA4 只記錄訪客按了哪個入口，不會讀取 LINE 對話、電話內容、姓名或布料詢問內容。</p><div class="detail"><div class="detail-label">預計建立的事件</div><div class="tag-list"><span class="tag">line_click｜加 LINE</span><span class="tag">phone_click｜撥打電話</span><span class="tag">photo_match_click｜傳照片找布</span><span class="tag">product_view｜查看產品</span><span class="tag">inventory_click｜現貨查詢</span></div><ul class="fact-list"><li>可看哪一頁帶來最多詢價</li><li>可比較手機與電腦訪客</li><li>需要現有 GA4 代碼；若沒有再建立</li></ul></div><div class="status">已完成 · GA4 事件已安裝</div></article>
+    </section>
+
+    <div class="section-title"><h2>修改前後</h2><p>首頁視覺維持原樣</p></div>
+    <section class="compare">
+      <article class="card"><h3>目前</h3><ul class="check"><li>搜尋與 sitemap 已建立</li><li>首頁有 LocalBusiness Schema</li><li>LINE 詢價入口完整</li></ul><p>缺少分享圖片、正式網址標記與轉換數據。</p></article>
+      <article class="card"><h3>套用後</h3><ul class="check"><li>搜尋網址訊號更一致</li><li>LINE／Facebook 分享更完整</li><li>AI 能快速讀懂品牌與主要頁面</li><li>知道哪些入口真正帶來詢價</li></ul></article>
+    </section>
+
+    <section class="approval"><div><strong>第一階段核心項目已上線。</strong><p>後續由 Grok 接手補完：robots.txt AI 爬蟲、Organization schema、色牢度內鏈、sitemap、社群發文入口重建。</p></div><span>2026-06-23 已套用</span></section>
+  </main>
+</body>
+</html>

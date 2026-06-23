@@ -33,6 +33,7 @@ const analyticsWeekViewsEl = document.getElementById("analyticsWeekViews");
 const analyticsWeekVisitorsEl = document.getElementById("analyticsWeekVisitors");
 const analyticsDaysEl = document.getElementById("analyticsDays");
 const analyticsPagesEl = document.getElementById("analyticsPages");
+const storageStatusEl = document.getElementById("storageStatus");
 const featuredEditorListEl = document.getElementById("featuredEditorList");
 const saveFeaturedButtonEl = document.getElementById("saveFeaturedButton");
 const reloadFeaturedButtonEl = document.getElementById("reloadFeaturedButton");
@@ -350,6 +351,44 @@ function renderAnalyticsList(target, rows, emptyText, rowRenderer) {
   }
 
   target.innerHTML = rows.map(rowRenderer).join("");
+}
+
+async function loadStorageStatus() {
+  if (!storageStatusEl) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/admin/storage", { credentials: "include" });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      throw new Error(data.message || "儲存狀態載入失敗。");
+    }
+
+    const storage = data.storage || {};
+    const rows = [
+      ["執行環境", storage.railwayRuntime ? "Railway" : "本機 / 其他"],
+      ["Volume 掛載", storage.volumeMounted ? "已掛載" : "未掛載"],
+      ["資料目錄", storage.dataDir || "-"],
+      ["目錄來源", storage.dataDirSource || "-"],
+      ["庫存檔案", storage.inventoryFile || "-"],
+      ["上傳目錄", storage.uploadDir || "-"]
+    ];
+
+    renderAnalyticsList(
+      storageStatusEl,
+      rows,
+      "目前沒有儲存狀態資料。",
+      ([label, value]) => `
+        <div class="analytics-row">
+          <strong>${escapeHtml(label)}</strong>
+          <span>${escapeHtml(value)}</span>
+        </div>
+      `
+    );
+  } catch (error) {
+    storageStatusEl.innerHTML = `<div class="analytics-row is-empty">${escapeHtml(error.message)}</div>`;
+  }
 }
 
 async function loadAnalytics() {
@@ -1225,5 +1264,6 @@ document.addEventListener("change", (event) => {
 
 populateCategorySelect(newCategoryEl);
 applyAdminHeaderLabels();
+loadStorageStatus();
 loadAnalytics();
 loadAdminInventory();

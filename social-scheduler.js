@@ -1,7 +1,8 @@
 const state = {
   media: [],
   posts: [],
-  credentials: {}
+  credentials: {},
+  capabilities: {}
 };
 
 const els = {
@@ -66,19 +67,50 @@ function renderMedia() {
     .join("");
 }
 
-function renderCredentials() {
+function platformMeta(key) {
   const labels = {
     facebook: "Facebook Page",
     x: "X",
     tiktok: "TikTok",
-    instagram: "Instagram"
+    instagram: "Instagram",
+    buffer: "Buffer"
   };
-  els.credentialStatus.innerHTML = Object.entries(labels)
-    .map(([key, label]) => {
-      const ready = Boolean(state.credentials[key]);
-      return `<div class="credential-pill ${ready ? "is-ready" : ""}"><span></span>${label}<strong>${ready ? "已設定" : "未設定"}</strong></div>`;
+  const capability = state.capabilities[key] || {};
+  const ready = Boolean(capability.ready ?? state.credentials[key]);
+  const selectable = capability.selectable !== false && ready;
+  const reason = capability.reason || (ready ? "" : "尚未設定 API 權限");
+  return { label: labels[key] || key, ready, selectable, reason };
+}
+
+function applyPlatformAvailability() {
+  els.platforms.querySelectorAll("label").forEach((label) => {
+    const input = label.querySelector("input");
+    if (!input) return;
+    const meta = platformMeta(input.value);
+    label.classList.toggle("is-disabled", !meta.selectable);
+    label.title = meta.reason || "";
+    input.disabled = !meta.selectable;
+    if (!meta.selectable) {
+      input.checked = false;
+    }
+  });
+  const hasChecked = Array.from(els.platforms.querySelectorAll("input:checked")).some((input) => !input.disabled);
+  const facebook = els.platforms.querySelector('input[value="facebook"]');
+  if (!hasChecked && facebook && !facebook.disabled) {
+    facebook.checked = true;
+  }
+}
+
+function renderCredentials() {
+  const order = ["facebook", "buffer", "x", "tiktok", "instagram"];
+  els.credentialStatus.innerHTML = order
+    .map((key) => {
+      const meta = platformMeta(key);
+      const status = meta.selectable ? "可發布" : meta.ready ? "已設定但暫停" : "未就緒";
+      return `<div class="credential-pill ${meta.selectable ? "is-ready" : ""}"><span></span>${meta.label}<strong>${status}</strong>${meta.reason ? `<small>${meta.reason}</small>` : ""}</div>`;
     })
     .join("");
+  applyPlatformAvailability();
 }
 
 function renderPosts() {
@@ -131,6 +163,7 @@ async function loadAll() {
     api("/api/admin/social/posts")
   ]);
   state.credentials = status.credentials || {};
+  state.capabilities = status.capabilities || {};
   state.posts = posts.posts || [];
   renderCredentials();
   renderPosts();
