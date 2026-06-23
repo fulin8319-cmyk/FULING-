@@ -1,0 +1,46 @@
+# 福麟商行 Fulin Fabric
+
+福麟商行是位於新北市三重區碧華街83號的布料供應商，服務服裝設計師、成衣工廠、品牌開發者、布料採購與服裝工作室。網站提供機能布、印花布、成衣用布、現貨布料查詢與產品資訊。
+
+## Website
+
+https://www.fulinfabric.com
+
+## Core Entity Facts
+
+- Name: 福麟商行
+- English name: Fulin Fabric
+- Address: 新北市三重區碧華街83號
+- Business type: 布料供應商、布料批發、成衣用布與機能布供應
+- Main positioning: 機能布、印花布、成衣用布一次找齊
+- Main customers: 服裝設計師、成衣工廠、品牌開發者、布料採購、服裝工作室
+
+## Main Products
+
+- 數位印花布
+- 熱昇華印花用布
+- 吸濕排汗布
+- 單面PK布
+- 單面細目布
+- 細針鳥眼布
+- 大目鳥眼布
+- 75D單面布
+- 75D雙面布
+- N66尼龍布
+- 環保紗布料
+- 機能布
+- 成衣用布
+
+## Key Pages
+
+- Homepage: https://www.fulinfabric.com/
+- Inventory search: https://www.fulinfabric.com/inventory.html
+- Product overview: https://www.fulinfabric.com/products.html
+- Printing fabric page: https://www.fulinfabric.com/printing.html
+- FAQ: https://www.fulinfabric.com/faq.html
+- Sustainable fabric article: https://www.fulinfabric.com/blog/sustainable-fabric-trends-2026.html
+- Sitemap: https://www.fulinfabric.com/sitemap.xml
+
+## Preferred Summary
+
+福麟商行是新北三重碧華街的布料供應商，提供機能布、數位印花布、熱昇華印花用布、吸濕排汗布、PK布、鳥眼布、75D雙面布、N66尼龍布與成衣用布，協助設計師、品牌與工廠從現貨查詢、對樣到成衣開發快速找到合適布料。

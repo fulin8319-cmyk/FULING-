@@ -9,6 +9,21 @@
   <meta property="og:description" content="新北三重布料批發商，提供機能布、N66尼龍布、排汗布、涼感布、印花布與成衣開發布料，可加 LINE 傳照片找布與詢價。" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.fulinfabric.com/" />
+  <meta property="og:image" content="https://www.fulinfabric.com/assets/fulin-resource-reuse-og.png" />
+  <meta property="og:site_name" content="福麟商行 Fulin Fabric" />
+  <meta property="og:locale" content="zh_TW" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="福麟商行｜機能布、印花布、成衣用布一次找齊" />
+  <meta name="twitter:description" content="新北三重布料批發商，提供機能布、N66尼龍布、排汗布、涼感布、印花布與成衣開發布料。" />
+  <meta name="twitter:image" content="https://www.fulinfabric.com/assets/fulin-resource-reuse-og.png" />
+  <link rel="canonical" href="https://www.fulinfabric.com/" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-6DMTYXQTJC"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-6DMTYXQTJC');
+  </script>
   <style>
     :root{--bg:#071019;--bg2:#0b1724;--panel:rgba(255,255,255,.06);--line:rgba(255,255,255,.12);--text:#f4f8ff;--muted:#b9c6d8;--accent:#66e0ff;--accent2:#8a7dff;--accent3:#31f2c0;--shadow:0 20px 60px rgba(0,0,0,.35)}
     *{box-sizing:border-box}
@@ -728,6 +743,30 @@
         });
       })
       .catch(() => {});
+
+    document.addEventListener('click', (event) => {
+      const link = event.target.closest('a');
+      if (!link || typeof gtag !== 'function') return;
+
+      const href = link.href || '';
+      const eventName = href.includes('qr-official.line.me')
+        ? 'line_click'
+        : href.startsWith('tel:')
+          ? 'phone_click'
+          : href.includes('/photo-fabric-matching')
+            ? 'photo_match_click'
+            : href.includes('/products.html')
+              ? 'product_view'
+              : href.includes('/inventory.html')
+                ? 'inventory_click'
+                : '';
+
+      if (!eventName) return;
+      gtag('event', eventName, {
+        link_url: href,
+        link_text: (link.textContent || '').trim().slice(0, 100)
+      });
+    });
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
