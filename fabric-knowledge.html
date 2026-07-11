@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>布料知識庫｜福麟商行</title>
+  <meta name="description" content="福麟商行布料知識庫，整理色牢度指南與布料常識，協助採購、設計師與品牌更快看懂布料選擇重點。" />
+  <link rel="stylesheet" href="./wordpress/site-pages.css" />
+  <style>
+    .knowledge-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr);
+      gap: 28px;
+      align-items: center;
+    }
+    .knowledge-photo {
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      background: rgba(255,255,255,.05);
+      box-shadow: var(--shadow);
+    }
+    .knowledge-photo img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+    }
+    .knowledge-photo figcaption {
+      padding: 14px 16px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .knowledge-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+    .knowledge-card {
+      min-height: 280px;
+      display: grid;
+      align-content: space-between;
+      gap: 22px;
+      border-radius: 8px;
+    }
+    .knowledge-card small {
+      display: block;
+      color: #94b4c9;
+      letter-spacing: .08em;
+      margin-bottom: 10px;
+    }
+    .knowledge-card h3 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 0;
+    }
+    .knowledge-card p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+    @media (max-width: 900px) {
+      .knowledge-hero,
+      .knowledge-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="noise"></div><div class="grid"></div><div class="glow"></div><div class="aurora"></div>
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-badge"></span>
+        <span>福麟商行<small>FULIN FABRIC</small></span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">首頁</a>
+        <a class="active" href="./fabric-knowledge.html">布料知識庫</a>
+        <a href="./functional-fabric">機能布</a>
+        <a href="./products.html">主力布料</a>
+        <a href="./faq.html">FAQ</a>
+        <a href="./contact">聯絡我們</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero knowledge-hero">
+        <div>
+          <div class="eyebrow"><i></i> FABRIC KNOWLEDGE / FULIN GUIDE</div>
+          <h1><span class="gradient">布料知識庫</span><br>把選布眉角講清楚</h1>
+          <p class="lead">把客人最常卡住的問題整理成可以快速讀懂的知識入口。先從色牢度指南與布料常識開始，之後可以再加排汗、涼感、印花、克重與縮率等主題。</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="./blog/colorfastness-tissue-test-guide.html">看色牢度指南</a>
+            <a class="btn" href="./fabric-basics.html">看布料常識</a>
+            <a class="btn" href="https://line.me/R/ti/p/@424tvsxa">LINE 詢問布樣</a>
+          </div>
+        </div>
+        <figure class="knowledge-photo">
+          <img src="./assets/fulin-fabric-samples-hero-v2.png" alt="福麟商行店內布樣牆與多款機能布樣" />
+          <figcaption>知識庫會把實務採購常見問題整理成短篇指南，讓客人先懂方向，再來詢問布樣。</figcaption>
+        </figure>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>知識庫入口</h2>
+            <p class="section-intro">目前先放兩個最實用的主題：一篇判斷掉色風險，一篇建立布料基本觀念。</p>
+          </div>
+        </div>
+        <div class="knowledge-grid">
+          <article class="panel knowledge-card">
+            <div>
+              <small>GUIDE 01</small>
+              <h3>色牢度指南</h3>
+              <p>用衛生紙、清水、白布一起泡等方式，快速初步判斷布料是否容易掉色、染色或洗後褪色。</p>
+            </div>
+            <div class="quick-links">
+              <a class="chip" href="./blog/colorfastness-tissue-test-guide.html">查看文章</a>
+              <a class="chip" href="./faq.html">看相關 FAQ</a>
+            </div>
+          </article>
+          <article class="panel knowledge-card">
+            <div>
+              <small>GUIDE 02</small>
+              <h3>布料常識</h3>
+              <p>整理天然纖維、保暖、透氣、克重、精梳棉、色差、縮水、掉色等採購前應該知道的基本觀念。</p>
+            </div>
+            <div class="quick-links">
+              <a class="chip" href="./fabric-basics.html">看圖文常識</a>
+              <a class="chip" href="https://line.me/R/ti/p/@424tvsxa">問布樣</a>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <section class="contact-band">
+      <h2>看完還是不確定布料方向？</h2>
+      <p>加 LINE 傳用途、照片、數量與希望手感，福麟商行協助你快速對布。</p>
+      <div class="actions" style="justify-content:center">
+        <a class="btn btn-primary" href="https://line.me/R/ti/p/@424tvsxa">LINE 詢問布樣</a>
+        <a class="btn" href="tel:02-2987-1006">02-2987-1006</a>
+      </div>
+    </section>
+
+    <footer class="footer">福麟商行 | 新北市三重區碧華街83號 | 09:00-19:00</footer>
+  </div>
+</body>
+</html>

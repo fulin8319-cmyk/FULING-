@@ -71,7 +71,7 @@ Save buttons:
 
 ## Current Featured Fabrics
 
-Current live featured fabrics verified on 2026-05-27:
+Current live featured fabrics must be preserved on homepage and functional fabric page:
 
 1. `A022439` - `單面PK布`
 2. `A021844` - `細針鳥眼`
@@ -99,7 +99,7 @@ Google Search Console has been set up with `/sitemap.xml` successfully submitted
 - Do not rewrite large files or refactor unrelated code.
 - Do not edit `data/inventory.json` unless explicitly asked.
 - Do not include secrets or admin passwords in documentation, commits, or chat.
+- Before and after changing homepage featured fabrics, `functional-fabric.html`, product cards, or inventory rendering, run `npm test`. Do not deploy if the protected-content check fails.
 - Use cache-busting query strings when changing admin CSS or JS so the live browser loads the newest files.
 - Verify with `node --check admin.js` after admin JavaScript changes.
 - Verify live deployment by checking the updated asset tag and then checking `/api/inventory`.
-

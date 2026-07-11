@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>布料常識｜福麟商行布料知識庫</title>
+  <meta name="description" content="福麟商行布料常識圖文頁，整理天然纖維、保暖、透氣、克重、精梳棉、色差與縮水等採購前應知道的基本觀念。" />
+  <link rel="stylesheet" href="./wordpress/site-pages.css" />
+  <style>
+    .basics-hero {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(320px, .8fr);
+      gap: 28px;
+      align-items: center;
+    }
+    .basics-cover {
+      min-height: 360px;
+      display: grid;
+      align-content: end;
+      gap: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(5,10,16,.1), rgba(5,10,16,.78)),
+        url("./assets/fulin-fabric-samples-hero-v2.png") center / cover no-repeat;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .cover-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cover-badges span {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(5,12,20,.62);
+      color: #e8f7ff;
+      font-size: 13px;
+    }
+    .basics-map {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .basics-map a {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      background: rgba(255,255,255,.045);
+      color: #e6f6ff;
+      transition: transform .22s ease, border-color .22s ease, background .22s ease;
+    }
+    .basics-map a:hover {
+      transform: translateY(-2px);
+      border-color: rgba(102,224,255,.44);
+      background: rgba(102,224,255,.08);
+    }
+    .basics-map span {
+      color: #31f2c0;
+      font-weight: 900;
+    }
+    .visual-lessons {
+      display: grid;
+      gap: 20px;
+    }
+    .visual-lesson {
+      display: grid;
+      grid-template-columns: minmax(0, .96fr) minmax(300px, .84fr);
+      gap: 22px;
+      align-items: stretch;
+      border-radius: 8px;
+    }
+    .visual-lesson h3 {
+      margin: 8px 0 12px;
+      font-size: 28px;
+      letter-spacing: 0;
+      line-height: 1.28;
+    }
+    .visual-lesson p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 17px;
+    }
+    .lesson-kicker {
+      color: #31f2c0;
+      font-weight: 900;
+      letter-spacing: .08em;
+    }
+    .lesson-tip {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-left: 3px solid #ffb86b;
+      background: rgba(255,184,107,.08);
+      color: #fff3df;
+      line-height: 1.7;
+    }
+    .lesson-visual {
+      min-height: 220px;
+      display: grid;
+      align-content: center;
+      gap: 14px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03)),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.045) 0 1px, transparent 1px 18px);
+      overflow: hidden;
+    }
+    .compare-row,
+    .triple-row,
+    .use-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .compare-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .triple-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .mini-card {
+      min-height: 128px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: rgba(5,12,20,.42);
+    }
+    .mini-card strong {
+      display: block;
+      margin-top: 8px;
+      color: #fff;
+    }
+    .mini-card span {
+      display: block;
+      margin-top: 4px;
+      color: #9fb8ca;
+      font-size: 13px;
+    }
+    .swatch {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: inset 0 0 18px rgba(255,255,255,.14), 0 12px 28px rgba(0,0,0,.25);
+    }
+    .linen { background: repeating-linear-gradient(45deg, #dbc5a4 0 5px, #b08d60 5px 8px); }
+    .poly { background: linear-gradient(135deg, #62ddff, #5477ff); }
+    .wool { background: radial-gradient(circle, #fff1d2 0 5px, #b78959 6px 10px, #5f3a28 11px); }
+    .thick { background: linear-gradient(135deg, #5c5a57, #b7b0a5); }
+    .air { background: radial-gradient(circle at 40% 40%, #31f2c0 0 7px, transparent 8px), radial-gradient(circle at 65% 60%, #66e0ff 0 6px, transparent 7px), #102234; }
+    .dark { background: linear-gradient(135deg, #0a0d12, #303a49); }
+    .water { background: linear-gradient(135deg, #5ee8ff, #17487a); }
+    .use-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .use-card {
+      min-height: 236px;
+      display: grid;
+      grid-template-rows: 116px auto;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 8px;
+      background: rgba(5,12,20,.45);
+    }
+    .use-picture {
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.025)),
+        repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 2px, transparent 2px 12px);
+      overflow: hidden;
+    }
+    .use-picture svg {
+      width: min(150px, 82%);
+      height: 96px;
+      display: block;
+    }
+    .use-card h4 {
+      margin: 0 0 8px;
+      color: #fff;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+    .use-card p {
+      color: #c6d7e5;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .reason-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 12px;
+    }
+    .reason-tags span {
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: rgba(102,224,255,.08);
+      border: 1px solid rgba(102,224,255,.18);
+      color: #dff5ff;
+      font-size: 12px;
+    }
+    .photo-card img {
+      width: 100%;
+      height: 116px;
+      object-fit: cover;
+      display: block;
+    }
+    .photo-card .use-picture {
+      padding: 0;
+    }
+    .bar-chart {
+      display: grid;
+      gap: 12px;
+    }
+    .bar {
+      display: grid;
+      grid-template-columns: 110px 1fr 56px;
+      align-items: center;
+      gap: 10px;
+      color: #e8f7ff;
+      font-size: 14px;
+    }
+    .bar i {
+      display: block;
+      height: 14px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #66e0ff, #ffb86b);
+      box-shadow: 0 0 16px rgba(102,224,255,.22);
+    }
+    .process {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .process div {
+      min-height: 82px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.07);
+      color: #f4fbff;
+      font-weight: 800;
+    }
+    .process small {
+      display: block;
+      margin-top: 5px;
+      color: #9fb8ca;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+    .yarn-photo {
+      display: grid;
+      grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+    .yarn-spools,
+    .fiber-compare,
+    .black-swatch-board,
+    .shrink-demo {
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: rgba(5,12,20,.5);
+      box-shadow: inset 0 0 24px rgba(255,255,255,.035);
+    }
+    .yarn-spools {
+      min-height: 190px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 48% 18%, rgba(255,255,255,.2), transparent 22%),
+        linear-gradient(140deg, #27384a, #101924);
+    }
+    .yarn-cone {
+      position: absolute;
+      bottom: 18px;
+      width: 70px;
+      height: 128px;
+      border-radius: 48% 48% 12px 12px;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.18) 0 2px, transparent 2px 8px),
+        linear-gradient(90deg, #b8905c, #f2d8ab 45%, #9b7442);
+      clip-path: polygon(26% 0, 74% 0, 100% 100%, 0 100%);
+      box-shadow: 0 18px 34px rgba(0,0,0,.32);
+    }
+    .yarn-cone.one { left: 18px; }
+    .yarn-cone.two {
+      left: 78px;
+      height: 104px;
+      opacity: .86;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.14) 0 2px, transparent 2px 7px),
+        linear-gradient(90deg, #d5d9d2, #fff7e4 48%, #aeb6b2);
+    }
+    .loose-yarn {
+      position: absolute;
+      right: 18px;
+      bottom: 30px;
+      width: 92px;
+      height: 74px;
+      border: 4px solid rgba(255,239,209,.74);
+      border-radius: 50%;
+      box-shadow:
+        -10px -6px 0 rgba(255,239,209,.18),
+        8px 10px 0 rgba(255,239,209,.16),
+        inset 12px 0 0 rgba(255,239,209,.2);
+    }
+    .yarn-caption,
+    .board-title,
+    .formula-card {
+      color: #e8f7ff;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+    .fiber-compare {
+      display: grid;
+      gap: 10px;
+    }
+    .fiber-line {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 10px;
+      align-items: center;
+      color: #c6d7e5;
+      font-size: 13px;
+    }
+    .fiber-line b {
+      color: #fff;
+      font-size: 15px;
+    }
+    .fiber-strands {
+      min-height: 44px;
+      border-radius: 8px;
+      background:
+        repeating-linear-gradient(7deg, rgba(241,216,171,.72) 0 3px, transparent 3px 11px),
+        rgba(255,255,255,.05);
+    }
+    .fiber-strands.clean {
+      background:
+        repeating-linear-gradient(0deg, rgba(241,216,171,.82) 0 3px, transparent 3px 13px),
+        rgba(255,255,255,.05);
+    }
+    .black-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .black-swatch-board {
+      display: grid;
+      gap: 10px;
+    }
+    .swatch-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 5px;
+      min-height: 150px;
+    }
+    .fabric-chip {
+      position: relative;
+      display: grid;
+      place-items: end center;
+      padding: 10px 6px;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 900;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.12);
+      background:
+        repeating-linear-gradient(110deg, rgba(255,255,255,.06) 0 1px, transparent 1px 8px),
+        var(--chip);
+    }
+    .fabric-chip::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,.12), transparent 36%, rgba(0,0,0,.22));
+      pointer-events: none;
+    }
+    .fabric-chip span {
+      position: relative;
+      z-index: 1;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.32);
+      font-size: 15px;
+    }
+    .shrink-demo {
+      display: grid;
+      gap: 14px;
+    }
+    .shirt-compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+    .shirt-card {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      padding: 14px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.055);
+      color: #dff5ff;
+      text-align: center;
+    }
+    .shirt-card svg {
+      width: min(160px, 92%);
+      height: auto;
+      display: block;
+    }
+    .measure-line {
+      width: 88%;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: #fff3df;
+      font-weight: 900;
+    }
+    .measure-line::before,
+    .measure-line::after {
+      content: "";
+      flex: 1;
+      height: 2px;
+      background: #ffb86b;
+    }
+    .formula-card {
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: rgba(49,242,192,.08);
+      border: 1px solid rgba(49,242,192,.22);
+      text-align: center;
+      line-height: 1.7;
+    }
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .check-card {
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(5,12,20,.45);
+    }
+    .check-card b {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: #fff;
+      font-size: 18px;
+    }
+    .check-card p {
+      color: #c6d7e5;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .wrong { border-color: rgba(255,120,96,.28); }
+    .right { border-color: rgba(49,242,192,.28); }
+    .grade-row {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 7px;
+    }
+    .grade {
+      min-height: 78px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 900;
+      font-size: 22px;
+    }
+    .grade:nth-child(1) { background: #d97852; }
+    .grade:nth-child(2) { background: #bd8a63; }
+    .grade:nth-child(3) { background: #858783; }
+    .grade:nth-child(4) { background: #4f6970; }
+    .grade:nth-child(5) { background: #15242d; }
+    .diagram-label {
+      color: #9fb8ca;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    @media (max-width: 980px) {
+      .basics-hero,
+      .visual-lesson {
+        grid-template-columns: 1fr;
+      }
+      .basics-map {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 640px) {
+      .basics-map,
+      .compare-row,
+      .triple-row,
+      .use-grid,
+      .check-grid,
+      .process,
+      .yarn-photo,
+      .black-card-grid,
+      .shirt-compare {
+        grid-template-columns: 1fr;
+      }
+      .bar {
+        grid-template-columns: 84px 1fr 48px;
+      }
+      .lesson-visual {
+        min-height: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="noise"></div><div class="grid"></div><div class="glow"></div><div class="aurora"></div>
+    <header class="site-header">
+      <a class="brand" href="./index.html">
+        <span class="brand-badge"></span>
+        <span>福麟商行<small>FULIN FABRIC</small></span>
+      </a>
+      <nav class="site-nav">
+        <a href="./index.html">首頁</a>
+        <a href="./fabric-knowledge.html">布料知識庫</a>
+        <a class="active" href="./fabric-basics.html">布料常識</a>
+        <a href="./functional-fabric">機能布</a>
+        <a href="./contact">聯絡我們</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero basics-hero">
+        <div>
+          <div class="eyebrow"><i></i> FABRIC BASICS / VISUAL GUIDE</div>
+          <h1><span class="gradient">布料常識</span><br>看圖快速懂選布</h1>
+          <p class="lead">這篇整理自福麟布料課，用簡單圖解說明常見選布觀念：材質、保暖、透氣、克重、精梳棉、色差與縮水。先看懂基本原理，再來問布樣會更快對到需求。</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#lesson-natural">開始看圖解</a>
+            <a class="btn" href="./fabric-knowledge.html">回知識庫</a>
+            <a class="btn" href="https://line.me/R/ti/p/@424tvsxa">LINE 問布樣</a>
+          </div>
+        </div>
+        <aside class="basics-cover">
+          <div class="cover-badges">
+            <span>選布迷思</span>
+            <span>批發眉角</span>
+            <span>縮水吸水</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <h2>快速導覽</h2>
+            <p class="section-intro">每一格都可以直接跳到對應圖解。客人不用先懂專有名詞，也能先掌握判斷方向。</p>
+          </div>
+        </div>
+        <nav class="basics-map" aria-label="布料常識快速導覽">
+          <a href="#lesson-natural">天然纖維 <span>01</span></a>
+          <a href="#lesson-warm">保暖原理 <span>02</span></a>
+          <a href="#lesson-breath">透氣設計 <span>03</span></a>
+          <a href="#lesson-weight">克重判斷 <span>04</span></a>
+          <a href="#lesson-combed">精梳棉 <span>05</span></a>
+          <a href="#lesson-color">色差檢驗 <span>06</span></a>
+          <a href="#lesson-shrink">縮水範圍 <span>07</span></a>
+          <a href="#lesson-water">吸水與防水 <span>08</span></a>
+        </nav>
+      </section>
+
+      <section class="section visual-lessons">
+        <article class="panel visual-lesson" id="lesson-natural">
+          <div>
+            <div class="lesson-kicker">01 / 選布迷思</div>
+            <h3>天然纖維不等於最好</h3>
+            <p>亞麻透氣涼爽，但冬天大衣不一定適合；聚酯不是天然的，但耐穿、乾得快，做運動服反而實際。</p>
+            <div class="lesson-tip">重點：沒有最好的布，只有最適合用途的布。</div>
+          </div>
+          <div class="lesson-visual">
+            <div class="use-grid">
+              <div class="use-card">
+                <div class="use-picture" aria-hidden="true">
+                  <svg viewBox="0 0 180 120" role="img">
+                    <rect x="18" y="16" width="144" height="88" rx="10" fill="#f1dfbd" opacity=".22"/>
+                    <path d="M58 30 L82 18 H98 L122 30 L112 50 L106 44 V96 H74 V44 L68 50 Z" fill="#d8c09a" stroke="#fff4dd" stroke-width="3"/>
+                    <path d="M48 28 C33 40 33 76 48 90" fill="none" stroke="#66e0ff" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M132 28 C147 40 147 76 132 90" fill="none" stroke="#66e0ff" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M43 51 H28 M137 51 H152" stroke="#31f2c0" stroke-width="4" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4>亞麻：夏天寬鬆襯衫</h4>
+                  <p>適合想要涼、自然皺感、休閒風格的衣服；不適合拿來做需要保暖或彈性的款式。</p>
+                  <div class="reason-tags"><span>透氣</span><span>涼爽</span><span>容易皺</span></div>
+                </div>
+              </div>
+              <div class="use-card photo-card">
+                <div class="use-picture">
+                  <img src="./assets/optimized/pk-1.jpg" alt="聚酯機能布樣，適合運動服與團體服" />
+                </div>
+                <div>
+                  <h4>聚酯：運動上衣、團體服</h4>
+                  <p>適合需要耐穿、快乾、好保養的衣服；常用在運動服、活動服、熱昇華印花布。</p>
+                  <div class="reason-tags"><span>快乾</span><span>耐穿</span><span>好印花</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="diagram-label">這裡要看「做什麼產品」，不是看天然或人造哪個聽起來比較高級。</div>
+          </div>
+        </article>
+
+        <article class="panel visual-lesson" id="lesson-warm">
+          <div>
+            <div class="lesson-kicker">02 / 選布迷思</div>
+            <h3>保暖看鎖熱能力，不只看厚薄</h3>
+            <p>布越厚不一定越保暖。羊毛纖維能鎖住空氣，看起來薄，也可能比一般厚布更能保溫。</p>
+          </div>
+          <div class="lesson-visual">
+            <div class="use-grid">
+              <div class="use-card">
+                <div class="use-picture" aria-hidden="true">
+                  <svg viewBox="0 0 180 120">
+                    <path d="M50 42 C58 18 122 18 130 42 L140 94 H40 Z" fill="#d8b785" stroke="#fff2d4" stroke-width="3"/>
+                    <circle cx="90" cy="60" r="30" fill="none" stroke="#66e0ff" stroke-width="7" stroke-dasharray="8 8"/>
+                    <text x="90" y="66" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">空氣</text>
+                  </svg>
+                </div>
+                <div>
+                  <h4>會鎖空氣的纖維</h4>
+                  <p>像羊毛這類纖維能留住空氣，身體的熱比較不容易跑掉。</p>
+                  <div class="reason-tags"><span>鎖熱</span><span>保暖</span></div>
+                </div>
+              </div>
+              <div class="use-card">
+                <div class="use-picture" aria-hidden="true">
+                  <svg viewBox="0 0 180 120">
+                    <rect x="34" y="34" width="112" height="56" rx="8" fill="#8b8580" stroke="#ddd6cd" stroke-width="3"/>
+                    <path d="M42 50 H138 M42 62 H138 M42 74 H138" stroke="#c8c1b7" stroke-width="4" opacity=".8"/>
+                    <path d="M142 34 C160 42 160 82 142 90" fill="none" stroke="#ffb86b" stroke-width="5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4>只是厚，不一定暖</h4>
+                  <p>布很厚但留不住空氣，熱還是會散出去，穿起來不一定真的暖。</p>
+                  <div class="reason-tags"><span>厚度</span><span>不等於保暖</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel visual-lesson" id="lesson-breath">
+          <div>
+            <div class="lesson-kicker">03 / 選布迷思</div>
+            <h3>透氣布料，設計不對一樣悶</h3>
+            <p>布本身透氣只是第一步。剪裁太貼身、顏色太深吸熱，穿起來一樣可能悶。</p>
+            <div class="lesson-tip">重點：布料、剪裁、顏色要一起看。</div>
+          </div>
+          <div class="lesson-visual">
+            <div class="triple-row">
+              <div class="mini-card"><div class="swatch air"></div><strong>布料有孔洞</strong><span>空氣比較能流動</span></div>
+              <div class="mini-card"><div class="swatch dark"></div><strong>深色吸熱</strong><span>太陽下更容易熱</span></div>
+              <div class="mini-card"><div class="swatch poly"></div><strong>剪裁太貼</strong><span>身體熱氣排不出去</span></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel visual-lesson" id="lesson-weight">
+          <div>
+            <div class="lesson-kicker">04 / 批發眉角</div>
+            <h3>克重數字要看秤的是布還是成衣</h3>
+            <p>真正的克重是每平方米純布重量，不包含拉鍊、鈕扣、內裡等輔料。若用整件衣服重量來講布料扎實，容易產生誤解。</p>
+          </div>
+          <div class="lesson-visual">
+            <div class="check-grid">
+              <div class="check-card wrong"><b>容易誤解</b><p>拿整件衣服秤重，拉鍊、鈕扣、內裡都被算進去。</p></div>
+              <div class="check-card right"><b>正確看法</b><p>看每平方米純布重量，才是在比較布本身。</p></div>
+            </div>
+            <div class="bar-chart">
+              <div class="bar"><span>純布</span><i style="width: 52%"></i><b>180g</b></div>
+              <div class="bar"><span>輔料</span><i style="width: 32%"></i><b>+110g</b></div>
+              <div class="bar"><span>整件衣服</span><i style="width: 86%"></i><b>290g</b></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel visual-lesson" id="lesson-combed">
+          <div>
+            <div class="lesson-kicker">05 / 批發眉角</div>
+            <h3>精梳棉貴在多一道工</h3>
+            <p>精梳棉會挑掉較短、容易起毛球的纖維，留下較長、整齊的纖維再紡紗，所以手感細緻、比較耐洗。</p>
+          </div>
+          <div class="lesson-visual">
+            <div class="yarn-photo">
+              <div class="yarn-spools" aria-label="紗線照片式示意">
+                <div class="yarn-cone one"></div>
+                <div class="yarn-cone two"></div>
+                <div class="loose-yarn"></div>
+              </div>
+              <div class="fiber-compare">
+                <div class="yarn-caption">從棉花到紗線，差在纖維有沒有整理乾淨</div>
+                <div class="fiber-line">
+                  <b>原棉</b>
+                  <div>
+                    <div class="fiber-strands"></div>
+                    長短纖維混在一起，布面較容易毛。
+                  </div>
+                </div>
+                <div class="fiber-line">
+                  <b>精梳後</b>
+                  <div>
+                    <div class="fiber-strands clean"></div>
+                    短纖被挑掉，留下較長、較整齊的纖維再紡紗。
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="diagram-label">重點不是名字比較高級，而是紗線更整齊，做成布後手感通常更細、也比較耐洗。</div>
+          </div>
+        </article>
+
+        <article class="panel visual-lesson" id="lesson-color">
+          <div>
+            <div class="lesson-kicker">06 / 批發眉角</div>
+            <h3>色差不是憑感覺</h3>
+            <p>布行驗色差會把布沿門幅裁成 A、B、C、D，再重新拼接，比對接縫處色階落差，不是看一眼覺得一樣就過關。</p>
+          </div>
+          <div class="lesson-visual">
+            <div class="black-card-grid">
+              <div class="black-swatch-board">
+                <div class="board-title">原本順序：A B C D</div>
+                <div class="swatch-strip" aria-label="黑色布料色卡原本順序">
+                  <div class="fabric-chip" style="--chip:#111821"><span>A</span></div>
+                  <div class="fabric-chip" style="--chip:#151b23"><span>B</span></div>
+                  <div class="fabric-chip" style="--chip:#10151d"><span>C</span></div>
+                  <div class="fabric-chip" style="--chip:#181f28"><span>D</span></div>
+                </div>
+              </div>
+              <div class="black-swatch-board">
+                <div class="board-title">打亂拼接：B A D C</div>
+                <div class="swatch-strip" aria-label="黑色布料色卡打亂後比對">
+                  <div class="fabric-chip" style="--chip:#151b23"><span>B</span></div>
+                  <div class="fabric-chip" style="--chip:#111821"><span>A</span></div>
+                  <div class="fabric-chip" style="--chip:#181f28"><span>D</span></div>
+                  <div class="fabric-chip" style="--chip:#10151d"><span>C</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="diagram-label">黑色也會有深淺、冷暖與光澤差；打亂順序後，接縫色差會比單看一整片更容易看出來。</div>
+          </div>
+        </article>
+
+        <article class="panel visual-lesson" id="lesson-shrink">
+          <div>
+            <div class="lesson-kicker">07 / 縮水與吸水</div>
+            <h3>縮水率沒有 0%，只有合理範圍</h3>
+            <p>布多少都會縮，重點是縮多少是否符合材質特性。合成纖維、彈性纖維、天然短纖的合理範圍不同。</p>
+          </div>
+          <div class="lesson-visual">
+            <div class="shrink-demo">
+              <div class="shirt-compare">
+                <div class="shirt-card">
+                  <svg viewBox="0 0 180 130" role="img" aria-label="洗前衣服寬度 50 公分">
+                    <path d="M58 24 L78 14 H102 L122 24 L150 48 L132 68 L120 58 V112 H60 V58 L48 68 L30 48 Z" fill="#6ed7ef" stroke="#e5fbff" stroke-width="4"/>
+                    <path d="M68 34 H112" stroke="#ffffff" stroke-width="4" opacity=".65"/>
+                  </svg>
+                  <b>洗前</b>
+                  <div class="measure-line">50cm</div>
+                </div>
+                <div class="shirt-card">
+                  <svg viewBox="0 0 180 130" role="img" aria-label="洗後衣服寬度 47.5 公分">
+                    <path d="M62 28 L80 18 H100 L118 28 L142 50 L126 68 L116 60 V108 H64 V60 L54 68 L38 50 Z" fill="#54b8cf" stroke="#e5fbff" stroke-width="4"/>
+                    <path d="M72 38 H108" stroke="#ffffff" stroke-width="4" opacity=".65"/>
+                  </svg>
+                  <b>洗後</b>
+                  <div class="measure-line">47.5cm</div>
+                </div>
+              </div>
+              <div class="formula-card">
+                縮水率 = (洗前 50cm - 洗後 47.5cm) ÷ 50cm = 5%
+              </div>
+            </div>
+            <div class="diagram-label">教客人先量同一個位置，例如胸寬或布寬；洗前洗後都量同一段，縮水率才有意義。</div>
+          </div>
+        </article>
+
+        <article class="panel visual-lesson" id="lesson-water">
+          <div>
+            <div class="lesson-kicker">08 / 縮水與吸水</div>
+            <h3>吸水多的纖維通常縮得比較明顯</h3>
+            <p>棉、麻、嫘縈比較容易吸水，洗後纖維變化通常更明顯；聚酯、尼龍吸水少，尺寸通常比較穩定。吸水少不等於防水，防水要看加工。</p>
+          </div>
+          <div class="lesson-visual">
+            <div class="use-grid">
+              <div class="use-card">
+                <div class="use-picture" aria-hidden="true">
+                  <svg viewBox="0 0 180 120">
+                    <path d="M90 16 C62 48 48 66 48 86 C48 104 65 114 90 114 C115 114 132 104 132 86 C132 66 118 48 90 16 Z" fill="#65d7ff" stroke="#dcf8ff" stroke-width="3"/>
+                    <path d="M66 84 C76 92 94 96 112 86" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4>親水：容易吸水</h4>
+                  <p>棉、麻、嫘縈吸水後纖維變化較明顯，縮水通常比較需要注意。</p>
+                  <div class="reason-tags"><span>吸水</span><span>縮水較明顯</span></div>
+                </div>
+              </div>
+              <div class="use-card photo-card">
+                <div class="use-picture">
+                  <img src="./assets/optimized/75d-sample-1.jpg" alt="合成纖維布樣，吸水少且縮水較小" />
+                </div>
+                <div>
+                  <h4>吸水少：不是防水</h4>
+                  <p>聚酯、尼龍等合成纖維吸水少，洗後尺寸通常比較穩定；但要做到防水，還需要看塗層或後加工。</p>
+                  <div class="reason-tags"><span>吸水少</span><span>尺寸穩定</span><span>不等於防水</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <section class="contact-band">
+      <h2>看完圖解，想確認實際布樣？</h2>
+      <p>加 LINE 傳用途、照片、數量與希望手感，福麟商行協助你快速對布。</p>
+      <div class="actions" style="justify-content:center">
+        <a class="btn btn-primary" href="https://line.me/R/ti/p/@424tvsxa">LINE 詢問布樣</a>
+        <a class="btn" href="./fabric-knowledge.html">回布料知識庫</a>
+      </div>
+    </section>
+
+    <footer class="footer">福麟商行 | 新北市三重區碧華街83號 | 09:00-19:00</footer>
+  </div>
+</body>
+</html>
