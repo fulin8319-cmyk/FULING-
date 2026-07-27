@@ -49,7 +49,7 @@ const ANALYTICS_FILE = path.join(PERSIST_DIR, "analytics.json");
 const SOCIAL_POSTS_FILE = path.join(PERSIST_DIR, "social-posts.json");
 const UPLOAD_DIR = path.join(PERSIST_DIR, "uploads");
 const MAX_BODY_BYTES = 120 * 1024 * 1024;
-const PUBLIC_INVENTORY_ENABLED = /^(1|true|yes)$/i.test(process.env.PUBLIC_INVENTORY_ENABLED || "");
+const PUBLIC_INVENTORY_ENABLED = /^(1|true|yes)$/i.test(process.env.PUBLIC_INVENTORY_ENABLED || "true");
 const PUBLIC_INVENTORY_AUTO_OPEN = /^(1|true|yes)$/i.test(process.env.PUBLIC_INVENTORY_AUTO_OPEN || "");
 const PUBLIC_INVENTORY_MIN_ITEMS = Number(process.env.PUBLIC_INVENTORY_MIN_ITEMS || 30);
 
@@ -1163,7 +1163,13 @@ const server = http.createServer(async (req, res) => {
     }
 
     const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
-    let filePath = path.join(__dirname, pathname);
+    const publicPagePath =
+      pathname === "/index.html"
+        ? "/artifacts/新版首頁-兩產品線提案.html"
+        : pathname === "/inventory.html"
+          ? "/artifacts/全部現貨-瀏覽預覽.html"
+          : pathname;
+    let filePath = path.join(__dirname, publicPagePath);
     if (!path.extname(pathname)) {
       const htmlFilePath = path.join(__dirname, `${pathname}.html`);
       if (fs.existsSync(htmlFilePath)) {

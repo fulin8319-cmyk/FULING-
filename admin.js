@@ -147,19 +147,20 @@ function collectItemImages(item = {}) {
 function renderItemImageManager(item = {}, index, scope = "row") {
   const images = collectItemImages(item);
   const mainImage = item.featuredImage || item.image || "";
-  if (!images.length) {
-    return '<div class="admin-photo-manager is-empty"><span class="muted-text">尚未加入照片</span></div>';
-  }
+  const slots = Array.from({ length: Math.max(3, images.length) }, (_, slotIndex) => images[slotIndex] || "");
 
   return `
     <div class="admin-photo-manager" data-photo-manager="${index}" data-photo-scope="${scope}">
-      ${images.map((src) => `
-        <div class="admin-photo-item${src === mainImage ? " is-main" : ""}">
-          <button class="admin-photo-thumb" type="button" data-photo-action="main" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}" title="設為主圖" style="background-image:url('${escapeAttribute(src)}')"></button>
-          <div class="admin-photo-actions">
-            <button type="button" class="secondary-button" data-photo-action="main" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}">設為主圖</button>
-            <button type="button" class="secondary-button" data-photo-action="remove" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}">刪除</button>
-          </div>
+      ${slots.map((src, slotIndex) => `
+        <div class="admin-photo-item${src === mainImage && src ? " is-main" : ""}${src ? "" : " is-empty"}">
+          <span class="admin-photo-slot-label">圖片 ${slotIndex + 1}${slotIndex === 0 ? "・主圖" : ""}</span>
+          ${src ? `
+            <button class="admin-photo-thumb" type="button" data-photo-action="main" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}" title="設為主圖" style="background-image:url('${escapeAttribute(src)}')"></button>
+            <div class="admin-photo-actions">
+              <button type="button" class="secondary-button" data-photo-action="main" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}">設為主圖</button>
+              <button type="button" class="secondary-button" data-photo-action="remove" data-photo-index="${index}" data-photo-src="${escapeAttribute(src)}">刪除</button>
+            </div>
+          ` : '<span class="admin-photo-placeholder">尚未上傳</span>'}
         </div>
       `).join("")}
     </div>
@@ -519,7 +520,7 @@ function renderFeaturedEditor() {
           <label class="field">顏色<input data-featured-index="${realIndex}" data-featured-field="pattern" type="text" list="patternOptions" value="${escapeAttribute(item.pattern)}"></label>
           <label class="field">成份<input data-featured-index="${realIndex}" data-featured-field="composition" type="text" list="compositionOptions" value="${escapeAttribute(item.composition)}"></label>
           <label class="field">圖片<input data-featured-index="${realIndex}" data-featured-field="featuredImage" type="text" value="${escapeAttribute(item.featuredImage)}" placeholder="/assets/uploads/..."></label>
-          <label class="field image-upload-field">上傳圖片<input data-featured-image-file-index="${realIndex}" type="file" accept="image/*" multiple><span class="image-upload-hint">可一次選多張，第一張會自動設為這款主圖。</span></label>
+          <label class="field image-upload-field">上傳圖片<input data-featured-image-file-index="${realIndex}" type="file" accept="image/*" multiple><span class="image-upload-hint">每款固定顯示 3 個圖片位置；可一次選多張，第 1 張會自動設為主圖。</span></label>
           <label class="field">幅寬<input data-featured-index="${realIndex}" data-featured-field="width" type="number" value="${item.width || ""}"></label>
           <label class="field">碼重<input data-featured-index="${realIndex}" data-featured-field="weightPerYard" type="number" value="${item.weightPerYard || ""}"></label>
           <label class="field">公斤數<input data-featured-index="${realIndex}" data-featured-field="kg" type="number" step="0.1" value="${item.kg || ""}"></label>
