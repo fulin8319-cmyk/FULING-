@@ -2030,3 +2030,71 @@ button:focus-visible {
     font-size: 13px;
   }
 }
+
+/* Admin tools stay static and functional without decorative motion effects. */
+.admin-static *,
+.admin-static *::before,
+.admin-static *::after {
+  animation: none !important;
+  scroll-behavior: auto !important;
+  transition: none !important;
+}
+
+.admin-static .primary-link::before,
+.admin-static .secondary-link::before,
+.admin-static .primary-button::before,
+.admin-static .secondary-button::before,
+.admin-static .float-button::before,
+.admin-static .admin-delete-button::before,
+.admin-static .close-button::before,
+.admin-static .preview-close::before,
+.admin-static .site-nav a::before,
+.admin-static .auth-card::before,
+.admin-static .admin-panel::before,
+.admin-static .table-panel::before,
+.admin-static .card-panel::before,
+.admin-static .uploader-panel::before {
+  display: none;
+}
+
+.admin-static .brand-mark:hover,
+.admin-static .primary-link:hover,
+.admin-static .secondary-link:hover,
+.admin-static .primary-button:hover,
+.admin-static .secondary-button:hover,
+.admin-static .float-button:hover,
+.admin-static .admin-delete-button:hover,
+.admin-static .close-button:hover,
+.admin-static .preview-close:hover,
+.admin-static .auth-card:hover,
+.admin-static .admin-panel:hover,
+.admin-static .table-panel:hover,
+.admin-static .card-panel:hover,
+.admin-static .uploader-panel:hover,
+.admin-static .admin-filter-toggle:hover {
+  transform: none;
+}
+
+.admin-static .primary-link:hover,
+.admin-static .secondary-link:hover,
+.admin-static .primary-button:hover,
+.admin-static .secondary-button:hover,
+.admin-static .float-button:hover,
+.admin-static .admin-delete-button:hover,
+.admin-static .close-button:hover,
+.admin-static .preview-close:hover {
+  box-shadow: none;
+}
+
+.admin-static .auth-card:hover,
+.admin-static .admin-panel:hover,
+.admin-static .table-panel:hover,
+.admin-static .card-panel:hover,
+.admin-static .uploader-panel:hover {
+  border-color: rgba(122, 97, 62, 0.16);
+  box-shadow: var(--shadow);
+}
+
+.admin-static .admin-filter-toggle:hover {
+  text-shadow: none;
+}
