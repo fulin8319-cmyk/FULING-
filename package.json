@@ -4,6 +4,6 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "node scripts/validate-protected-content.mjs"
+    "test": "node scripts/validate-protected-content.mjs && node scripts/test-mobile-inventory-preservation.mjs"
   }
 }

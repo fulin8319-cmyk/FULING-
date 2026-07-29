@@ -403,6 +403,39 @@ function upsertInventoryItems(nextItems) {
   return merged;
 }
 
+function upsertMobileInventoryItems(nextItems) {
+  const merged = [...readInventory()];
+
+  for (const incoming of nextItems) {
+    const code = String(incoming.code || "").trim();
+    if (!code) {
+      continue;
+    }
+
+    const existingIndex = merged.findIndex((item) => {
+      if (String(item?.code || "").trim() !== code) {
+        return false;
+      }
+
+      return item?.side === "mobile"
+        || (
+          incoming.baseCode
+          && item?.baseCode === incoming.baseCode
+          && String(item?.rollNo || "") === String(incoming.rollNo || "")
+        );
+    });
+
+    if (existingIndex >= 0) {
+      merged[existingIndex] = normalizeInventoryItem(incoming, merged[existingIndex]);
+    } else {
+      merged.push(normalizeInventoryItem(incoming));
+    }
+  }
+
+  writeInventory(merged);
+  return merged;
+}
+
 function readJsonFile(filePath, fallback) {
   try {
     const content = fs.readFileSync(filePath, "utf8").replace(/^\uFEFF/, "");
@@ -1103,7 +1136,7 @@ async function handleApi(req, res, url) {
       });
     }
 
-    const merged = upsertInventoryItems(normalizedIncoming);
+    const merged = upsertMobileInventoryItems(normalizedIncoming);
     return sendJson(res, 200, {
       ok: true,
       imported: normalizedIncoming.length,
