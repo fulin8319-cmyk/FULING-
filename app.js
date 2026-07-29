@@ -329,6 +329,7 @@ async function loadInventory() {
     state.rawItems
       .map(buildViewItem)
       .filter((item) => item.codeKey)
+      .filter((item) => item.status !== "review")
       .filter((item) => isPrintingItem(item))
       .filter((item) => !isLogoImage(item.displayImage))
   );

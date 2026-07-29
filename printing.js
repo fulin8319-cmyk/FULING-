@@ -57,6 +57,7 @@ async function loadPrintingPage() {
     const response = await fetch("/api/inventory");
     const data = await response.json();
     const items = (data.items || [])
+      .filter((item) => item.status !== "review")
       .filter(isPrintingItem)
       .filter((item) => item.featuredImage || item.image)
       .slice(0, 48);

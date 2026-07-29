@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071626">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>福麟商行 | 手機快速入庫</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
@@ -29,11 +31,11 @@
           <p class="eyebrow">Mobile Entry</p>
           <h1>手機快速入庫</h1>
           <p class="hero-lead">
-            這一頁是給手機現場快速上傳用的。布號固定以 <strong>A</strong> 開頭，幅寬預設是
-            <strong>60</strong>，你只要補齊布種、顏色花紋、成份、碼重和每一支布的重量或碼數，就能快速送進庫存。
+            現場拍照、填寫規格、逐支輸入庫存。送出後先列為<strong>待確認</strong>，
+            回到原後台檢查照片、規格與數量後，再決定是否公開。
           </p>
           <p class="hero-lead">
-            主資料只填一次，下面可以連續新增多支庫存。拍完照後會先出現預覽，再跟庫存資料一起送出。
+            商品編號固定以 <strong>A0</strong> 開頭；總幅寬填好後，系統會自動計算約減兩吋的有效使用幅寬。
           </p>
         </div>
       </section>
@@ -49,14 +51,25 @@
             <label class="field">
               編號
               <div class="prefixed-input">
-                <span class="prefixed-label">A</span>
-                <input id="baseCode" type="text" inputmode="numeric" placeholder="例如 023811" required>
+                <span class="prefixed-label">A0</span>
+                <input id="baseCode" type="text" inputmode="numeric" maxlength="5" placeholder="例如 23811" required>
               </div>
             </label>
 
             <label class="field">
               布種
               <input id="fabricName" type="text" placeholder="例如 Nop萊卡、健康布">
+            </label>
+
+            <label class="field">
+              商品線
+              <select id="productLine">
+                <option value="福麟訂製常備現貨">福麟訂製常備現貨</option>
+                <option value="品牌開發餘料">品牌開發餘料</option>
+                <option value="成衣廠生產餘料">成衣廠生產餘料</option>
+                <option value="外銷訂單餘料">外銷訂單餘料</option>
+                <option value="輕微瑕疵布">輕微瑕疵布</option>
+              </select>
             </label>
 
             <label class="field">
@@ -84,7 +97,7 @@
             </label>
 
             <label class="field">
-              顏色 / 花紋
+              現貨顏色 / 花紋
               <select id="patternSelect">
                 <option value="">請選擇顏色或花紋</option>
                 <option value="白色">白色</option>
@@ -142,13 +155,67 @@
             </label>
 
             <label class="field">
-              幅寬
-              <input id="width" type="number" value="60" placeholder="例如 60">
+              總幅寬（吋）
+              <input id="width" type="number" value="64" placeholder="例如 64">
             </label>
 
             <label class="field">
-              碼重
+              有效使用幅寬（自動）
+              <input id="usableWidth" type="text" value="約 62 吋" readonly>
+            </label>
+
+            <label class="field">
+              碼重（克／碼）
               <input id="weightPerYard" type="number" placeholder="例如 320" required>
+            </label>
+
+            <label class="field">
+              供貨狀態
+              <select id="supplyStatus">
+                <option value="常備現貨，可持續補貨">常備現貨，可持續補貨</option>
+                <option value="限量現貨，售完不補">限量現貨，售完不補</option>
+                <option value="現貨胚布，可指定染色">現貨胚布，可指定染色</option>
+                <option value="少量">少量</option>
+                <option value="暫停供應">暫停供應</option>
+              </select>
+            </label>
+
+            <label class="field">
+              適用印刷方式
+              <select id="printingMethod">
+                <option value="數位熱昇華印刷">數位熱昇華印刷</option>
+                <option value="不能數位熱昇華印刷">不能數位熱昇華印刷</option>
+                <option value="請洽詢確認">請洽詢確認</option>
+              </select>
+            </label>
+
+            <label class="field">
+              彈性方向
+              <select id="elasticity">
+                <option value="左右彈性佳，上下略有伸展">左右彈性佳，上下略有伸展</option>
+                <option value="四面彈性">四面彈性</option>
+                <option value="無彈性">無彈性</option>
+                <option value="待確認">待確認</option>
+              </select>
+            </label>
+
+            <label class="field">
+              是否含 OP
+              <select id="containsOp">
+                <option value="無 OP">無 OP</option>
+                <option value="有 OP">有 OP</option>
+                <option value="待確認">待確認</option>
+              </select>
+            </label>
+
+            <label class="field admin-note-field">
+              建議用途
+              <input id="suggestedUses" type="text" placeholder="例如 運動衣、T恤、Polo衫">
+            </label>
+
+            <label class="field admin-note-field">
+              布料特色
+              <input id="features" type="text" placeholder="例如 輕薄、快乾、吸濕排汗">
             </label>
 
             <label class="field">
@@ -161,28 +228,33 @@
               <input id="note" type="text" placeholder="例如 印花布、倉庫右側">
             </label>
 
-            <label class="field admin-note-field">
-              圖片網址（選填）
-              <input id="image" type="text" placeholder="如果已有圖片網址，也可以直接貼上">
-            </label>
+            <input id="image" type="hidden">
           </div>
 
           <div class="mobile-upload-card">
             <div class="panel-head mobile-upload-head">
-              <h2>拍照上傳</h2>
-              <p>你可以直接用手機拍照或選擇相簿照片。送出前會先看到預覽，確認沒問題再一起入庫。</p>
+              <h2>布料照片</h2>
+              <p>點選下方即可使用手機相機或相簿。主力布建議三張，其餘商品至少提供布面正面。</p>
             </div>
-            <div class="mobile-upload-grid">
-              <label class="field">
-                拍照 / 選照片
-                <input id="imageFile" type="file" accept="image/*" capture="environment">
+            <div class="mobile-photo-grid">
+              <label class="mobile-photo-slot">
+                <input class="mobile-photo-input" data-photo-input="front" type="file" accept="image/*" capture="environment">
+                <img data-photo-preview="front" alt="布面正面預覽" hidden>
+                <span><strong>＋</strong>布面正面</span>
               </label>
-              <button id="clearPhotoButton" class="secondary-button" type="button">清除照片</button>
+              <label class="mobile-photo-slot">
+                <input class="mobile-photo-input" data-photo-input="back" type="file" accept="image/*" capture="environment">
+                <img data-photo-preview="back" alt="布面背面預覽" hidden>
+                <span><strong>＋</strong>布面背面</span>
+              </label>
+              <label class="mobile-photo-slot">
+                <input class="mobile-photo-input" data-photo-input="detail" type="file" accept="image/*" capture="environment">
+                <img data-photo-preview="detail" alt="布料組織預覽" hidden>
+                <span><strong>＋</strong>組織細節</span>
+              </label>
             </div>
-            <div class="mobile-photo-preview-wrap">
-              <img id="photoPreview" class="mobile-photo-preview" alt="照片預覽" hidden>
-              <p id="photoHint" class="upload-note">拍完照後，這裡會先出現預覽圖。</p>
-            </div>
+            <button id="clearPhotoButton" class="secondary-button" type="button">清除全部照片</button>
+            <p id="photoHint" class="upload-note">照片會先壓縮再存入 Railway Volume，不會直接塞進庫存文字資料。</p>
           </div>
 
           <div class="panel-head mobile-roll-head">
@@ -194,12 +266,12 @@
 
           <div class="admin-actions">
             <button id="addRollRowButton" class="secondary-button" type="button">新增一支</button>
-            <button id="submitRollsButton" class="primary-button" type="submit">送出入庫</button>
+            <button id="submitRollsButton" class="primary-button" type="submit">檢查後送出</button>
             <button id="clearRollFormButton" class="secondary-button" type="button">清空表單</button>
           </div>
         </form>
 
-        <p id="rollEntryMessage" class="upload-note">填好主資料與庫存明細後，就可以直接送進庫存系統。</p>
+        <p id="rollEntryMessage" class="upload-note">填好主資料與庫存明細後送出，資料會先列為待確認，不會直接公開。</p>
       </section>
     </main>
   </div>
