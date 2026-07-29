@@ -939,7 +939,8 @@ async function handleApi(req, res, url) {
         railwayRuntime: isRailwayRuntime,
         volumeMounted: Boolean(process.env.RAILWAY_VOLUME_MOUNT_PATH || PERSIST_DIR === DEFAULT_RAILWAY_DATA_DIR),
         inventoryFile: DATA_FILE,
-        uploadDir: UPLOAD_DIR
+        uploadDir: UPLOAD_DIR,
+        mobileInventoryWriteMode: "preserve-existing"
       }
     });
   }
