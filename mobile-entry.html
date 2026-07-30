@@ -136,6 +136,7 @@
                 <option value="T">T</option>
                 <option value="N">N</option>
                 <option value="T+OP">T+OP</option>
+                <option value="C+T">C+T</option>
                 <option value="N/T">N/T</option>
                 <option value="TC">TC</option>
                 <option value="CVC">CVC</option>
@@ -208,15 +209,58 @@
               </select>
             </label>
 
-            <label class="field admin-note-field">
-              建議用途
-              <input id="suggestedUses" type="text" placeholder="例如 運動衣、T恤、Polo衫">
-            </label>
+            <div class="field admin-note-field">
+              <span>建議用途</span>
+              <details id="suggestedUses" class="multi-select">
+                <summary>
+                  <span data-multi-select-summary>運動服</span>
+                  <small>可多選</small>
+                </summary>
+                <div class="multi-select-options">
+                  <label class="multi-select-option"><input type="checkbox" value="運動服" checked>運動服</label>
+                  <label class="multi-select-option"><input type="checkbox" value="T恤">T恤</label>
+                  <label class="multi-select-option"><input type="checkbox" value="Polo衫">Polo衫</label>
+                  <label class="multi-select-option"><input type="checkbox" value="長袖運動衣">長袖運動衣</label>
+                  <label class="multi-select-option"><input type="checkbox" value="運動褲">運動褲</label>
+                  <label class="multi-select-option"><input type="checkbox" value="涼感毛巾">涼感毛巾</label>
+                  <label class="multi-select-option"><input type="checkbox" value="團體服">團體服</label>
+                  <label class="multi-select-option"><input type="checkbox" value="球衣">球衣</label>
+                  <label class="multi-select-option"><input type="checkbox" value="自行車衣">自行車衣</label>
+                  <label class="multi-select-option"><input type="checkbox" value="袖套">袖套</label>
+                  <label class="multi-select-option"><input type="checkbox" value="外套">外套</label>
+                  <label class="multi-select-option"><input type="checkbox" value="其他／待確認">其他／待確認</label>
+                </div>
+              </details>
+            </div>
 
-            <label class="field admin-note-field">
-              布料特色
-              <input id="features" type="text" placeholder="例如 輕薄、快乾、吸濕排汗">
-            </label>
+            <div class="field admin-note-field">
+              <span>布料特色</span>
+              <details id="features" class="multi-select">
+                <summary>
+                  <span data-multi-select-summary>吸濕排汗</span>
+                  <small>可多選</small>
+                </summary>
+                <div class="multi-select-options">
+                  <label class="multi-select-option"><input type="checkbox" value="吸濕排汗" checked>吸濕排汗</label>
+                  <label class="multi-select-option"><input type="checkbox" value="快乾">快乾</label>
+                  <label class="multi-select-option"><input type="checkbox" value="輕薄">輕薄</label>
+                  <label class="multi-select-option"><input type="checkbox" value="透氣">透氣</label>
+                  <label class="multi-select-option"><input type="checkbox" value="網眼">網眼</label>
+                  <label class="multi-select-option"><input type="checkbox" value="涼感">涼感</label>
+                  <label class="multi-select-option"><input type="checkbox" value="布身較紮實">布身較紮實</label>
+                  <label class="multi-select-option"><input type="checkbox" value="不易透">不易透</label>
+                  <label class="multi-select-option"><input type="checkbox" value="耐磨">耐磨</label>
+                  <label class="multi-select-option"><input type="checkbox" value="高密度">高密度</label>
+                  <label class="multi-select-option"><input type="checkbox" value="有彈性">有彈性</label>
+                  <label class="multi-select-option"><input type="checkbox" value="無彈性">無彈性</label>
+                  <label class="multi-select-option"><input type="checkbox" value="防潑水">防潑水</label>
+                  <label class="multi-select-option"><input type="checkbox" value="刷毛">刷毛</label>
+                  <label class="multi-select-option"><input type="checkbox" value="抗菌">抗菌</label>
+                  <label class="multi-select-option"><input type="checkbox" value="特殊藥劑">特殊藥劑</label>
+                  <label class="multi-select-option"><input type="checkbox" value="其他／待確認">其他／待確認</label>
+                </div>
+              </details>
+            </div>
 
             <label class="field">
               上傳人

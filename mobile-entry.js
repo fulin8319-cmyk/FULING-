@@ -177,11 +177,26 @@ async function uploadPreparedImage(prepared, code) {
   return data.url;
 }
 
-function splitList(value) {
-  return String(value || "")
-    .split(/[、,，]/)
-    .map((item) => item.trim())
+function getMultiSelectValues(element) {
+  return Array.from(element.querySelectorAll('input[type="checkbox"]:checked'))
+    .map((input) => input.value.trim())
     .filter(Boolean);
+}
+
+function updateMultiSelectSummary(element) {
+  const values = getMultiSelectValues(element);
+  const summaryEl = element.querySelector("[data-multi-select-summary]");
+  if (!summaryEl) {
+    return;
+  }
+
+  if (values.length === 0) {
+    summaryEl.textContent = "請選擇";
+  } else if (values.length === 1) {
+    summaryEl.textContent = values[0];
+  } else {
+    summaryEl.textContent = `${values.slice(0, 2).join("、")}（共 ${values.length} 項）`;
+  }
 }
 
 function createRollRow(values = {}) {
@@ -244,6 +259,8 @@ function resetForm() {
   syncFabricTypeCustomVisibility();
   syncPatternCustomVisibility();
   syncCompositionCustomVisibility();
+  updateMultiSelectSummary(suggestedUsesEl);
+  updateMultiSelectSummary(featuresEl);
   rollEntryMessageEl.textContent = "請先填主資料，再新增每一支庫存。送出後會先列為待確認。";
 }
 
@@ -337,8 +354,8 @@ rollEntryFormEl.addEventListener("submit", async (event) => {
     printingMethod: printingMethodEl.value,
     elasticity: elasticityEl.value,
     containsOp: containsOpEl.value,
-    suggestedUses: splitList(suggestedUsesEl.value),
-    features: splitList(featuresEl.value),
+    suggestedUses: getMultiSelectValues(suggestedUsesEl),
+    features: getMultiSelectValues(featuresEl),
     image: imageEl.value.trim(),
     note: noteEl.value.trim(),
     uploadedBy: uploadedByEl.value.trim(),
@@ -416,5 +433,8 @@ rollEntryFormEl.addEventListener("submit", async (event) => {
     submitRollsButtonEl.disabled = false;
   }
 });
+
+suggestedUsesEl.addEventListener("change", () => updateMultiSelectSummary(suggestedUsesEl));
+featuresEl.addEventListener("change", () => updateMultiSelectSummary(featuresEl));
 
 resetForm();

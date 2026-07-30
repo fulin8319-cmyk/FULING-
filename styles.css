@@ -1468,6 +1468,74 @@ h1 {
   background: #fffef9;
 }
 
+.multi-select {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fffef9;
+  color: var(--ink);
+}
+
+.multi-select summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 46px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.multi-select summary::-webkit-details-marker {
+  display: none;
+}
+
+.multi-select summary::after {
+  content: "⌄";
+  color: var(--accent);
+  font-size: 18px;
+}
+
+.multi-select[open] summary::after {
+  content: "⌃";
+}
+
+.multi-select summary small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.multi-select-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.multi-select-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f5efe5;
+  color: var(--ink);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.field .multi-select-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
 .prefixed-input {
   display: flex;
   align-items: stretch;
