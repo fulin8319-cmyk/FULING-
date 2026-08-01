@@ -196,7 +196,7 @@
 </div></div></section>
 
 <section class="section" id="line"><div class="wrap"><div class="line-box">
-<div><span class="kicker">LINE QUOTE</span><h2 data-zh="加 LINE 問價格" data-en="Ask Price on LINE">加 LINE 問價格</h2><p data-zh="按鈕會開啟福麟目前的官方 LINE，並帶入詢價欄位；訊息仍由使用者自行確認後送出。" data-en="The button opens FULIN's current official LINE account with a prefilled inquiry form for the user to review before sending.">按鈕會開啟福麟目前的官方 LINE，並帶入詢價欄位；訊息仍由使用者自行確認後送出。</p><div class="actions"><a class="btn btn-primary line-link" href="#" data-zh="加 LINE 問價格" data-en="Ask Price on LINE">加 LINE 問價格</a><a class="btn" href="tel:02-2987-1006">02-2987-1006</a></div></div>
+<div><span class="kicker">LINE QUOTE</span><h2 data-zh="加 LINE 問價格" data-en="Ask Price on LINE">加 LINE 問價格</h2><p data-zh="按鈕會開啟福麟官方 LINE 帳號 @424tvsxa；加入好友後，可傳送商品編號、用途、數量或參考照片。" data-en="The button opens FULIN's official LINE account @424tvsxa. After adding the account, send the item code, intended use, quantity, or reference photos.">按鈕會開啟福麟官方 LINE 帳號 @424tvsxa；加入好友後，可傳送商品編號、用途、數量或參考照片。</p><div class="actions"><a class="btn btn-primary line-link" href="#" data-zh="加 LINE 問價格" data-en="Ask Price on LINE">加 LINE 問價格</a><a class="btn" href="tel:02-2987-1006">02-2987-1006</a></div></div>
 <pre id="messagePreview"></pre>
 </div></div></section>
 
@@ -241,7 +241,7 @@ return "您好，我想詢問布料：\n\n客戶類型：品牌／成衣廠／�
 }
 function updateLineLinks(){
 var message=lineMessage(currentLanguage);
-var lineUrl="https://line.me/R/oaMessage/%40424tvsxa/?"+encodeURIComponent(message);
+var lineUrl="https://line.me/R/ti/p/%40424tvsxa";
 document.querySelectorAll(".line-link").forEach(function(a){a.href=lineUrl});
 document.getElementById("messagePreview").textContent=message;
 }
