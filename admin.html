@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>福麟商行後台管理</title>
-  <link rel="stylesheet" href="./styles.css?v=20260729-admin-static">
+  <link rel="stylesheet" href="./styles.css?v=20260804-analytics">
 </head>
 <body class="admin-static">
   <div class="site-shell">
@@ -45,37 +45,59 @@
 
       <section class="admin-panel analytics-panel">
         <div class="panel-head">
-          <h2>網站瀏覽統計</h2>
-          <p>自動統計首頁、現貨查詢、印花用布、產品頁與 FAQ 的每日瀏覽狀況。</p>
+          <div>
+            <h2>網站流量與詢問成效</h2>
+            <p>查看訪客從哪裡來、瀏覽哪些頁面，以及有沒有點擊 LINE、電話或商品詢問。</p>
+          </div>
+          <div class="analytics-range-switch" role="group" aria-label="統計日期範圍">
+            <button type="button" data-analytics-range="today" aria-pressed="false">今天</button>
+            <button type="button" data-analytics-range="7d" aria-pressed="true">近 7 天</button>
+            <button type="button" data-analytics-range="28d" aria-pressed="false">近 28 天</button>
+          </div>
         </div>
         <div class="analytics-summary" id="analyticsSummary">
           <div class="analytics-card">
-            <span>今日瀏覽</span>
-            <strong id="analyticsTodayViews">-</strong>
+            <span>工作階段</span>
+            <strong id="analyticsSessions">-</strong>
           </div>
           <div class="analytics-card">
-            <span>今日訪客</span>
-            <strong id="analyticsTodayVisitors">-</strong>
+            <span>訪客數</span>
+            <strong id="analyticsVisitors">-</strong>
           </div>
           <div class="analytics-card">
-            <span>近 7 天瀏覽</span>
-            <strong id="analyticsWeekViews">-</strong>
+            <span>跳出率</span>
+            <strong id="analyticsBounceRate">-</strong>
           </div>
           <div class="analytics-card">
-            <span>近 7 天訪客</span>
-            <strong id="analyticsWeekVisitors">-</strong>
+            <span>平均互動時間</span>
+            <strong id="analyticsEngagementTime">-</strong>
+          </div>
+          <div class="analytics-card">
+            <span>詢問按鈕點擊</span>
+            <strong id="analyticsActionsTotal">-</strong>
           </div>
         </div>
         <div class="analytics-grid">
           <div>
-            <h3>最近 14 天</h3>
-            <div id="analyticsDays" class="analytics-list">載入中...</div>
+            <h3>流量來源</h3>
+            <div id="analyticsSources" class="analytics-list">載入中...</div>
           </div>
           <div>
-            <h3>熱門頁面</h3>
-            <div id="analyticsPages" class="analytics-list">載入中...</div>
+            <h3>每日工作階段</h3>
+            <div id="analyticsDaily" class="analytics-list">載入中...</div>
           </div>
         </div>
+        <div class="analytics-grid analytics-detail-grid">
+          <div>
+            <h3>熱門進入頁面</h3>
+            <div id="analyticsLandingPages" class="analytics-list">載入中...</div>
+          </div>
+          <div>
+            <h3>詢問按鈕點擊</h3>
+            <div id="analyticsActions" class="analytics-list">載入中...</div>
+          </div>
+        </div>
+        <p class="analytics-definition" id="analyticsTrackingNote">新指標從啟用日開始累積；啟用前沒有追蹤到的來源、互動與按鈕事件無法回填。</p>
       </section>
 
       <section class="admin-panel featured-editor-panel">
@@ -274,6 +296,6 @@
   <datalist id="compositionOptions"></datalist>
 
   <script src="./auth.js?v=20260526-images"></script>
-  <script src="./admin.js?v=20260527-photo-editor"></script>
+  <script src="./admin.js?v=20260804-analytics"></script>
 </body>
 </html>

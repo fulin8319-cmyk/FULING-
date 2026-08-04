@@ -1097,9 +1097,37 @@ h1 {
   margin-bottom: 18px;
 }
 
+.analytics-panel .panel-head {
+  align-items: flex-end;
+}
+
+.analytics-range-switch {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+.analytics-range-switch button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(122, 97, 62, 0.2);
+  border-radius: 10px;
+  background: var(--panel-strong);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.analytics-range-switch button[aria-pressed="true"] {
+  border-color: var(--accent-deep);
+  background: var(--accent-deep);
+  color: #fff;
+}
+
 .analytics-summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 18px;
 }
@@ -1132,6 +1160,10 @@ h1 {
   margin: 0 0 10px;
 }
 
+.analytics-detail-grid {
+  margin-top: 18px;
+}
+
 .analytics-list {
   display: grid;
   gap: 10px;
@@ -1154,6 +1186,37 @@ h1 {
 
 .analytics-row.is-empty {
   color: var(--muted);
+}
+
+.analytics-source-row {
+  display: grid;
+  grid-template-columns: 86px 1fr 48px;
+  gap: 10px;
+  align-items: center;
+}
+
+.analytics-source-track {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(122, 97, 62, 0.1);
+}
+
+.analytics-source-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent-deep);
+}
+
+.analytics-definition {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1px solid rgba(78, 111, 146, 0.18);
+  border-radius: 12px;
+  background: rgba(233, 242, 250, 0.62);
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .admin-delete-button {
@@ -1935,6 +1998,20 @@ button:focus-visible {
   .analytics-summary,
   .analytics-grid {
     grid-template-columns: 1fr;
+  }
+
+  .analytics-panel .panel-head {
+    display: block;
+  }
+
+  .analytics-range-switch {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 14px;
+  }
+
+  .analytics-range-switch button {
+    padding: 0 8px;
   }
 
   .admin-note-field {

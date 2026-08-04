@@ -67,6 +67,9 @@ const TRACKED_PAGES = {
   "/underwear-fabric": "內衣內褲布料",
   "/t-shirt-fabric": "T恤用布",
   "/fabric-wholesale": "布料批發",
+  "/fabric-knowledge.html": "布料知識",
+  "/fabric-basics.html": "布料基礎知識",
+  "/stock-fabric-partnership.html": "庫存布合作",
   "/photo-fabric-matching": "傳照片找布",
   "/about": "關於福麟商行",
   "/contact": "聯絡我們",
@@ -784,11 +787,16 @@ function todayKey() {
 
 function readAnalytics() {
   if (!fs.existsSync(ANALYTICS_FILE)) {
-    return { days: {} };
+    return { days: {}, sessions: {} };
   }
 
-  const data = readJsonFile(ANALYTICS_FILE, { days: {} });
-  return data && typeof data === "object" && data.days ? data : { days: {} };
+  const data = readJsonFile(ANALYTICS_FILE, { days: {}, sessions: {} });
+  if (!data || typeof data !== "object") {
+    return { days: {}, sessions: {} };
+  }
+  data.days = data.days && typeof data.days === "object" ? data.days : {};
+  data.sessions = data.sessions && typeof data.sessions === "object" ? data.sessions : {};
+  return data;
 }
 
 function writeAnalytics(data) {
@@ -803,8 +811,95 @@ function getVisitorHash(req) {
   return crypto.createHash("sha256").update(`${ip}|${userAgent}`).digest("hex").slice(0, 24);
 }
 
+function trackedPageTitle(pathname) {
+  const normalized = pathname === "/" ? "/index.html" : pathname;
+  return TRACKED_PAGES[normalized] ||
+    (normalized.endsWith(".html") ? TRACKED_PAGES[normalized.slice(0, -5)] : "") ||
+    "";
+}
+
+function normalizeAnalyticsPath(value) {
+  let pathname = String(value || "/").split(/[?#]/)[0].trim();
+  if (!pathname.startsWith("/")) pathname = `/${pathname}`;
+  if (pathname === "/") pathname = "/index.html";
+  return pathname.slice(0, 180);
+}
+
+function normalizeAnalyticsSource(value) {
+  const source = String(value || "").trim();
+  return ["Google", "Facebook", "LINE", "直接進入", "其他"].includes(source)
+    ? source
+    : "其他";
+}
+
+function pruneAnalyticsSessions(data) {
+  const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+  for (const [sessionId, session] of Object.entries(data.sessions || {})) {
+    if (Date.parse(session.startedAt || "") < cutoff) {
+      delete data.sessions[sessionId];
+    }
+  }
+}
+
+function recordAnalyticsEvent(req, payload = {}) {
+  const type = String(payload.type || "");
+  const sessionId = String(payload.sessionId || "");
+  if (
+    !["page_view", "engagement", "cta_click"].includes(type) ||
+    !/^[a-zA-Z0-9_-]{8,80}$/.test(sessionId) ||
+    ["__proto__", "constructor", "prototype"].includes(sessionId)
+  ) {
+    return false;
+  }
+
+  const data = readAnalytics();
+  const now = new Date().toISOString();
+  let session = data.sessions[sessionId];
+
+  if (!session) {
+    const landingPath = normalizeAnalyticsPath(payload.path);
+    session = {
+      id: sessionId,
+      date: todayKey(),
+      startedAt: now,
+      lastSeenAt: now,
+      visitor: getVisitorHash(req),
+      source: normalizeAnalyticsSource(payload.source),
+      landingPath,
+      landingTitle: trackedPageTitle(landingPath) || landingPath,
+      pageViews: 0,
+      engagedSeconds: 0,
+      actions: { line: 0, phone: 0, product: 0 }
+    };
+    data.trackingStartedAt = data.trackingStartedAt || now;
+  }
+
+  if (type === "page_view") {
+    session.pageViews = Number(session.pageViews || 0) + 1;
+  } else if (type === "engagement") {
+    const seconds = Math.max(0, Math.min(60, Number(payload.seconds || 0)));
+    session.engagedSeconds = Number(session.engagedSeconds || 0) + seconds;
+  } else if (type === "cta_click") {
+    const action = String(payload.action || "");
+    if (!["line", "phone", "product"].includes(action)) {
+      return false;
+    }
+    session.actions = session.actions && typeof session.actions === "object"
+      ? session.actions
+      : { line: 0, phone: 0, product: 0 };
+    session.actions[action] = Number(session.actions[action] || 0) + 1;
+  }
+
+  session.lastSeenAt = now;
+  data.sessions[sessionId] = session;
+  pruneAnalyticsSessions(data);
+  writeAnalytics(data);
+  return true;
+}
+
 function trackPageView(req, pathname) {
-  if (req.method !== "GET" || !TRACKED_PAGES[pathname]) {
+  const title = trackedPageTitle(pathname);
+  if (req.method !== "GET" || !title) {
     return;
   }
 
@@ -813,14 +908,14 @@ function trackPageView(req, pathname) {
   const visitor = getVisitorHash(req);
   const day = data.days[date] || { pageViews: 0, visitors: {}, pages: {} };
   const page = day.pages[pathname] || {
-    title: TRACKED_PAGES[pathname],
+    title,
     pageViews: 0,
     visitors: {}
   };
 
   day.pageViews += 1;
   day.visitors[visitor] = true;
-  page.title = TRACKED_PAGES[pathname];
+  page.title = title;
   page.pageViews += 1;
   page.visitors[visitor] = true;
   day.pages[pathname] = page;
@@ -828,63 +923,91 @@ function trackPageView(req, pathname) {
   writeAnalytics(data);
 }
 
-function summarizeAnalytics() {
+function summarizeAnalytics(range = "7d") {
   const data = readAnalytics();
-  const dates = Object.keys(data.days).sort().reverse();
-  const today = todayKey();
-  const todayData = data.days[today] || { pageViews: 0, visitors: {}, pages: {} };
-  const recentDays = dates.slice(0, 14).map((date) => {
-    const day = data.days[date] || { pageViews: 0, visitors: {}, pages: {} };
-    return {
-      date,
-      pageViews: Number(day.pageViews || 0),
-      visitors: Object.keys(day.visitors || {}).length
-    };
-  });
-  const last7 = recentDays.slice(0, 7).reduce(
-    (sum, day) => ({
-      pageViews: sum.pageViews + day.pageViews,
-      visitors: sum.visitors + day.visitors
-    }),
-    { pageViews: 0, visitors: 0 }
-  );
-  const pageTotals = {};
+  const rangeDays = { today: 1, "7d": 7, "28d": 28 }[range] || 7;
+  const dates = [];
+  for (let offset = rangeDays - 1; offset >= 0; offset -= 1) {
+    const date = new Date(Date.now() - offset * 24 * 60 * 60 * 1000);
+    dates.push(new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Taipei",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).format(date));
+  }
 
-  for (const date of dates) {
-    const day = data.days[date] || {};
-    for (const [pathname, page] of Object.entries(day.pages || {})) {
-      const total = pageTotals[pathname] || {
-        path: pathname,
-        title: page.title || TRACKED_PAGES[pathname] || pathname,
-        pageViews: 0,
-        visitors: 0
-      };
-      total.pageViews += Number(page.pageViews || 0);
-      total.visitors += Object.keys(page.visitors || {}).length;
-      pageTotals[pathname] = total;
+  const dateSet = new Set(dates);
+  const selectedSessions = Object.values(data.sessions || {}).filter((session) => dateSet.has(session.date));
+  const visitorSet = new Set(selectedSessions.map((session) => session.visitor).filter(Boolean));
+  const isEngaged = (session) => {
+    const actionCount = Object.values(session.actions || {}).reduce((sum, value) => sum + Number(value || 0), 0);
+    return Number(session.pageViews || 0) >= 2 || Number(session.engagedSeconds || 0) >= 10 || actionCount > 0;
+  };
+  const bouncedSessions = selectedSessions.filter((session) => !isEngaged(session)).length;
+  const engagedSeconds = selectedSessions.reduce((sum, session) => sum + Number(session.engagedSeconds || 0), 0);
+  const sourceTotals = Object.fromEntries(["Google", "Facebook", "LINE", "直接進入", "其他"].map((source) => [source, 0]));
+  const pageTotals = {};
+  const actionTotals = { line: 0, phone: 0, product: 0 };
+  const dailyTotals = Object.fromEntries(dates.map((date) => [date, 0]));
+
+  for (const session of selectedSessions) {
+    const source = normalizeAnalyticsSource(session.source);
+    sourceTotals[source] += 1;
+    dailyTotals[session.date] = Number(dailyTotals[session.date] || 0) + 1;
+
+    const path = normalizeAnalyticsPath(session.landingPath);
+    const page = pageTotals[path] || {
+      path,
+      title: session.landingTitle || trackedPageTitle(path) || path,
+      sessions: 0,
+      bounced: 0
+    };
+    page.sessions += 1;
+    if (!isEngaged(session)) page.bounced += 1;
+    pageTotals[path] = page;
+
+    for (const action of Object.keys(actionTotals)) {
+      actionTotals[action] += Number(session.actions?.[action] || 0);
     }
   }
 
+  const sessions = selectedSessions.length;
+  const actions = [
+    { key: "line", label: "LINE 詢問", clicks: actionTotals.line },
+    { key: "phone", label: "撥打電話", clicks: actionTotals.phone },
+    { key: "product", label: "商品詢問", clicks: actionTotals.product }
+  ];
+
   return {
-    today: {
-      date: today,
-      pageViews: Number(todayData.pageViews || 0),
-      visitors: Object.keys(todayData.visitors || {}).length
-    },
-    last7,
-    recentDays,
-    topPages: Object.values(pageTotals)
-      .sort((a, b) => b.pageViews - a.pageViews)
-      .slice(0, 8)
+    range: rangeDays === 1 ? "today" : `${rangeDays}d`,
+    trackingStartedAt: data.trackingStartedAt || null,
+    sessions,
+    visitors: visitorSet.size,
+    bounceRate: sessions ? Number(((bouncedSessions / sessions) * 100).toFixed(1)) : 0,
+    averageEngagementSeconds: sessions ? Math.round(engagedSeconds / sessions) : 0,
+    actionsTotal: Object.values(actionTotals).reduce((sum, value) => sum + value, 0),
+    sources: Object.entries(sourceTotals).map(([source, count]) => ({ source, count })),
+    daily: dates.map((date) => ({ date, sessions: dailyTotals[date] || 0 })),
+    topLandingPages: Object.values(pageTotals)
+      .map((page) => ({
+        path: page.path,
+        title: page.title,
+        sessions: page.sessions,
+        bounceRate: page.sessions ? Number(((page.bounced / page.sessions) * 100).toFixed(1)) : 0
+      }))
+      .sort((a, b) => b.sessions - a.sessions)
+      .slice(0, 8),
+    actions
   };
 }
 
-function readBody(req) {
+function readBody(req, maxBytes = MAX_BODY_BYTES) {
   return new Promise((resolve, reject) => {
     let body = "";
     req.on("data", (chunk) => {
       body += chunk;
-      if (body.length > MAX_BODY_BYTES) {
+      if (body.length > maxBytes) {
         reject(new Error("Body too large"));
         req.destroy();
       }
@@ -920,11 +1043,19 @@ async function handleApi(req, res, url) {
     return sendJson(res, 200, { authenticated: isAuthenticated(req) });
   }
 
+  if (req.method === "POST" && url.pathname === "/api/analytics/event") {
+    const body = JSON.parse((await readBody(req, 8 * 1024)) || "{}");
+    if (!recordAnalyticsEvent(req, body)) {
+      return sendJson(res, 400, { ok: false, message: "Invalid analytics event." });
+    }
+    return sendJson(res, 200, { ok: true });
+  }
+
   if (req.method === "GET" && url.pathname === "/api/admin/analytics") {
     if (!isAuthenticated(req)) {
       return sendJson(res, 401, { ok: false, message: "Unauthorized." });
     }
-    return sendJson(res, 200, { ok: true, analytics: summarizeAnalytics() });
+    return sendJson(res, 200, { ok: true, analytics: summarizeAnalytics(url.searchParams.get("range") || "7d") });
   }
 
   if (req.method === "GET" && url.pathname === "/api/admin/storage") {
@@ -1175,7 +1306,7 @@ function isCompressibleType(contentType = "") {
   return /text\/|javascript|json|xml|svg/i.test(contentType);
 }
 
-function serveFile(req, res, filePath) {
+function serveFile(req, res, filePath, { injectAnalytics = false } = {}) {
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Not found");
@@ -1185,7 +1316,8 @@ function serveFile(req, res, filePath) {
   const stat = fs.statSync(filePath);
   const ext = path.extname(filePath).toLowerCase();
   const contentType = contentTypes[ext] || "application/octet-stream";
-  const etag = `"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}"`;
+  const analyticsEtagSuffix = injectAnalytics ? "-analytics-20260804" : "";
+  const etag = `"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}${analyticsEtagSuffix}"`;
   const isAsset = filePath.includes(`${path.sep}assets${path.sep}`) || filePath.includes(`${path.sep}wordpress${path.sep}`);
   const headers = {
     "Content-Type": contentType,
@@ -1200,6 +1332,22 @@ function serveFile(req, res, filePath) {
   }
 
   const acceptsGzip = /\bgzip\b/.test(String(req.headers["accept-encoding"] || ""));
+  if (injectAnalytics && contentType.startsWith("text/html")) {
+    const scriptTag = '<script src="/analytics.js?v=20260804"></script>';
+    const html = fs.readFileSync(filePath, "utf8");
+    const body = Buffer.from(html.includes("</body>")
+      ? html.replace("</body>", `${scriptTag}</body>`)
+      : `${html}${scriptTag}`);
+    if (acceptsGzip && body.length > 1024) {
+      res.writeHead(200, { ...headers, "Content-Encoding": "gzip", Vary: "Accept-Encoding" });
+      res.end(zlib.gzipSync(body, { level: 6 }));
+      return;
+    }
+    res.writeHead(200, headers);
+    res.end(body);
+    return;
+  }
+
   if (acceptsGzip && stat.size > 1024 && isCompressibleType(contentType)) {
     res.writeHead(200, { ...headers, "Content-Encoding": "gzip", Vary: "Accept-Encoding" });
     fs.createReadStream(filePath).pipe(zlib.createGzip({ level: 6 })).pipe(res);
@@ -1262,7 +1410,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     trackPageView(req, pathname);
-    serveFile(req, res, filePath);
+    serveFile(req, res, filePath, { injectAnalytics: Boolean(trackedPageTitle(pathname)) });
   } catch (error) {
     sendJson(res, 500, { ok: false, message: error.message });
   }

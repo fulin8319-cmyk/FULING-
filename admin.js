@@ -27,12 +27,17 @@ const saveButtonEl = document.getElementById("saveInventoryButton");
 const resetButtonEl = document.getElementById("resetInventoryButton");
 const addButtonEl = document.getElementById("addInventoryButton");
 const clearFormButtonEl = document.getElementById("clearInventoryFormButton");
-const analyticsTodayViewsEl = document.getElementById("analyticsTodayViews");
-const analyticsTodayVisitorsEl = document.getElementById("analyticsTodayVisitors");
-const analyticsWeekViewsEl = document.getElementById("analyticsWeekViews");
-const analyticsWeekVisitorsEl = document.getElementById("analyticsWeekVisitors");
-const analyticsDaysEl = document.getElementById("analyticsDays");
-const analyticsPagesEl = document.getElementById("analyticsPages");
+const analyticsSessionsEl = document.getElementById("analyticsSessions");
+const analyticsVisitorsEl = document.getElementById("analyticsVisitors");
+const analyticsBounceRateEl = document.getElementById("analyticsBounceRate");
+const analyticsEngagementTimeEl = document.getElementById("analyticsEngagementTime");
+const analyticsActionsTotalEl = document.getElementById("analyticsActionsTotal");
+const analyticsSourcesEl = document.getElementById("analyticsSources");
+const analyticsDailyEl = document.getElementById("analyticsDaily");
+const analyticsLandingPagesEl = document.getElementById("analyticsLandingPages");
+const analyticsActionsEl = document.getElementById("analyticsActions");
+const analyticsTrackingNoteEl = document.getElementById("analyticsTrackingNote");
+const analyticsRangeButtons = document.querySelectorAll("[data-analytics-range]");
 const storageStatusEl = document.getElementById("storageStatus");
 const featuredEditorListEl = document.getElementById("featuredEditorList");
 const saveFeaturedButtonEl = document.getElementById("saveFeaturedButton");
@@ -341,6 +346,12 @@ function formatNumber(value) {
   return Number(value || 0).toLocaleString("zh-TW");
 }
 
+function formatDuration(seconds) {
+  const total = Math.max(0, Math.round(Number(seconds || 0)));
+  const minutes = Math.floor(total / 60);
+  return `${minutes}:${String(total % 60).padStart(2, "0")}`;
+}
+
 function renderAnalyticsList(target, rows, emptyText, rowRenderer) {
   if (!target) {
     return;
@@ -392,54 +403,97 @@ async function loadStorageStatus() {
   }
 }
 
-async function loadAnalytics() {
-  if (!analyticsTodayViewsEl) {
+let selectedAnalyticsRange = "7d";
+
+async function loadAnalytics(range = selectedAnalyticsRange) {
+  if (!analyticsSessionsEl) {
     return;
   }
 
+  selectedAnalyticsRange = ["today", "7d", "28d"].includes(range) ? range : "7d";
+  analyticsRangeButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.analyticsRange === selectedAnalyticsRange));
+  });
+
   try {
-    const response = await fetch("/api/admin/analytics", { credentials: "include" });
+    const response = await fetch(`/api/admin/analytics?range=${encodeURIComponent(selectedAnalyticsRange)}`, { credentials: "include" });
     const data = await response.json();
     if (!response.ok || !data.ok) {
       throw new Error(data.message || "統計資料載入失敗。");
     }
 
     const analytics = data.analytics || {};
-    analyticsTodayViewsEl.textContent = formatNumber(analytics.today?.pageViews);
-    analyticsTodayVisitorsEl.textContent = formatNumber(analytics.today?.visitors);
-    analyticsWeekViewsEl.textContent = formatNumber(analytics.last7?.pageViews);
-    analyticsWeekVisitorsEl.textContent = formatNumber(analytics.last7?.visitors);
+    analyticsSessionsEl.textContent = formatNumber(analytics.sessions);
+    analyticsVisitorsEl.textContent = formatNumber(analytics.visitors);
+    analyticsBounceRateEl.textContent = `${Number(analytics.bounceRate || 0).toFixed(1)}%`;
+    analyticsEngagementTimeEl.textContent = formatDuration(analytics.averageEngagementSeconds);
+    analyticsActionsTotalEl.textContent = formatNumber(analytics.actionsTotal);
+
+    const sourceTotal = Number(analytics.sessions || 0);
+    const sourceMax = Math.max(1, ...(analytics.sources || []).map((source) => Number(source.count || 0)));
+    renderAnalyticsList(
+      analyticsSourcesEl,
+      analytics.sources || [],
+      "目前還沒有流量來源資料。",
+      (source) => {
+        const count = Number(source.count || 0);
+        const percent = sourceTotal ? Math.round((count / sourceTotal) * 100) : 0;
+        return `
+          <div class="analytics-row analytics-source-row">
+            <strong>${escapeHtml(source.source)}</strong>
+            <span class="analytics-source-track"><span class="analytics-source-fill" style="width:${Math.max(count ? 5 : 0, (count / sourceMax) * 100)}%"></span></span>
+            <span>${percent}%</span>
+          </div>
+        `;
+      }
+    );
 
     renderAnalyticsList(
-      analyticsDaysEl,
-      analytics.recentDays || [],
-      "目前還沒有瀏覽紀錄。",
+      analyticsDailyEl,
+      analytics.daily || [],
+      "目前還沒有工作階段資料。",
       (day) => `
         <div class="analytics-row">
           <strong>${escapeHtml(day.date)}</strong>
-          <span>${formatNumber(day.pageViews)} 次瀏覽 / ${formatNumber(day.visitors)} 位訪客</span>
+          <span>${formatNumber(day.sessions)} 個工作階段</span>
         </div>
       `
     );
 
     renderAnalyticsList(
-      analyticsPagesEl,
-      analytics.topPages || [],
-      "目前還沒有熱門頁面資料。",
+      analyticsLandingPagesEl,
+      analytics.topLandingPages || [],
+      "目前還沒有熱門進入頁面資料。",
       (page) => `
         <div class="analytics-row">
           <strong>${escapeHtml(page.title)}</strong>
-          <span>${formatNumber(page.pageViews)} 次瀏覽 / ${formatNumber(page.visitors)} 位訪客</span>
+          <span>${formatNumber(page.sessions)} 個工作階段 / 跳出率 ${Number(page.bounceRate || 0).toFixed(1)}%</span>
         </div>
       `
     );
+
+    renderAnalyticsList(
+      analyticsActionsEl,
+      analytics.actions || [],
+      "目前還沒有詢問按鈕點擊資料。",
+      (action) => `
+        <div class="analytics-row">
+          <strong>${escapeHtml(action.label)}</strong>
+          <span>${formatNumber(action.clicks)} 次點擊</span>
+        </div>
+      `
+    );
+
+    if (analyticsTrackingNoteEl && analytics.trackingStartedAt) {
+      const startedAt = new Date(analytics.trackingStartedAt).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" });
+      analyticsTrackingNoteEl.textContent = `新指標從 ${startedAt} 開始累積；啟用前沒有追蹤到的來源、互動與按鈕事件無法回填。`;
+    }
   } catch (error) {
-    if (analyticsDaysEl) {
-      analyticsDaysEl.innerHTML = `<div class="analytics-row is-empty">${escapeHtml(error.message)}</div>`;
-    }
-    if (analyticsPagesEl) {
-      analyticsPagesEl.innerHTML = `<div class="analytics-row is-empty">請稍後再試。</div>`;
-    }
+    [analyticsSourcesEl, analyticsDailyEl, analyticsLandingPagesEl, analyticsActionsEl]
+      .filter(Boolean)
+      .forEach((target, index) => {
+        target.innerHTML = `<div class="analytics-row is-empty">${index === 0 ? escapeHtml(error.message) : "請稍後再試。"}</div>`;
+      });
   }
 }
 
@@ -1261,6 +1315,10 @@ document.addEventListener("change", (event) => {
   adminInventory = readFormData();
   adminFilters[filterSelect.dataset.filterKey] = filterSelect.value;
   renderAdminRows();
+});
+
+analyticsRangeButtons.forEach((button) => {
+  button.addEventListener("click", () => loadAnalytics(button.dataset.analyticsRange));
 });
 
 populateCategorySelect(newCategoryEl);
